@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "908072092315",
+    "project_id": "pemexcalibraciones",
+    "storage_bucket": "pemexcalibraciones.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:908072092315:android:1b817e68f10d72fb083c3e",
+        "android_client_info": {
+          "package_name": "com.example.calibraciones"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3lCxcryxTd1kV2VCA_8kNGINRs_KZ9fw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
