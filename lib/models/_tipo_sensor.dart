@@ -14,4 +14,11 @@ class TipoSensor {
   set setNombreTipoSensor(String value) {
     nombreTipoSensor = value;
   }
+
+  static fromJson(Map<String, dynamic> tipoSensorJson) {
+    return TipoSensor(
+      tipoSensorJson['id_tipo_sensor'],
+      tipoSensorJson['descripcion'],
+    );
+  }
 }

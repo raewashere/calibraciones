@@ -14,4 +14,11 @@ class Gerencia {
   set setNombre(String value) {
     nombre = value;
   }
+
+  factory Gerencia.fromJson(Map<String, dynamic> gerenciaJson) {
+    return Gerencia(
+      gerenciaJson['id_gerencia'],
+      gerenciaJson['nombre_gerencia'],
+    );
+  }
 }

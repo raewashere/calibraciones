@@ -74,4 +74,19 @@ class Corrida {
   set setFrecuenciaHz(double value) {
     frecuenciaHz = value;
   }
+
+  factory Corrida.fromJson(Map<String, dynamic> corridaJson) {
+    return Corrida(
+      corridaJson['id_corrida'],
+      corridaJson['caudal_m3_hr'],
+      corridaJson['caudal_bbl_hr'],
+      corridaJson['temperatura_c'],
+      corridaJson['presion_kg_cm3'],
+      corridaJson['meter_factor'],
+      corridaJson['k_factor_pulse_m3'],
+      corridaJson['k_factor_pulse_bbl'],
+      corridaJson['repetibilidad'],
+      corridaJson['frecuencia'],
+    );
+  }
 }

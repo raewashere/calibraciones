@@ -17,4 +17,11 @@ class EntidadFederativa {
   set setNombreEntidadFederativa(String value) {
     nombreEntidadFederativa = value;
   }
+
+  static fromJson(Map<String, dynamic> entidadJson) {
+    return EntidadFederativa(
+      idEntidadFederativa: entidadJson['id_entidad'],
+      nombreEntidadFederativa: entidadJson['nombre_entidad'],
+    );
+  }
 }

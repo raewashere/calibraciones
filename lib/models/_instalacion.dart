@@ -42,4 +42,18 @@ class Instalacion {
   set setDuctos(List<TransporteDucto> value) {
     ductos = value;
   }
+
+  factory Instalacion.fromJson(Map<String, dynamic> instalacionJson) {
+    return Instalacion(
+      instalacionJson['id_instalacion'],
+      instalacionJson['nombre_instalacion'],
+      instalacionJson['region_fiscal'],
+      EntidadFederativa.fromJson(instalacionJson['entidad_federativa']),
+      (instalacionJson['lista_transporte_ducto'] as List)
+          .map((ductoJson) => TransporteDucto.fromJson(ductoJson))
+          .toList(),
+    );
+  }
+  
 }
+  

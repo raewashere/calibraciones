@@ -41,4 +41,18 @@ class TransporteDucto {
   set setComputadorasFlujo(List<ComputadoraFlujo> computadoras) {
     computadorasFlujo = computadoras;
   }
+
+factory TransporteDucto.fromJson(Map<String, dynamic> ductoJson) {
+    return TransporteDucto(
+      ductoJson['id_transporte_ducto'],
+      ductoJson['nombre'],
+      ductoJson['tipo_fluido'],
+      (ductoJson['lista_equipo_medicion'] as List)
+          .map((equipoJson) => Equipo.fromJson(equipoJson))
+          .toList(),
+      (ductoJson['lista_computadora_flujo'] as List)
+          .map((computadoraJson) => ComputadoraFlujo.fromJson(computadoraJson))
+          .toList(),
+    );
+  }
 }

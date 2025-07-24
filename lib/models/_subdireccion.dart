@@ -23,4 +23,14 @@ class Subdireccion {
   set setInstalaciones(List<Instalacion> value) {
     instalaciones = value; // Asignación correcta
   }
+
+  factory Subdireccion.fromJson(Map<String, dynamic> subdireccionJson) {
+    return Subdireccion(
+      subdireccionJson['id_subdireccion'],
+      subdireccionJson['nombre_subdireccion'],
+      (subdireccionJson['instalaciones'] as List)
+          .map((instalacionJson) => Instalacion.fromJson(instalacionJson))
+          .toList(),
+    );
+  }
 }

@@ -77,4 +77,21 @@ class CalibracionEquipo {
   set setTagEquipo(String value) {
     tagEquipo = value;
   }
+
+  factory CalibracionEquipo.fromJson(Map<String, dynamic> calibracionJson) {
+    return CalibracionEquipo(
+      calibracionJson['id_calibracion'],
+      calibracionJson['certificado_calibracion'],
+      DateTime.parse(calibracionJson['fecha_calibracion']),
+      DateTime.parse(calibracionJson['fecha_proxima_calibracion']),
+      calibracionJson['linealidad'],
+      calibracionJson['reproducibilidad'],
+      calibracionJson['observaciones'],
+      calibracionJson['documento_certificado'],
+      (calibracionJson['lista_corridas'] as List)
+          .map((corridaJson) => Corrida.fromJson(corridaJson))
+          .toList(),
+      calibracionJson['tag_equipo'],
+    );
+  }
 }

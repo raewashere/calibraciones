@@ -6,9 +6,9 @@ class Direccion {
   late List<Subdireccion> subdirecciones;
 
   Direccion(
-     int idDireccion,
-     String nombre,
-     List<Subdireccion> subdirecciones
+    this.idDireccion,
+    this.nombre,
+    this.subdirecciones,
   );
 
   // Getters para acceder a los atributos
@@ -26,5 +26,15 @@ class Direccion {
 
   set setSubdirecciones(List<Subdireccion> value) {
     subdirecciones = value;
+  }
+
+  factory Direccion.fromJson(Map<String, dynamic> direccionJson) {
+    return Direccion(
+      direccionJson['id_direccion'],
+      direccionJson['nombre_direccion'],
+      (direccionJson['subdirecciones'] as List)
+          .map((subdireccionJson) => Subdireccion.fromJson(subdireccionJson))
+          .toList(),
+    );
   }
 }

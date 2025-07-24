@@ -47,4 +47,17 @@ class ComputadoraFlujo {
   set setEquiposMedicion(List<Equipo> value){
     equiposMedicion = value;
   }
+
+  factory ComputadoraFlujo.fromJson(Map<String, dynamic> computadoraJson) {
+    return ComputadoraFlujo(
+      computadoraJson['tag_computadora_flujo'],
+      computadoraJson['configuracion_puerto'],
+      computadoraJson['protocolo'],
+      computadoraJson['puerto_disponible'],
+      computadoraJson['version_software'],
+      (computadoraJson['lista_equipos_medicion'] as List)
+          .map((equipoJson) => Equipo.fromJson(equipoJson))
+          .toList(),
+    );
+  }
 }

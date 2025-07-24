@@ -77,4 +77,20 @@ class Usuario {
   set setRegistroCalibracion(List<CalibracionEquipo> value) {
     registroCalibraciones = value;
   }
+  static fromJson(Map<String, dynamic> usuarioJson) {
+    return Usuario(
+      usuarioJson['id_usuario'],
+      usuarioJson['correo_electronico'],
+      usuarioJson['nombre'],
+      usuarioJson['primer_apellido'],
+      usuarioJson['segundo_apellido'],
+      usuarioJson['telefono'],
+      usuarioJson['password'],
+      usuarioJson['rol'],
+      usuarioJson['verificacion_admin'],
+      (usuarioJson['calibraciones'] as List)
+          .map((calibracionJson) => CalibracionEquipo.fromJson(calibracionJson))
+          .toList(),
+    );
+  }
 }

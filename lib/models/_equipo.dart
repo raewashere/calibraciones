@@ -94,5 +94,28 @@ class Equipo {
   set setTipoSensor(TipoSensor value){
     tipoSensor = value;
   }
+
+  set setComputadoraFlujo(ComputadoraFlujo value) {
+    computadoraFlujo = value;
+  }
+
+  factory Equipo.fromJson(Map<String, dynamic> equipoJson) {
+    return Equipo(
+      equipoJson['tag_equipo'],
+      equipoJson['tipo_medicion'],
+      equipoJson['estado'],
+      equipoJson['marca'],
+      equipoJson['modelo'],
+      equipoJson['no_serie'],
+      equipoJson['intervalo_calibracion'],
+      equipoJson['intervalo_verificacion'],
+      equipoJson['incertidumbre'].toDouble(),
+      equipoJson['magnitud_incertidumbre'],
+      (equipoJson['lista_calibraciones'] as List)
+          .map((calibracionJson) => CalibracionEquipo.fromJson(calibracionJson))
+          .toList(),
+      TipoSensor.fromJson(equipoJson['tipo_sensor']),
+    );
+  }
   
 }

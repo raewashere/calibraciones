@@ -27,4 +27,14 @@ class LaboratorioCalibracion {
   set setRegistroCalibracion(List<CalibracionEquipo> value) {
     registroCalibraciones = value;
   }
+
+  static fromJson(Map<String, dynamic> laboratorioJson) {
+    return LaboratorioCalibracion(
+      laboratorioJson['id_laboratorio_calibracion'],
+      laboratorioJson['nombre'],
+      (laboratorioJson['calibraciones'] as List)
+          .map((calibracionJson) => CalibracionEquipo.fromJson(calibracionJson))
+          .toList(),
+    );
+  }
 }
