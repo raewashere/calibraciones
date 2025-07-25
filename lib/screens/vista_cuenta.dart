@@ -386,13 +386,25 @@ class VistaCuentaState extends State<VistaCuenta> {
                 );
                 if (!correcto) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
+                    SnackBar(
+                      duration: const Duration(seconds: 2),
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.tertiaryContainer,
                       content: Text('Hubo un error al actualizar'),
                     ),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Se actualizo correctamente')),
+                    SnackBar(
+                      duration: const Duration(seconds: 2),
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.tertiaryContainer,
+                      content: Text('Se actualizó correctamente'),
+                    ),
                   );
                 }
                 // Lógica para guardar los datos del formulario

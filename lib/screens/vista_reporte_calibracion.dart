@@ -11,7 +11,42 @@ class VistaReporteCalibracion extends StatefulWidget {
 class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
   final ScrollController _scrollController = ScrollController();
   final List<CalibracionEquipo> _calibraciones_equipos = [
-    
+    CalibracionEquipo(
+      1,
+      'Certificado 001',
+      DateTime(2023, 1, 15),
+      DateTime(2024, 1, 15),
+      0.01,
+      0.02,
+      'Observaciones de calibración 001',
+      'documento_certificado_001.pdf',
+      [],
+      'Equipo A',
+    ),
+    CalibracionEquipo(
+      2,
+      'Certificado 002',
+      DateTime(2023, 2, 20),
+      DateTime(2024, 2, 20),
+      0.015,
+      0.025,
+      'Observaciones de calibración 002',
+      'documento_certificado_002.pdf',
+      [],
+      'Equipo B',
+    ),
+    CalibracionEquipo(
+      3,
+      'Certificado 003',
+      DateTime(2023, 3, 10),
+      DateTime(2024, 3, 10),
+      0.02,
+      0.03,
+      'Observaciones de calibración 003',
+      'documento_certificado_003.pdf',
+      [],
+      'Equipo C',
+    ),
     // Agrega más calibraciones de ejemplo aquí
   ];
   bool _isLoading = false;
@@ -68,10 +103,19 @@ class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
             right: 16,
             child: FloatingActionButton(
               onPressed: () {
-                _abrirFormulario(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(seconds: 2),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.tertiaryContainer,
+                    content: Text('Descargando reporte'),
+                  ),
+                );
               }, // Icono del botón (puedes cambiarlo)
               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              tooltip: 'Agregar',
+              tooltip: 'Descargar',
               child: Icon(Icons.download),
             ),
           ),
@@ -176,7 +220,13 @@ class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
               onPressed: () async {
                 ScaffoldMessenger.of(
                   context,
-                ).showSnackBar(const SnackBar(content: Text('Filtrando')));
+                ).showSnackBar( SnackBar(
+                  duration: const Duration(seconds: 2),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.tertiaryContainer,
+                  content: Text('Filtrando')));
                 // Lógica para guardar los datos del formulario
                 Navigator.of(
                   context,

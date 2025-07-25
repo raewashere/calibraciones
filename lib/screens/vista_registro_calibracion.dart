@@ -46,13 +46,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       body: FutureBuilder<List<Direccion>>(
         future: _futureDirecciones,
         builder: (context, snapshot) {
-          if(snapshot.hasData){
-            List<Direccion> direcciones = snapshot.data!;
-            print('Direcciones: $direcciones');
-          } else {
-            print("Error al obtener direcciones: ${snapshot.error}");
-          }
-
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
@@ -94,14 +87,18 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     "Selección equipo",
                                     style: TextStyle(
                                       fontSize: 20,
-                                      color: Theme.of(context).colorScheme.tertiary,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.tertiary,
                                     ),
                                   ),
                                 ),
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.onPrimary,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Column(
@@ -109,53 +106,89 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     DropdownButton<Direccion>(
                                       hint: Text("Dirección"),
                                       value: selectedDireccion,
-                                      items: lista.map<DropdownMenuItem<Direccion>>(
-                                          (Direccion direccion) {
-                                        return DropdownMenuItem<Direccion>(
-                                          alignment: Alignment.topLeft,
-                                          value: direccion,
-                                          child: Text(direccion.nombre),
-                                        );
-                                      }).toList(),
-                                      onChanged: (Direccion? newObra) {
-                                        if (newObra != null) {
+                                      items: lista
+                                          .map<DropdownMenuItem<Direccion>>((
+                                            Direccion direccion,
+                                          ) {
+                                            return DropdownMenuItem<Direccion>(
+                                              alignment: Alignment.topLeft,
+                                              value: direccion,
+                                              child: Text(direccion.nombre),
+                                            );
+                                          })
+                                          .toList(),
+                                      onChanged: (Direccion? direcccion) {
+                                        if (direcccion != null) {
                                           setState(() {
-                                            selectedDireccion = newObra;
-                                            subdirecciones = newObra.getSubdirecciones();
+                                            selectedDireccion = direcccion;
+                                            
+                                            subdirecciones = direcccion
+                                                .getSubdirecciones();
+                                            selectedSubdireccion = subdirecciones.isNotEmpty
+                                                ? subdirecciones[0]
+                                                : null;
                                           });
                                         }
                                       },
                                     ),
                                     DropdownButton(
+                                      value: selectedSubdireccion,
                                       hint: Text("Subdirección"),
-                                      items: subdirecciones.map<DropdownMenuItem<Subdireccion>>((
-                                        Subdireccion subdireccion
-                                      ) {
-                                        return DropdownMenuItem<Subdireccion>(
-                                          alignment: Alignment.topLeft,
-                                          value: subdireccion,
-                                          child: Text(subdireccion.nombre),
-                                        );
-                                      }).toList(),
-                                      onChanged: (Subdireccion? newObra) {
-                                        if (newObra != null) {
+                                      items: subdirecciones
+                                          .map<DropdownMenuItem<Subdireccion>>((
+                                            Subdireccion subdireccion,
+                                          ) {
+                                            return DropdownMenuItem<
+                                              Subdireccion
+                                            >(
+                                              alignment: Alignment.topLeft,
+                                              value: subdireccion,
+                                              child: Text(subdireccion.nombre),
+                                            );
+                                          })
+                                          .toList(),
+                                      onChanged: (Subdireccion? subdireccion) {
+                                        if (subdireccion != null) {
                                           setState(() {
-                                            selectedSubdireccion = newObra;
+                                            selectedSubdireccion = subdireccion;
                                           });
                                         }
                                       },
                                     ),
-                                    DropdownButton(
+                                    /*DropdownButton(
                                       hint: Text("Gerencia"),
-                                      items: lista.map<DropdownMenuItem<Direccion>>((
-                                        Direccion direccion,
-                                      ) {
-                                        return DropdownMenuItem<Direccion>(
-                                          alignment: Alignment.topLeft,
-                                          value: direccion,
-                                          child: Text(direccion.nombre),
-                                        );
-                                      }).toList(),
+                                      items: lista
+                                          .map<DropdownMenuItem<Direccion>>((
+                                            Direccion direccion,
+                                          ) {
+                                            return DropdownMenuItem<Direccion>(
+                                              alignment: Alignment.topLeft,
+                                              value: direccion,
+                                              child: Text(direccion.nombre),
+                                            );
+                                          })
+                                          .toList(),
+                                      onChanged: (Direccion? newObra) {
+                                        if (newObra != null) {
+                                          setState(() {
+                                            selectedDireccion = newObra;
+                                          });
+                                        }
+                                      },
+                                    ),*/
+                                    DropdownButton(
+                                      hint: Text("Instalación"),
+                                      items: lista
+                                          .map<DropdownMenuItem<Direccion>>((
+                                            Direccion direccion,
+                                          ) {
+                                            return DropdownMenuItem<Direccion>(
+                                              alignment: Alignment.topLeft,
+                                              value: direccion,
+                                              child: Text(direccion.nombre),
+                                            );
+                                          })
+                                          .toList(),
                                       onChanged: (Direccion? newObra) {
                                         if (newObra != null) {
                                           setState(() {
@@ -165,35 +198,20 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       },
                                     ),
                                     DropdownButton(
-                                      hint: Text("Terminal / Estación"),
-                                      items: lista.map<DropdownMenuItem<Direccion>>((
-                                        Direccion direccion,
-                                      ) {
-                                        return DropdownMenuItem<Direccion>(
-                                          alignment: Alignment.topLeft,
-                                          value: direccion,
-                                          child: Text(direccion.nombre),
-                                        );
-                                      }).toList(),
-                                      onChanged: (Direccion? newObra) {
-                                        if (newObra != null) {
-                                          setState(() {
-                                            selectedDireccion = newObra;
-                                          });
-                                        }
-                                      },
-                                    ),
-                                    DropdownButton(
-                                      hint: Text("Sistema de transporte / Ducto"),
-                                      items: lista.map<DropdownMenuItem<Direccion>>((
-                                        Direccion direccion,
-                                      ) {
-                                        return DropdownMenuItem<Direccion>(
-                                          alignment: Alignment.topLeft,
-                                          value: direccion,
-                                          child: Text(direccion.nombre),
-                                        );
-                                      }).toList(),
+                                      hint: Text(
+                                        "Sistema de transporte / Ducto",
+                                      ),
+                                      items: lista
+                                          .map<DropdownMenuItem<Direccion>>((
+                                            Direccion direccion,
+                                          ) {
+                                            return DropdownMenuItem<Direccion>(
+                                              alignment: Alignment.topLeft,
+                                              value: direccion,
+                                              child: Text(direccion.nombre),
+                                            );
+                                          })
+                                          .toList(),
                                       onChanged: (Direccion? newObra) {
                                         if (newObra != null) {
                                           setState(() {
@@ -204,15 +222,17 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     ),
                                     DropdownButton(
                                       hint: Text("TAG"),
-                                      items: lista.map<DropdownMenuItem<Direccion>>((
-                                        Direccion direccion,
-                                      ) {
-                                        return DropdownMenuItem<Direccion>(
-                                          alignment: Alignment.topLeft,
-                                          value: direccion,
-                                          child: Text(direccion.nombre),
-                                        );
-                                      }).toList(),
+                                      items: lista
+                                          .map<DropdownMenuItem<Direccion>>((
+                                            Direccion direccion,
+                                          ) {
+                                            return DropdownMenuItem<Direccion>(
+                                              alignment: Alignment.topLeft,
+                                              value: direccion,
+                                              child: Text(direccion.nombre),
+                                            );
+                                          })
+                                          .toList(),
                                       onChanged: (Direccion? newObra) {
                                         if (newObra != null) {
                                           setState(() {
@@ -229,7 +249,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                 child: ElevatedButton(
                                   onPressed: () async {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
+                                      SnackBar(
+                                        duration: const Duration(seconds: 2),
+                                        behavior: SnackBarBehavior.floating,
+                                        backgroundColor: Theme.of(
+                                          context,
+                                        ).colorScheme.tertiaryContainer,
                                         content: Text('Datos laboratorio'),
                                       ),
                                     );
@@ -272,14 +297,18 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     "Datos calibración",
                                     style: TextStyle(
                                       fontSize: 20,
-                                      color: Theme.of(context).colorScheme.tertiary,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.tertiary,
                                     ),
                                   ),
                                 ),
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.onPrimary,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Column(
@@ -294,13 +323,15 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     _buildTextFormField(
                                       context,
                                       hintText: "Producto",
-                                      validatorText: 'Favor de escribir el producto',
+                                      validatorText:
+                                          'Favor de escribir el producto',
                                       controllerText: _primerController,
                                     ),
                                     _buildTextFormField(
                                       context,
                                       hintText: "Fecha",
-                                      validatorText: 'Favor de escribir la fecha',
+                                      validatorText:
+                                          'Favor de escribir la fecha',
                                       controllerText: _primerController,
                                     ),
                                   ],
@@ -313,9 +344,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     if (_formularioRegistro.currentState!
                                         .validate()) {
                                       if (_nombreController.text.length <= 50) {
-                                        if (_primerController.text.length <= 30) {
-                                          if (_segundoController.text.length <= 30) {
-                                            if (_emailController.text.length <= 30) {
+                                        if (_primerController.text.length <=
+                                            30) {
+                                          if (_segundoController.text.length <=
+                                              30) {
+                                            if (_emailController.text.length <=
+                                                30) {
                                               if (validarEmail(
                                                 _emailController.text,
                                               )) {
@@ -325,7 +359,16 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                   ScaffoldMessenger.of(
                                                     context,
                                                   ).showSnackBar(
-                                                    const SnackBar(
+                                                    SnackBar(
+                                                      duration: const Duration(
+                                                        seconds: 2,
+                                                      ),
+                                                      behavior: SnackBarBehavior
+                                                          .floating,
+                                                      backgroundColor:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .tertiaryContainer,
                                                       content: Text(
                                                         'Enviando información, validar registro',
                                                       ),
@@ -376,7 +419,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             );
                                           }
                                         } else {
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             const SnackBar(
                                               content: Text(
                                                 'Campo de primer apellido limitado a 30 caracteres',
@@ -385,7 +430,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           );
                                         }
                                       } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           const SnackBar(
                                             content: Text(
                                               'Campo de nombre limitado a 30 caracteres',
@@ -433,14 +480,18 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     "Tabla corridas",
                                     style: TextStyle(
                                       fontSize: 20,
-                                      color: Theme.of(context).colorScheme.tertiary,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.tertiary,
                                     ),
                                   ),
                                 ),
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.onPrimary,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Column(
@@ -448,7 +499,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     _buildTextFormField(
                                       context,
                                       hintText: "Caudal (m3/hr)",
-                                      validatorText: 'Favor de escribir el caudal',
+                                      validatorText:
+                                          'Favor de escribir el caudal',
                                       controllerText: _nombreController,
                                     ),
                                     _buildTextFormField(
@@ -460,7 +512,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     _buildTextFormField(
                                       context,
                                       hintText: "Temp. (°C)",
-                                      validatorText: 'Favor de escribir temp. (°C)',
+                                      validatorText:
+                                          'Favor de escribir temp. (°C)',
                                       controllerText: _segundoController,
                                     ),
                                     _buildTextFormField(
@@ -520,9 +573,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     if (_formularioRegistro.currentState!
                                         .validate()) {
                                       if (_nombreController.text.length <= 50) {
-                                        if (_primerController.text.length <= 30) {
-                                          if (_segundoController.text.length <= 30) {
-                                            if (_emailController.text.length <= 30) {
+                                        if (_primerController.text.length <=
+                                            30) {
+                                          if (_segundoController.text.length <=
+                                              30) {
+                                            if (_emailController.text.length <=
+                                                30) {
                                               if (validarEmail(
                                                 _emailController.text,
                                               )) {
@@ -583,7 +639,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             );
                                           }
                                         } else {
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             const SnackBar(
                                               content: Text(
                                                 'Campo de primer apellido limitado a 30 caracteres',
@@ -592,7 +650,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           );
                                         }
                                       } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           const SnackBar(
                                             content: Text(
                                               'Campo de nombre limitado a 30 caracteres',
@@ -640,14 +700,18 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     "Datos calibración",
                                     style: TextStyle(
                                       fontSize: 20,
-                                      color: Theme.of(context).colorScheme.tertiary,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.tertiary,
                                     ),
                                   ),
                                 ),
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.onPrimary,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Column(
@@ -683,9 +747,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     if (_formularioRegistro.currentState!
                                         .validate()) {
                                       if (_nombreController.text.length <= 50) {
-                                        if (_primerController.text.length <= 30) {
-                                          if (_segundoController.text.length <= 30) {
-                                            if (_emailController.text.length <= 30) {
+                                        if (_primerController.text.length <=
+                                            30) {
+                                          if (_segundoController.text.length <=
+                                              30) {
+                                            if (_emailController.text.length <=
+                                                30) {
                                               if (validarEmail(
                                                 _emailController.text,
                                               )) {
@@ -746,7 +813,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             );
                                           }
                                         } else {
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             const SnackBar(
                                               content: Text(
                                                 'Campo de primer apellido limitado a 30 caracteres',
@@ -755,7 +824,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           );
                                         }
                                       } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           const SnackBar(
                                             content: Text(
                                               'Campo de nombre limitado a 30 caracteres',

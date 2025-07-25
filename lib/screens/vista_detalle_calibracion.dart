@@ -13,13 +13,34 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        iconTheme: IconThemeData(color: colors.onPrimary),
+        actionsIconTheme: IconThemeData(color: colors.onPrimary),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/images/pemex_logo_blanco.png', // o Image.network(...)
+              height: 50,
+              width: 50,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Detalle de Calibración',
+              style: TextStyle(
+                fontSize: Theme.of(context).textTheme.titleLarge?.fontSize,
+                color: Theme.of(context).colorScheme.onSecondary,
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: colors.primary,
+      ),
       backgroundColor: colors.onPrimary,
       body: SingleChildScrollView(
         child: Container(
           width: double.maxFinite,
-          decoration: BoxDecoration(
-            color: colors.secondary,
-          ),
+          decoration: BoxDecoration(color: colors.secondary),
           child: Container(
             width: double.maxFinite,
             decoration: BoxDecoration(
@@ -148,6 +169,11 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                                 // Aquí puedes agregar la lógica para descargar el certificado
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
+                                    duration: const Duration(seconds: 2),
+                                    behavior: SnackBarBehavior.floating,
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.tertiaryContainer,
                                     content: Text('Abriendo certificado...'),
                                   ),
                                 );

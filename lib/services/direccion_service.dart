@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert'; 
 
 class DireccionService {
-  final String url = "http://10.209.202.46:8090/api";
+  final String url = "http://127.0.0.1:8090/api";
 
   Future<List<Direccion>> getAllDirecciones() async {
     try {

@@ -147,7 +147,12 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                                       }
                                       */
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
+                                      SnackBar(
+                                        duration: const Duration(seconds: 2),
+                                        behavior: SnackBarBehavior.floating,
+                                        backgroundColor: Theme.of(
+                                          context,
+                                        ).colorScheme.tertiaryContainer,
                                         content: Text(
                                           'Enviando enlace a tu correo',
                                         ),

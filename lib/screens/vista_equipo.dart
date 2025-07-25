@@ -25,7 +25,14 @@ class EquipoDataSource extends DataTableSource {
           ElevatedButton(
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Acción para ${equipo.tag}')),
+                SnackBar(
+                  duration: const Duration(seconds: 2),
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.tertiaryContainer,
+                  content: Text('Acción para ${equipo.tag}'),
+                ),
               );
             },
             child: const Text('mod'),
