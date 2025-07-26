@@ -52,9 +52,6 @@ class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
   bool _isLoading = false;
   final int _currentOffset = 0;
   final int _limit = 10;
-  final TextEditingController _nombreObraController = TextEditingController();
-  final TextEditingController _compositorController = TextEditingController();
-  final TextEditingController _comentarioController = TextEditingController();
 
   @override
   void initState() {

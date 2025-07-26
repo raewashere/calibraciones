@@ -1,6 +1,7 @@
 import 'package:calibraciones/models/_usuario.dart';
-import 'package:calibraciones/services/usuario_controlador.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
+import 'package:calibraciones/services/implementation/usuario_service_impl.dart';
+import 'package:calibraciones/services/usuario_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 
@@ -12,9 +13,9 @@ class VistaCuenta extends StatefulWidget {
 }
 
 class VistaCuentaState extends State<VistaCuenta> {
-  /*final FirebaseAuth _auth = FirebaseAuth.instance;
-  final User? usuarioActual = FirebaseAuth.instance.currentUser;*/
-  final UsuarioControlador controlador = UsuarioControlador();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final User? usuarioActual = FirebaseAuth.instance.currentUser;
+  final UsuarioService controlador = UsuarioServiceImpl();
   late Future<Usuario?> usuario;
   Usuario? login;
   final TextEditingController _nombreController = TextEditingController();
@@ -24,14 +25,16 @@ class VistaCuentaState extends State<VistaCuenta> {
       TextEditingController();
 
   Future<Usuario?> datosUsuario() async {
-    return null;
+    if (usuarioActual == null) {
+      return null; // Si no hay usuario actual, retorna null
+    }
 
-    /*final data = await controlador.obtenerUsuario(usuarioActual?.email);
+    // Obtiene los datos del usuario actual
+    final data = await controlador.obtenerUsuario(usuarioActual?.email);
     setState(() {
       login = data;
     });
     return data;
-    */
   }
 
   @override
@@ -41,12 +44,12 @@ class VistaCuentaState extends State<VistaCuenta> {
   }
 
   Future<void> _logout() async {
-    /*try {
+    try {
       _auth.signOut();
       Navigator.pushReplacementNamed(context, '/login');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Saliendo de la aplicacion")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Saliendo de la aplicacion")));
     } on FirebaseAuthException catch (e) {
       String mensajeError;
 
@@ -62,163 +65,42 @@ class VistaCuentaState extends State<VistaCuenta> {
             'Error al iniciar sesión. Por favor, inténtelo de nuevo.';
       }
       // Mostrar un SnackBar con el mensaje de error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(mensajeError)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(mensajeError)));
     }
-    */
   }
 
   Future<void> cambiarContrasenia() async {
-    /*try {
+    try {
       _auth.sendPasswordResetEmail(email: "${usuarioActual?.email}");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(
-                "Se ha enviado un enlace a tu correo para reestablecer tu contrasenia")),
-      );
-    } on FirebaseAuthException catch (e) {
-      String mensajeError;
-
-      // Verificar el tipo de error
-      if (e.code == 'user-not-found') {
-        mensajeError = 'No existe una cuenta con este correo electrónico.';
-      } else if (e.code == 'wrong-password') {
-        mensajeError = 'La contraseña es incorrecta.';
-      } else if (e.code == 'invalid-email') {
-        mensajeError = 'El correo electrónico no tiene un formato válido.';
-      } else {
-        mensajeError =
-            'Error al iniciar sesión. Por favor, inténtelo de nuevo.';
-      }
-      // Mostrar un SnackBar con el mensaje de error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(mensajeError)),
-      );
-    }
-    */
-  }
-
-  Future<void> borrarCuenta() async {
-    /*try {
-      await _abrirFormularioAutenticacion(context);
-      controlador.borrarUsuario(usuarioActual?.email);
-      usuarioActual?.delete();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Tu cuenta ha sido borrada")),
-      );
-    } on FirebaseAuthException catch (e) {
-      String mensajeError;
-
-      // Verificar el tipo de error
-      if (e.code == 'user-not-found') {
-        mensajeError = 'No existe una cuenta con este correo electrónico.';
-      } else if (e.code == 'wrong-password') {
-        mensajeError = 'La contraseña es incorrecta.';
-      } else if (e.code == 'invalid-email') {
-        mensajeError = 'El correo electrónico no tiene un formato válido.';
-      } else {
-        mensajeError =
-            'Error al iniciar sesión. Por favor, inténtelo de nuevo.';
-      }
-      // Mostrar un SnackBar con el mensaje de error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(mensajeError)),
-      );
-    }
-    */
-    Navigator.pushReplacementNamed(context, '/login');
-  }
-
-  Future<void> advertenciaBorradoCuenta(BuildContext context) async {
-    showDialog(
-      context: context,
-      barrierColor: Theme.of(context).colorScheme.primaryContainer,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Advertencia"),
-          shadowColor: Theme.of(context).colorScheme.errorContainer,
-          surfaceTintColor: Theme.of(context).colorScheme.onPrimary,
-          content: Text("¿Estas seguro de querer borrar tu cuenta?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra el diálogo
-              },
-              child: Text("Cancelar"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra el diálogo
-                borrarCuenta();
-              },
-              child: Text("Aceptar"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  /*
-  // Método para abrir el formulario
-  Future<void> _abrirFormularioAutenticacion(BuildContext context) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Favor de autenticarte para poder borrar tu cuenta'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: InputDecoration(labelText: 'Correo electrónico'),
-                controller: _emailController,
-              ),
-              TextField(
-                decoration: InputDecoration(labelText: 'Contraseña'),
-                controller: _passwordController,
-              ),
-            ],
+          content: Text(
+            "Se ha enviado un enlace a tu correo para reestablecer tu contrasenia",
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra el formulario
-              },
-              child: Text(
-                'Cancelar',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                /*_auth.signInWithEmailAndPassword(
-                    email: _emailController.text,
-                    password: _passwordController.text);*/
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Se valido correctamente')),
-                );
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      String mensajeError;
 
-                // Lógica para guardar los datos del formulario
-                Navigator.of(
-                  context,
-                ).pop(); // Cierra el formulario después de guardar
-              },
-              child: Text(
-                'Guardar',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }*/
+      // Verificar el tipo de error
+      if (e.code == 'user-not-found') {
+        mensajeError = 'No existe una cuenta con este correo electrónico.';
+      } else if (e.code == 'wrong-password') {
+        mensajeError = 'La contraseña es incorrecta.';
+      } else if (e.code == 'invalid-email') {
+        mensajeError = 'El correo electrónico no tiene un formato válido.';
+      } else {
+        mensajeError =
+            'Error al iniciar sesión. Por favor, inténtelo de nuevo.';
+      }
+      // Mostrar un SnackBar con el mensaje de error
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(mensajeError)));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -304,7 +186,7 @@ class VistaCuentaState extends State<VistaCuenta> {
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
-              onTap: _abrirFormularioCambioDatos,
+              //onTap: _abrirFormularioCambioDatos,
             ),
             ListTile(
               textColor: Theme.of(context).colorScheme.tertiary,
@@ -336,7 +218,7 @@ class VistaCuentaState extends State<VistaCuenta> {
     );
   }
 
-  Future<void> _abrirFormularioCambioDatos() async {
+/*  Future<void> _abrirFormularioCambioDatos() async {
     _nombreController.text = login!.nombre;
     _primerApellidoController.text = login!.primerApellido;
     _segundoApellidoController.text = login!.segundoApellido;
@@ -380,7 +262,7 @@ class VistaCuentaState extends State<VistaCuenta> {
                 login?.nombre = _nombreController.text;
                 login?.primerApellido = _primerApellidoController.text;
                 login?.segundoApellido = _segundoApellidoController.text;
-                UsuarioControlador controladorUsuario = UsuarioControlador();
+                UsuarioService controladorUsuario = UsuarioServiceImpl();
                 bool correcto = await controladorUsuario.actualizarUsuario(
                   login!,
                 );
@@ -423,5 +305,5 @@ class VistaCuentaState extends State<VistaCuenta> {
         );
       },
     );
-  }
+  }*/
 }

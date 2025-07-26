@@ -1,4 +1,4 @@
-//import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class VistaContrasenia extends StatefulWidget {
@@ -9,7 +9,7 @@ class VistaContrasenia extends StatefulWidget {
 }
 
 class VistaContraseniaState extends State<VistaContrasenia> {
-  //final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final _formularioCorreo = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
 
@@ -128,24 +128,29 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                                 onPressed: () {
                                   if (_formularioCorreo.currentState!
                                       .validate()) {
-                                    /*try {
-                                        _auth.sendPasswordResetEmail(
-                                            email: _emailController.text);
-                                      } on FirebaseAuthException catch (e) { 
-                                        e.message != null
-                                            ? ScaffoldMessenger.of(context)
-                                                .showSnackBar(
+                                    try {
+                                      _auth.sendPasswordResetEmail(
+                                        email: _emailController.text,
+                                      );
+                                    } on FirebaseAuthException catch (e) {
+                                      e.message != null
+                                          ? ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
                                               SnackBar(
-                                                  content: Text(e.message!)),
+                                                content: Text(e.message!),
+                                              ),
                                             )
-                                            : ScaffoldMessenger.of(context)
-                                                .showSnackBar(
+                                          : ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
                                               const SnackBar(
-                                                  content: Text(
-                                                      'Error al enviar el enlace de recuperación')),
+                                                content: Text(
+                                                  'Error al enviar el enlace de recuperación',
+                                                ),
+                                              ),
                                             );
-                                      }
-                                      */
+                                    }
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         duration: const Duration(seconds: 2),

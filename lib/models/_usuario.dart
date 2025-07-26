@@ -2,16 +2,16 @@ import 'package:calibraciones/models/_calibracion_equipo.dart';
 
 class Usuario {
   // Atributos privados
-  late final int folioUsuario;
-  late String correoElectronico;
-  late String nombre;
-  late String primerApellido;
-  late String segundoApellido;
-  late String telefono;
-  late String password;
-  late String rol;
-  late bool verificacionAdmin;
-  late List<CalibracionEquipo> registroCalibraciones;
+  int folioUsuario;
+  String correoElectronico;
+  String nombre;
+  String primerApellido;
+  String segundoApellido;
+  String telefono;
+  String password;
+  String rol;
+  bool verificacionAdmin;
+  List<CalibracionEquipo> registroCalibraciones;
 
   // Constructor
   Usuario(
@@ -77,6 +77,7 @@ class Usuario {
   set setRegistroCalibracion(List<CalibracionEquipo> value) {
     registroCalibraciones = value;
   }
+
   static fromJson(Map<String, dynamic> usuarioJson) {
     return Usuario(
       usuarioJson['id_usuario'],

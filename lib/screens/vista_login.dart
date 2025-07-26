@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class VistaLogin extends StatefulWidget {
   const VistaLogin({super.key});
@@ -9,7 +9,7 @@ class VistaLogin extends StatefulWidget {
 }
 
 class VistaLoginState extends State<VistaLogin> {
-  //final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -18,30 +18,31 @@ class VistaLoginState extends State<VistaLogin> {
   }
 
   Future<void> _signIn() async {
-    /*try {
+    try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
-      );*/
+      );
 
-    /*if (_auth.currentUser!.emailVerified) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Bienvenido de nuevo')),
-        );
-        */
+      if (_auth.currentUser!.emailVerified) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Bienvenido de nuevo')));
 
-    Navigator.pushReplacementNamed(context, '/inicio');
-    /*} else {
+        Navigator.pushReplacementNamed(context, '/inicio');
+      } else {
         await _auth.currentUser?.sendEmailVerification();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text(
-                  'Aun no has, verificado tu cuenta, revisa el correo que te enviamos')),
+            content: Text(
+              'Aun no has, verificado tu cuenta, revisa el correo que te enviamos',
+            ),
+          ),
         );
-      }*/
+      }
 
-    //print('User signed in: ${userCredential.user?.email}');
-    /*} on FirebaseAuthException catch (e) {
+      //print('User signed in: ${userCredential.user?.email}');
+    } on FirebaseAuthException catch (e) {
       String mensajeError;
 
       // Verificar el tipo de error
@@ -56,11 +57,10 @@ class VistaLoginState extends State<VistaLogin> {
             'Error al iniciar sesión. Por favor, inténtelo de nuevo.';
       }
       // Mostrar un SnackBar con el mensaje de error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(mensajeError)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(mensajeError)));
     }
-    */
   }
 
   @override

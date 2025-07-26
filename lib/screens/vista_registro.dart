@@ -1,6 +1,6 @@
 import 'package:calibraciones/models/_usuario.dart';
-import 'package:calibraciones/services/usuario_controlador.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
+import 'package:calibraciones/services/implementation/usuario_service_impl.dart';
+import 'package:calibraciones/services/usuario_service.dart';
 import 'package:flutter/material.dart';
 
 class VistaRegistro extends StatefulWidget {
@@ -11,15 +11,17 @@ class VistaRegistro extends StatefulWidget {
 }
 
 class VistaRegistroState extends State<VistaRegistro> {
-  //final FirebaseAuth _auth = FirebaseAuth.instance;
   final _formularioRegistro = GlobalKey<FormState>();
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _primerController = TextEditingController();
   final TextEditingController _segundoController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _telefonoController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _passwordValidatorController =
       TextEditingController();
+  bool respuestaRegistro = false;
+  UsuarioService usuarioService = UsuarioServiceImpl();
 
   bool validarEmail(String email) {
     final RegExp regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
@@ -120,6 +122,12 @@ class VistaRegistroState extends State<VistaRegistro> {
                               ),
                               _buildTextFormField(
                                 context,
+                                hintText: "Teléfono",
+                                validatorText: 'Favor de escribir tu teléfono',
+                                controllerText: _telefonoController,
+                              ),
+                              _buildTextFormField(
+                                context,
                                 hintText: "Contraseña",
                                 obscureText: true,
                                 validatorText:
@@ -155,53 +163,70 @@ class VistaRegistroState extends State<VistaRegistro> {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
-                                              const SnackBar(
+                                              SnackBar(
+                                                duration: const Duration(
+                                                  seconds: 2,
+                                                ),
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                                backgroundColor: Theme.of(
+                                                  context,
+                                                ).colorScheme.tertiaryContainer,
                                                 content: Text(
                                                   'Enviando información, validar registro',
                                                 ),
                                               ),
                                             );
-                                            Usuario nuevoUsuario =   Usuario(
-                                                1,
-                                                "correo",
-                                                "Raymundo",
-                                                "Torres",
-                                                "Díaz",
-                                                "0000000000",
-                                                "0000000000",
-                                                "admin",
-                                                true,
-                                                [],
-                                              );
-                                            UsuarioControlador
-                                            controladorUsuario =
-                                                UsuarioControlador();
-                                            bool correcto =
-                                                await controladorUsuario
-                                                    .registraUsuario(
-                                                      nuevoUsuario,
+                                            respuestaRegistro =
+                                                await usuarioService
+                                                    .registrarUsuario(
+                                                      _emailController.text,
+                                                      _nombreController.text,
+                                                      _primerController.text,
+                                                      _segundoController.text,
+                                                      _telefonoController.text,
+                                                      _passwordController.text,
+                                                      'usuario',
+                                                      false,
                                                     );
-                                            if (!correcto) {
+                                            if (!respuestaRegistro) {
                                               ScaffoldMessenger.of(
                                                 context,
                                               ).showSnackBar(
-                                                const SnackBar(
+                                                SnackBar(
+                                                  duration: const Duration(
+                                                    seconds: 2,
+                                                  ),
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  backgroundColor:
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .tertiaryContainer,
                                                   content: Text(
-                                                    'Hubo un error al registrarte',
+                                                    'Hubo un error al registrar el usuario, por favor intente de nuevo',
                                                   ),
                                                 ),
                                               );
                                             } else {
-                                              /*_auth
-                                                  .createUserWithEmailAndPassword(
-                                                      email:
-                                                          _emailController.text,
-                                                      password:
-                                                          _passwordController
-                                                              .text);
-
-                                              _auth.currentUser
-                                                  ?.sendEmailVerification();*/
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  duration: const Duration(
+                                                    seconds: 2,
+                                                  ),
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  backgroundColor:
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .tertiaryContainer,
+                                                  content: Text(
+                                                    'Usuario registrado correctamente, por favor verifica tu correo electrónico',
+                                                  ),
+                                                ),
+                                              );
                                               Navigator.pushReplacementNamed(
                                                 context,
                                                 '/login',
@@ -211,7 +236,15 @@ class VistaRegistroState extends State<VistaRegistro> {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
-                                              const SnackBar(
+                                              SnackBar(
+                                                duration: const Duration(
+                                                  seconds: 2,
+                                                ),
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                                backgroundColor: Theme.of(
+                                                  context,
+                                                ).colorScheme.tertiaryContainer,
                                                 content: Text(
                                                   'Verificar que las contraseñas son iguales',
                                                 ),
@@ -222,7 +255,15 @@ class VistaRegistroState extends State<VistaRegistro> {
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
-                                            const SnackBar(
+                                            SnackBar(
+                                              duration: const Duration(
+                                                seconds: 2,
+                                              ),
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              backgroundColor: Theme.of(
+                                                context,
+                                              ).colorScheme.tertiaryContainer,
                                               content: Text(
                                                 'El correo introducido no es correcto',
                                               ),
@@ -233,7 +274,14 @@ class VistaRegistroState extends State<VistaRegistro> {
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(
-                                          const SnackBar(
+                                          SnackBar(
+                                            duration: const Duration(
+                                              seconds: 2,
+                                            ),
+                                            behavior: SnackBarBehavior.floating,
+                                            backgroundColor: Theme.of(
+                                              context,
+                                            ).colorScheme.tertiaryContainer,
                                             content: Text(
                                               'Campo de correo electrónico limitado a 30 caracteres',
                                             ),
@@ -244,7 +292,12 @@ class VistaRegistroState extends State<VistaRegistro> {
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
-                                        const SnackBar(
+                                        SnackBar(
+                                          duration: const Duration(seconds: 2),
+                                          behavior: SnackBarBehavior.floating,
+                                          backgroundColor: Theme.of(
+                                            context,
+                                          ).colorScheme.tertiaryContainer,
                                           content: Text(
                                             'Campo de segundo apellido limitado a 30 caracteres',
                                           ),
@@ -253,7 +306,12 @@ class VistaRegistroState extends State<VistaRegistro> {
                                     }
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
+                                      SnackBar(
+                                        duration: const Duration(seconds: 2),
+                                        behavior: SnackBarBehavior.floating,
+                                        backgroundColor: Theme.of(
+                                          context,
+                                        ).colorScheme.tertiaryContainer,
                                         content: Text(
                                           'Campo de primer apellido limitado a 30 caracteres',
                                         ),
@@ -262,7 +320,12 @@ class VistaRegistroState extends State<VistaRegistro> {
                                   }
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
+                                      duration: const Duration(seconds: 2),
+                                      behavior: SnackBarBehavior.floating,
+                                      backgroundColor: Theme.of(
+                                        context,
+                                      ).colorScheme.tertiaryContainer,
                                       content: Text(
                                         'Campo de nombre limitado a 30 caracteres',
                                       ),
