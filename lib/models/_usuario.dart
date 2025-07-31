@@ -8,10 +8,10 @@ class Usuario {
   String primerApellido;
   String segundoApellido;
   String telefono;
-  String password;
+  String password = '';
   String rol;
   bool verificacionAdmin;
-  List<CalibracionEquipo> registroCalibraciones;
+  List<CalibracionEquipo> registroCalibraciones = [];
 
   // Constructor
   Usuario(
@@ -21,11 +21,11 @@ class Usuario {
     this.primerApellido,
     this.segundoApellido,
     this.telefono,
-    this.password,
     this.rol,
-    this.verificacionAdmin,
-    this.registroCalibraciones,
+    this.verificacionAdmin
   );
+
+  
 
   int get getFolioUsuario => folioUsuario;
   String get getCorreoElectronico => correoElectronico;
@@ -78,20 +78,23 @@ class Usuario {
     registroCalibraciones = value;
   }
 
-  static fromJson(Map<String, dynamic> usuarioJson) {
+
+  factory Usuario.fromJsonCreate(Map<String, dynamic> json) {
     return Usuario(
-      usuarioJson['id_usuario'],
-      usuarioJson['correo_electronico'],
-      usuarioJson['nombre'],
-      usuarioJson['primer_apellido'],
-      usuarioJson['segundo_apellido'],
-      usuarioJson['telefono'],
-      usuarioJson['password'],
-      usuarioJson['rol'],
-      usuarioJson['verificacion_admin'],
-      (usuarioJson['calibraciones'] as List)
-          .map((calibracionJson) => CalibracionEquipo.fromJson(calibracionJson))
-          .toList(),
+      json['id_usuario'] as int,
+      json['correo_electronico'] as String,
+      json['nombre'] as String,
+      json['primer_apellido'] as String,
+      json['segundo_apellido'] as String,
+      json['telefono'] as String,
+      json['rol'] as String,
+      json['verificacion_admin'] as bool
     );
+  }
+
+  //A String representation of the Usuario object
+  @override
+  String toString() {
+    return 'Usuario(folioUsuario: $folioUsuario, correoElectronico: $correoElectronico, nombre: $nombre, primerApellido: $primerApellido, segundoApellido: $segundoApellido, telefono: $telefono, rol: $rol, verificacionAdmin: $verificacionAdmin)';
   }
 }

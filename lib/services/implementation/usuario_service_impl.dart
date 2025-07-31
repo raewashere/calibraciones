@@ -2,13 +2,12 @@ import 'package:calibraciones/models/_usuario.dart';
 import 'package:calibraciones/services/usuario_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert'; 
+import 'dart:convert';
 
 class UsuarioServiceImpl implements UsuarioService {
-
   final String url = "http://127.0.0.1:8090/api";
-
-
+  final String urlN8N =
+      "http://127.0.0.1:5678/webhook/31f9de4b-5677-4e3a-aa03-31e7174c7b6a";
   @override
   Future<bool> registrarUsuario(
     String correoElectronico,
@@ -19,39 +18,63 @@ class UsuarioServiceImpl implements UsuarioService {
     String password,
     String rol,
     bool verificacionAdmin,
-  ) {
-    // Implementación del registro de usuario
+  ) async {
     try {
-      
-      http.post(Uri.parse('$url/usuario'), body: jsonEncode({
-        'correo_electronico': correoElectronico,
-        'nombre': nombre,
-        'primer_apellido': primerApellido,
-        'segundo_apellido': segundoApellido,
-        'telefono': telefono,
-        'password': password,
-        'rol': rol,
-        'verificacion_admin': verificacionAdmin,
-      }),
+      final response = await http.post(
+        Uri.parse('$url/usuario'),
+        body: jsonEncode({
+          'correo_electronico': correoElectronico,
+          'nombre': nombre,
+          'primer_apellido': primerApellido,
+          'segundo_apellido': segundoApellido,
+          'telefono': telefono,
+          'password': password,
+          'rol': rol,
+          'verificacion_admin': verificacionAdmin,
+        }),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-        }
-      ).then((http.Response response) {
-        if (response.statusCode == 201) {
-          final FirebaseAuth auth = FirebaseAuth.instance;
-          auth.createUserWithEmailAndPassword(email: correoElectronico, password: password);
-          auth.currentUser?.sendEmailVerification();
+        },
+      );
 
-          return Future.value(true);
-          } else {
-            throw Exception('Error al registrar usuario: ${response.statusCode}');
-          }
-        });
+      if (response.statusCode == 201) {
+        final FirebaseAuth auth = FirebaseAuth.instance;
+        await auth.createUserWithEmailAndPassword(
+          email: correoElectronico,
+          password: password,
+        );
 
-        return Future.value(false);
+        await auth.currentUser?.sendEmailVerification();
+        final Map<String, dynamic> data = jsonDecode(response.body);
+
+        //Recuperar el usuario creado en objeto Usuario
+        Usuario usuario = Usuario.fromJsonCreate(data);
+
+        //Usuario a string
+        print(usuario.toString());
+
+        http.post(
+          Uri.parse(urlN8N),
+          body: jsonEncode({
+            'email_por_aprobar': correoElectronico,
+            'nombre': '$nombre $primerApellido $segundoApellido',
+            'telefono': telefono,
+            'id_usuario': usuario.folioUsuario,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        );
+
+        return true;
+      } else {
+        throw Exception('Error al registrar usuario: ${response.statusCode}');
+      }
     } catch (e) {
-      return Future.value(false);
+      print('Error al registrar usuario: $e');
+      return false;
     }
   }
 

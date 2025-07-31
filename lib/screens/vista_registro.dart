@@ -189,6 +189,9 @@ class VistaRegistroState extends State<VistaRegistro> {
                                                       'usuario',
                                                       false,
                                                     );
+                                            print(
+                                              'Respuesta del registro: $respuestaRegistro',
+                                            );
                                             if (!respuestaRegistro) {
                                               ScaffoldMessenger.of(
                                                 context,
