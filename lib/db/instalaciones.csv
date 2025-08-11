@@ -1,0 +1,199 @@
+"nombre_instalacion","id_entidad","id_subdireccion","id_gerencia"
+"Activo de Extracción Cantarell",4,1,""
+"Activo de Extracción Ku-Maloob-Zaap",4,1,""
+"FPSO Yúum K'ak'náab",4,1,""
+"Activo de Extracción Abkatun-Pol-Chuc",27,2,""
+"Activo de Extracción Litoral de Tabasco",27,2,""
+"Terminal Marítima Dos Bocas",27,2,""
+"Terminal Marítima Cayo Arcas",4,2,""
+"Activo de Extracción Macuspana-Muspac",27,3,""
+"Activo de Extracción Samaria-Luna",27,3,""
+"Activo de Extracción Bellota-Jujon",27,3,""
+"Activo de Extracción Cinco Presidentes",30,3,""
+"Activo de Extracción Reynosa",28,4,""
+"Activo de Extracción Poza Rica-Altamira",28,4,""
+"Activo de Extracción Veracruz",30,4,""
+"Refinería Salamanca",11,5,""
+"Refinería Madero",28,5,""
+"Refinería Cadereyta",19,5,""
+"Refinería Minatitlán",30,5,""
+"Refinería Salina Cruz",20,5,""
+"Refinería Tula",13,5,""
+"Refinería Olmeca",27,5,""
+"Complejo Petroquímico Cangrejera",30,6,""
+"Complejo Petroquímico Morelos",30,6,""
+"Complejo Petroquímico Cosoleacaque",30,6,""
+"Complejo Petroquímico Independencia (San Martín Texmelucan)",21,6,""
+"Terminal de Almacenamiento de Amoniaco Salina Cruz",20,6,""
+"Complejo Procesador de Gas Ciudad Pemex",27,7,""
+"Complejo Procesador de Gas Nuevo Pemex",21,7,""
+"Complejo Procesador de Gas Cactus",5,7,""
+"Complejo Procesador de Gas Burgos",28,7,""
+"Complejo Procesador de Gas Coatzacoalcos",30,7,""
+"Complejo Procesador de Gas La Venta",27,7,""
+"Complejo Procesador de Gas Matapionche",30,7,""
+"Complejo Procesador de Gas Poza Rica",30,7,""
+"Complejo Procesador de Gas Arenque",28,7,""
+"CAB Exportación",30,8,1
+"CAB Cacalilao",30,8,1
+"CAB Tamaulipas",28,8,1
+"CAB Arenque",28,8,1
+"CAB Poza Rica",30,8,1
+"CAB Tajín",30,8,1
+"PD Naranjos",30,8,1
+"CM km. 19",28,8,1
+"EC Sierrita-Cuervito",19,8,1
+"EC Culebra Sur",19,8,1
+"CCC Palomas",30,8,2
+"ERM Gas Cactus",5,8,2
+"ERM Gas Nuevo Pemex",21,8,2
+"CAE Tuzandepetl",30,8,2
+"CPTG Atasta",4,8,3
+"CDGM - Cd.Pemex",27,8,3
+"Terminal Marítima Dos Bocas",27,8,3
+"SD Cárdenas",27,9,4
+"SD Minatitlán",30,9,4
+"SD Salina Cruz",20,9,4
+"SD Poza Rica",30,9,4
+"SD Veracruz",30,9,4
+"SD Mendoza",30,9,4
+"SD Tlaxcala",29,9,4
+"SD Catalina",30,9,4
+"SD Valle de México",15,9,4
+"SD Venta de Carpio",15,9,4
+"SD Salamanca",11,9,4
+"SD Guadalajara",14,9,4
+"SD Madero",28,9,4
+"SD Monterrey",19,9,4
+"SD Victoria",28,9,4
+"SD Torreón",8,9,4
+"SD Chihuahua",6,9,4
+"SD Reynosa",28,9,4
+"SD Topolobampo",25,9,4
+"SD Rosarito",2,9,4
+"SD Guaymas",26,9,4
+"B/T Bicentenario",30,9,5
+"B/T Burgos",20,9,5
+"B/T Calakmul",28,9,5
+"B/T Centenario",20,9,5
+"B/T Centla",27,9,5
+"B/T Chicontepec",20,9,5
+"B/T Ignacio Allende",30,9,5
+"B/T Jaguarundi",31,9,5
+"B/T José María Morelos II",20,9,5
+"B/T Kukulcán",30,9,5
+"B/T Mariano Abasolo",30,9,5
+"B/T Miguel Hidalgo II",30,9,5
+"B/T Raramuri",25,9,5
+"B/T Tampico",30,9,5
+"B/T Texistepec",25,9,5
+"B/T Vicente Guerrero",31,9,5
+"TAD Celaya",11, 10,6
+"TAD Cuautla",17, 10,6
+"TAD Cuernavaca",17, 10,6
+"TAD Iguala",12, 10,6
+"TAD Irapuato",11, 10,6
+"TAD León",11, 10,6
+"TAD Morelia",16, 10,6
+"TAD Pachuca",13, 10,6
+"TAD Querétaro",22, 10,6
+"TAD Toluca",15, 10,6
+"TAD Uruapan",16, 10,6
+"TAD 18 de Marzo (Azcapotzalco)",7, 10,6
+"TAD Satélite Oriente (Añil)",7, 10,6
+"TAD Satélite Sur (Barranca del Muerto)",7, 10,6
+"TAD Satélite Norte (San Juan Ixhuatepec)",15, 10,6
+"TAD Tula",13, 10,6
+"TAD Zamora",16, 10,6
+"TAD Salamanca",11, 10,6
+"TAD Xalapa",30, 10,7
+"TAD Villahermosa",27, 10,7
+"TAD Veracruz",30, 10,7
+"TAD Tuxtla Gutiérrez",5, 10,7
+"TAD Tierra Blanca",30, 10,7
+"TAD Miahuatlán",30, 10,7
+"TAD Tapachula",5, 10,7
+"TAD Salina Cruz",20, 10,7
+"TAD Puebla",21, 10,7
+"TAD Progreso",31, 10,7
+"TAD Poza Rica",30, 10,7
+"TAD Mérida",31, 10,7
+"TAD Escamela",30, 10,7
+"TAD Campeche",4, 10,7
+"TAD Minatitlán",30, 10,7
+"TAD Perote",30, 10,7
+"TAD Acapulco",12, 10,7
+"TAD Oaxaca",20, 10,7
+"TAD Cadereyta",19, 10,8
+"TAD Santa Catarina",19, 10,8
+"TAD Monclova",8, 10,8
+"TAD Nuevo Laredo",28, 10,8
+"TAD Sabinas",8, 10,8
+"TAD Saltillo",8, 10,8
+"TAD Reynosa",28, 10,8
+"TAD Chihuahua",6, 10,8
+"TAD Cd. Juárez",6, 10,8
+"TAD Gómez Palacio",10, 10,8
+"TAD Durango",10, 10,8
+"TAD Parral",6, 10,8
+"TAD Aguascalientes",1, 10,8
+"TAD San Luis Potosí",24, 10,8
+"TAD Cd. Mante",28, 10,8
+"TAD Cd. Victoria",28, 10,8
+"TAD Cd. Valles",24, 10,8
+"TAD Zacatecas",32, 10,8
+"TAD Matehuala",24, 10,8
+"TAD Cd. Obregón",26, 10,9
+"TAD Colima",9, 10,9
+"TAD Culiacán",25, 10,9
+"TAD El Castillo",14, 10,9
+"TAD Ensenada",2, 10,9
+"TAD Guamúchil",25, 10,9
+"TAD Hermosillo",26, 10,9
+"TAD La Paz",3, 10,9
+"TAD Lázaro Cárdenas",30, 10,9
+"TAD Magdalena",26, 10,9
+"TAD Manzanillo",9, 10,9
+"TAD Mazatlán",25, 10,9
+"TAD Mexicali",2, 10,9
+"TAD Navojoa",26, 10,9
+"TAD Nogales",26, 10,9
+"TAD Rosarito",2, 10,9
+"TAD Tepic",18, 10,9
+"TAD Topolobampo",25, 10,9
+"TAD Zapopan",14, 10,9
+"TASP Guaymas",26, 10,10
+"TPL Madero (TASP Madero, TAD Madero y TDGL Madero)",28, 10,10
+"TASP Pajaritos (TASP Pajaritos y TAD Pajaritos)",30, 10,10
+"TASP Salina Cruz",20, 10,10
+"TASP Tuxpan",30, 10,10
+"RASP Rosarito",2, 10,10
+"RASP Topolobampo",25, 10,10
+"RASP Mazatlán",25, 10,10
+"RASP La Paz",3, 10,10
+"RASP Manzanillo",9, 10,10
+"RASP Lázaro Cárdenas",30, 10,10
+"RASP Acapulco",12, 10,10
+"RASP Progreso",31, 10,10
+"RASP Lerma",4, 10,10
+"RASP Veracruz",30, 10,10
+"TDGL Abasolo",11, 10,11
+"TDGL Cactus",5, 10,11
+"TDGL Topolobampo",25, 10,11
+"TDGL Rosarito",2, 10,11
+"TDGL Cd. Juárez",6, 10,11
+"TDGL Tula",13, 10,11
+"TDGL Puebla",21, 10,11
+"TDGL Tepeji del Río",13, 10,11
+"TDGL Salina Cruz",20, 10,11
+"TDGL Monterrey (TDF)",19, 10,11
+"TDGL Zapotlanejo (Transportadora del  Norte)",14, 10,11
+"Oficinas Centrales", 7, 11,12
+"Superintendencia de Medición Zona Sureste Minatitlán", 30, 11,12
+"Superintendencia de Medición Zona Sureste Salina Cruz", 20, 11,12
+"Superintendencia de Medición Zona Norte-Pacífico Guadalupe", 19, 11,12
+"Superintendencia de Medición Zona Norte-Pacífico Guaymas", 26, 11,12
+"Superintendencia de Medición Zona Norte-Pacífico Rosarito", 2, 11,12
+"Superintendencia de Medición Zona Centro Querétaro", 22, 11,12
+"Superintendencia de Medición Zona Golfo Cd. Madero", 28, 11,12
+"Superintendencia de Medición Zona Golfo Poza Rica", 30, 11,12

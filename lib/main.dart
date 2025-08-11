@@ -1,17 +1,17 @@
-import 'package:calibraciones/firebase_options.dart';
 import 'package:calibraciones/screens/vista_contrasenia.dart';
 import 'package:calibraciones/screens/vista_detalle_calibracion.dart';
 import 'package:calibraciones/screens/vista_inicio.dart';
 import 'package:calibraciones/screens/vista_registro.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/vista_login.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+    await Supabase.initialize(
+    // TODO: Replace credentials with your own
+    url: 'https://zkviewvpmswfgpiwpoez.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprdmlld3ZwbXN3ZmdwaXdwb2V6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0NTgxMzQsImV4cCI6MjA3MDAzNDEzNH0.E5i81N4_usUAqcLySjGZUk7rGOFHOLBBk8p1nzYjHbw',
   );
   runApp(PemexCalibraciones());
 }
@@ -23,8 +23,8 @@ class PemexCalibraciones extends StatefulWidget {
   State<StatefulWidget> createState() => _MainState();
 }
 
-class _MainState extends State<PemexCalibraciones> {
-  final User? usuarioActual = FirebaseAuth.instance.currentUser;
+  class _MainState extends State<PemexCalibraciones> {
+  final User? usuarioActual = Supabase.instance.client.auth.currentUser;
   late String? token = "";
 
   @override

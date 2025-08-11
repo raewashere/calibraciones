@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class VistaContrasenia extends StatefulWidget {
   const VistaContrasenia({super.key});
@@ -9,7 +9,7 @@ class VistaContrasenia extends StatefulWidget {
 }
 
 class VistaContraseniaState extends State<VistaContrasenia> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final SupabaseClient supabase = Supabase.instance.client;
   final _formularioCorreo = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
 
@@ -129,10 +129,21 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                                   if (_formularioCorreo.currentState!
                                       .validate()) {
                                     try {
-                                      _auth.sendPasswordResetEmail(
-                                        email: _emailController.text,
-                                      );
-                                    } on FirebaseAuthException catch (e) {
+                                      supabase.auth
+                                          .resetPasswordForEmail(
+                                        _emailController.text,
+                                      )
+                                          .then((value) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Enlace de recuperación enviado a ${_emailController.text}',
+                                            ),
+                                          ),
+                                        );
+                                      });
+                                    } on AuthException catch (e) {
                                       e.message != null
                                           ? ScaffoldMessenger.of(
                                               context,

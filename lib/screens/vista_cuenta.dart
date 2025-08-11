@@ -1,9 +1,9 @@
 import 'package:calibraciones/models/_usuario.dart';
 import 'package:calibraciones/services/implementation/usuario_service_impl.dart';
 import 'package:calibraciones/services/usuario_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class VistaCuenta extends StatefulWidget {
   const VistaCuenta({super.key});
@@ -13,8 +13,8 @@ class VistaCuenta extends StatefulWidget {
 }
 
 class VistaCuentaState extends State<VistaCuenta> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final User? usuarioActual = FirebaseAuth.instance.currentUser;
+  final SupabaseClient supabase = Supabase.instance.client;
+  final User? usuarioActual = Supabase.instance.client.auth.currentUser;
   final UsuarioService controlador = UsuarioServiceImpl();
   late Future<Usuario?> usuario;
   Usuario? login;
@@ -45,12 +45,12 @@ class VistaCuentaState extends State<VistaCuenta> {
 
   Future<void> _logout() async {
     try {
-      _auth.signOut();
+      supabase.auth.signOut();
       Navigator.pushReplacementNamed(context, '/login');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Saliendo de la aplicacion")));
-    } on FirebaseAuthException catch (e) {
+    } on AuthException catch (e) {
       String mensajeError;
 
       // Verificar el tipo de error
@@ -73,7 +73,7 @@ class VistaCuentaState extends State<VistaCuenta> {
 
   Future<void> cambiarContrasenia() async {
     try {
-      _auth.sendPasswordResetEmail(email: "${usuarioActual?.email}");
+      supabase.auth.resetPasswordForEmail("${usuarioActual?.email}");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -81,7 +81,7 @@ class VistaCuentaState extends State<VistaCuenta> {
           ),
         ),
       );
-    } on FirebaseAuthException catch (e) {
+    } on AuthException catch (e) {
       String mensajeError;
 
       // Verificar el tipo de error

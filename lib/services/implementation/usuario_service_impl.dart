@@ -1,11 +1,12 @@
 import 'package:calibraciones/models/_usuario.dart';
 import 'package:calibraciones/services/usuario_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 class UsuarioServiceImpl implements UsuarioService {
-  final String url = "http://127.0.0.1:8090/api";
+  final SupabaseClient supabase = Supabase.instance.client;
   final String urlN8N =
       "http://127.0.0.1:5678/webhook/31f9de4b-5677-4e3a-aa03-31e7174c7b6a";
   @override
@@ -20,40 +21,29 @@ class UsuarioServiceImpl implements UsuarioService {
     bool verificacionAdmin,
   ) async {
     try {
-      final response = await http.post(
-        Uri.parse('$url/usuario'),
-        body: jsonEncode({
+      final AuthResponse res = await supabase.auth.signUp(
+        email: correoElectronico,
+        password: password,
+      );
+      final Session? session = res.session;
+      final User? user = res.user;
+
+      if (user == null) {
+        return false;
+      } else {
+        // Aquí puedes guardar el usuario en tu base de datos
+        final List<Map<String, dynamic>> data = await supabase.from('usuario').insert([{
           'correo_electronico': correoElectronico,
           'nombre': nombre,
           'primer_apellido': primerApellido,
           'segundo_apellido': segundoApellido,
           'telefono': telefono,
-          'password': password,
           'rol': rol,
           'verificacion_admin': verificacionAdmin,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      );
+          'id_instalacion': 1, // Asignar una instalación por defecto
+        }]).select();
 
-      if (response.statusCode == 201) {
-        final FirebaseAuth auth = FirebaseAuth.instance;
-        await auth.createUserWithEmailAndPassword(
-          email: correoElectronico,
-          password: password,
-        );
-
-        await auth.currentUser?.sendEmailVerification();
-        final Map<String, dynamic> data = jsonDecode(response.body);
-
-        //Recuperar el usuario creado en objeto Usuario
-        Usuario usuario = Usuario.fromJsonCreate(data);
-
-        //Usuario a string
-        print(usuario.toString());
-
+/*
         http.post(
           Uri.parse(urlN8N),
           body: jsonEncode({
@@ -67,11 +57,16 @@ class UsuarioServiceImpl implements UsuarioService {
             'Accept': 'application/json',
           },
         );
+        */
 
-        return true;
-      } else {
-        throw Exception('Error al registrar usuario: ${response.statusCode}');
+        if (data.isEmpty) {
+          throw Exception(
+            'Error al registrar usuario: ${data[0]['error']}',
+          );
+        }
       }
+
+      return true;
     } catch (e) {
       print('Error al registrar usuario: $e');
       return false;

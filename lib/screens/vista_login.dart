@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class VistaLogin extends StatefulWidget {
   const VistaLogin({super.key});
@@ -9,7 +9,7 @@ class VistaLogin extends StatefulWidget {
 }
 
 class VistaLoginState extends State<VistaLogin> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final SupabaseClient supabase = Supabase.instance.client;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -19,30 +19,28 @@ class VistaLoginState extends State<VistaLogin> {
 
   Future<void> _signIn() async {
     try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
-
-      if (_auth.currentUser!.emailVerified) {
+      /*final AuthResponse res = await supabase.auth.signInWithPassword(password: _passwordController.text, email: _emailController.text);
+      final Session? session = res.session;
+      final User? user = res.user;*/
+      Navigator.pushReplacementNamed(context, '/inicio');
+       
+      /*if (user != null && user.emailConfirmedAt != null) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Bienvenido de nuevo')));
 
         Navigator.pushReplacementNamed(context, '/inicio');
       } else {
-        await _auth.currentUser?.sendEmailVerification();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Aun no has, verificado tu cuenta, revisa el correo que te enviamos',
-            ),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(
+          content: Text('Por favor verifica tu correo electrónico'),
+        ));
       }
+*/
 
       //print('User signed in: ${userCredential.user?.email}');
-    } on FirebaseAuthException catch (e) {
+    } on AuthException catch (e) {
       String mensajeError;
 
       // Verificar el tipo de error

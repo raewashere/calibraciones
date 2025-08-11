@@ -1,6 +1,7 @@
 import 'package:calibraciones/models/_direccion.dart';
 import 'package:calibraciones/models/_subdireccion.dart';
 import 'package:calibraciones/services/direccion_service.dart';
+import 'package:calibraciones/services/implementation/direccion_service_impl.dart';
 import 'package:flutter/material.dart';
 
 class VistaRegistroCalibracion extends StatefulWidget {
@@ -22,7 +23,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
   late Future<List<Direccion>> _futureDirecciones;
   Direccion? selectedDireccion;
-  DireccionService direccionService = DireccionService();
+  DireccionService direccionService = DireccionServiceImpl();
 
   List<Subdireccion> subdirecciones = [];
   late Subdireccion subdireccion;
@@ -36,7 +37,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   @override
   void initState() {
     super.initState();
-    _futureDirecciones = direccionService.getAllDirecciones();
+    _futureDirecciones = direccionService.obtenerAllDirecciones();
   }
 
   @override

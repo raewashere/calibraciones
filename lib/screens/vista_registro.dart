@@ -1,4 +1,9 @@
+import 'package:calibraciones/models/_direccion.dart';
+import 'package:calibraciones/models/_instalacion.dart';
+import 'package:calibraciones/models/_subdireccion.dart';
 import 'package:calibraciones/models/_usuario.dart';
+import 'package:calibraciones/services/direccion_service.dart';
+import 'package:calibraciones/services/implementation/direccion_service_impl.dart';
 import 'package:calibraciones/services/implementation/usuario_service_impl.dart';
 import 'package:calibraciones/services/usuario_service.dart';
 import 'package:flutter/material.dart';
@@ -23,10 +28,32 @@ class VistaRegistroState extends State<VistaRegistro> {
   bool respuestaRegistro = false;
   UsuarioService usuarioService = UsuarioServiceImpl();
 
+  List<Direccion> direcciones = [];
+  Direccion ? direccionSeleccionada;
+
+  List<Subdireccion> subdirecciones = [];
+  Subdireccion ? subdireccionSeleccionada;
+
+  List<Instalacion> instalaciones = [];
+  Instalacion ? instalacionSeleccionada;
+
+  DireccionService direccionService = DireccionServiceImpl();
+
   bool validarEmail(String email) {
     final RegExp regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     return regex.hasMatch(email);
   }
+  
+  @override
+  void initState() {
+    super.initState();
+    direccionService.obtenerAllDirecciones().then((value) {
+      setState(() {
+        direcciones = value;
+      });
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +119,44 @@ class VistaRegistroState extends State<VistaRegistro> {
                           ),
                           child: Column(
                             children: <Widget>[
+                              _buildDropdownButtonDireccion(
+                                context,
+                                hintText: "Dirección",
+                                items: direcciones,
+                                value: direccionSeleccionada,
+                                onChanged: (value) {
+                                  setState(() {
+                                    direccionSeleccionada = value;
+                                    subdirecciones = value!.getSubdirecciones();
+                                  });
+                                },
+                              ),
+                              SizedBox(height: 10),
+                              _buildDropdownButtonSubdireccion(
+                                context,
+                                hintText: "Subdirección",
+                                items: subdirecciones,
+                                value: subdireccionSeleccionada,
+                                onChanged: (value) {
+                                  setState(() {
+                                    subdireccionSeleccionada = value;
+                                    instalaciones = value!.getInstalaciones;
+                                  });
+                                },
+                              ),
+                              SizedBox(height: 10),
+                              _buildDropdownButtonInstalaciones(
+                                context,
+                                hintText: "Instalación",
+                                items: instalaciones,
+                                value: instalacionSeleccionada,
+                                onChanged: (value) {
+                                  setState(() {
+                                    instalacionSeleccionada = value;
+                                  });
+                                },
+                              ),
+                              SizedBox(height: 10),
                               _buildTextFormField(
                                 context,
                                 hintText: "Nombre(s)",
@@ -226,7 +291,7 @@ class VistaRegistroState extends State<VistaRegistro> {
                                                           .colorScheme
                                                           .tertiaryContainer,
                                                   content: Text(
-                                                    'Usuario registrado correctamente, por favor verifica tu correo electrónico',
+                                                    'Usuario registrado correctamente, por favor verifica tu correo electrónico, y espera validación del administrador',
                                                   ),
                                                 ),
                                               );
@@ -391,6 +456,96 @@ class VistaRegistroState extends State<VistaRegistro> {
           return null;
         },
       ),
+    );
+  }
+
+  Widget _buildDropdownButtonDireccion(
+    BuildContext context, {
+    required String hintText,
+    required List<Direccion> items,
+    required Direccion? value,
+    required ValueChanged<Direccion?> onChanged,
+  }) {
+    return DropdownButtonFormField<Direccion>(
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary),
+        ),
+      ),
+      value: value,
+      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      items: items.map((Direccion item) {
+        return DropdownMenuItem<Direccion>(value: item, child: Text(item.getNombre));
+      }).toList(),
+      onChanged: onChanged,
+      validator: (value) {
+        /*if (value == null) {
+          return 'Por favor selecciona una opción';
+        }*/
+        return null;
+      },
+    );
+  }
+
+    Widget _buildDropdownButtonSubdireccion(
+    BuildContext context, {
+    required String hintText,
+    required List<Subdireccion> items,
+    required Subdireccion? value,
+    required ValueChanged<Subdireccion?> onChanged,
+  }) {
+    return DropdownButtonFormField<Subdireccion>(
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary),
+        ),
+      ),
+      value: value,
+      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      items: items.map((Subdireccion item) {
+        return DropdownMenuItem<Subdireccion>(value: item, child: Text(item.getNombre));
+      }).toList(),
+      onChanged: onChanged,
+      validator: (value) {
+/*if (value == null) {
+          return 'Por favor selecciona una opción';
+        }*/
+        return null;
+      },
+    );
+  }
+
+      Widget _buildDropdownButtonInstalaciones(
+    BuildContext context, {
+    required String hintText,
+    required List<Instalacion> items,
+    required Instalacion? value,
+    required ValueChanged<Instalacion?> onChanged,
+  }) {
+    return DropdownButtonFormField<Instalacion>(
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary),
+        ),
+      ),
+      value: value,
+      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      items: items.map((Instalacion item) {
+        return DropdownMenuItem<Instalacion>(value: item, child: Text(item.getNombreInstalacion));
+      }).toList(),
+      onChanged: onChanged,
+      validator: (value) {
+                /*if (value == null) {
+          return 'Por favor selecciona una opción';
+        }*/
+        return null;
+      },
     );
   }
 }
