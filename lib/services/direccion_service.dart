@@ -1,9 +1,10 @@
+import 'package:calibraciones/dto/dto_direccion.dart';
 import 'package:calibraciones/models/_direccion.dart';
 
 abstract class DireccionService {
 
-  Future<Direccion> obtenerDireccionId(int idDireccion);
+  Future<DtoDireccion> obtenerDireccionRegistro();
 
-  Future<List<Direccion>> obtenerAllDirecciones();
+  Future<List<DtoDireccion>> obtenerAllDirecciones();
 
 }

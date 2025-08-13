@@ -8,8 +8,11 @@ abstract class UsuarioService {
     String segundoApellido,
     String telefono,
     String password,
-    String rol,
-    bool verificacionAdmin,
+    String nombreDireccion,
+    String nombreSubdireccion,
+    String nombreGerencia,
+    int idInstalacion,
+    String nombreInstalacionw
   );
 
   Future<void> iniciarSesion(String correoElectronico, String password);

@@ -1,7 +1,11 @@
 import 'package:calibraciones/screens/vista_contrasenia.dart';
+import 'package:calibraciones/screens/vista_cuenta.dart';
 import 'package:calibraciones/screens/vista_detalle_calibracion.dart';
+import 'package:calibraciones/screens/vista_equipo.dart';
 import 'package:calibraciones/screens/vista_inicio.dart';
 import 'package:calibraciones/screens/vista_registro.dart';
+import 'package:calibraciones/screens/vista_registro_calibracion.dart';
+import 'package:calibraciones/screens/vista_reporte_calibracion.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/vista_login.dart';
@@ -156,6 +160,10 @@ class PemexCalibraciones extends StatefulWidget {
         '/inicio': (context) => VistaInicio(),
         '/contrasenia': (context) => VistaContrasenia(),
         '/detalle_calibracion': (context) => VistaDetalleCalibracion(),
+        '/registro_calibracion': (context) => VistaRegistroCalibracion(),
+        '/reporte_calibraciones': (context) => VistaReporteCalibracion(),
+        '/equipos': (context) => VistaEquipo(),
+        '/cuenta': (context) => VistaCuenta(),
       },
     );
   }

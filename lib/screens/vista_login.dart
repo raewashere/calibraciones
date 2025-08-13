@@ -19,12 +19,12 @@ class VistaLoginState extends State<VistaLogin> {
 
   Future<void> _signIn() async {
     try {
-      /*final AuthResponse res = await supabase.auth.signInWithPassword(password: _passwordController.text, email: _emailController.text);
+      final AuthResponse res = await supabase.auth.signInWithPassword(password: _passwordController.text, email: _emailController.text);
       final Session? session = res.session;
-      final User? user = res.user;*/
-      Navigator.pushReplacementNamed(context, '/inicio');
+      final User? user = res.user;
+      //Navigator.pushReplacementNamed(context, '/inicio');
        
-      /*if (user != null && user.emailConfirmedAt != null) {
+      if (user != null && user.emailConfirmedAt != null) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Bienvenido de nuevo')));
@@ -37,7 +37,7 @@ class VistaLoginState extends State<VistaLogin> {
           content: Text('Por favor verifica tu correo electrónico'),
         ));
       }
-*/
+
 
       //print('User signed in: ${userCredential.user?.email}');
     } on AuthException catch (e) {

@@ -1,4 +1,9 @@
+import 'package:calibraciones/dto/dto_direccion.dart';
+import 'package:calibraciones/dto/dto_gerencia.dart';
+import 'package:calibraciones/dto/dto_instalacion.dart';
+import 'package:calibraciones/dto/dto_subdireccion_logistica.dart';
 import 'package:calibraciones/models/_direccion.dart';
+import 'package:calibraciones/models/_gerencia.dart';
 import 'package:calibraciones/models/_instalacion.dart';
 import 'package:calibraciones/models/_subdireccion.dart';
 import 'package:calibraciones/models/_usuario.dart';
@@ -28,14 +33,17 @@ class VistaRegistroState extends State<VistaRegistro> {
   bool respuestaRegistro = false;
   UsuarioService usuarioService = UsuarioServiceImpl();
 
-  List<Direccion> direcciones = [];
-  Direccion ? direccionSeleccionada;
+  List<DtoDireccion> direcciones = [];
+  DtoDireccion? direccionSeleccionada;
 
-  List<Subdireccion> subdirecciones = [];
-  Subdireccion ? subdireccionSeleccionada;
+  List<DtoSubdireccionLogistica> subdirecciones = [];
+  DtoSubdireccionLogistica? subdireccionSeleccionada;
 
-  List<Instalacion> instalaciones = [];
-  Instalacion ? instalacionSeleccionada;
+  List<DtoGerencia> gerencias = [];
+  DtoGerencia? gerenciaSeleccionada;
+
+  List<DtoInstalacion> instalaciones = [];
+  DtoInstalacion? instalacionSeleccionada;
 
   DireccionService direccionService = DireccionServiceImpl();
 
@@ -43,17 +51,16 @@ class VistaRegistroState extends State<VistaRegistro> {
     final RegExp regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     return regex.hasMatch(email);
   }
-  
+
   @override
   void initState() {
     super.initState();
-    direccionService.obtenerAllDirecciones().then((value) {
+    direccionService.obtenerDireccionRegistro().then((value) {
       setState(() {
-        direcciones = value;
+        direcciones = [value];
       });
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +134,7 @@ class VistaRegistroState extends State<VistaRegistro> {
                                 onChanged: (value) {
                                   setState(() {
                                     direccionSeleccionada = value;
-                                    subdirecciones = value!.getSubdirecciones();
+                                    subdirecciones = value!.getSubdireccionesLogisticas();
                                   });
                                 },
                               ),
@@ -140,7 +147,20 @@ class VistaRegistroState extends State<VistaRegistro> {
                                 onChanged: (value) {
                                   setState(() {
                                     subdireccionSeleccionada = value;
-                                    instalaciones = value!.getInstalaciones;
+                                    gerencias = value!.getGerencias();
+                                  });
+                                },
+                              ),
+                              SizedBox(height: 10),
+                              _buildDropdownButtonGerencia(
+                                context,
+                                hintText: "Gerencia",
+                                items: gerencias,
+                                value: gerenciaSeleccionada,
+                                onChanged: (value) {
+                                  setState(() {
+                                    gerenciaSeleccionada = value;
+                                    instalaciones = value!.getInstalaciones();
                                   });
                                 },
                               ),
@@ -251,8 +271,11 @@ class VistaRegistroState extends State<VistaRegistro> {
                                                       _segundoController.text,
                                                       _telefonoController.text,
                                                       _passwordController.text,
-                                                      'usuario',
-                                                      false,
+                                                      direccionSeleccionada!.getNombreDireccion(),
+                                                      subdireccionSeleccionada!.getNombreSubdireccion(),
+                                                      gerenciaSeleccionada!.getNombreGerencia(),
+                                                      instalacionSeleccionada!.getIdInstalacion(),
+                                                      instalacionSeleccionada!.getNombreInstalacion(),
                                                     );
                                             print(
                                               'Respuesta del registro: $respuestaRegistro',
@@ -282,7 +305,7 @@ class VistaRegistroState extends State<VistaRegistro> {
                                               ).showSnackBar(
                                                 SnackBar(
                                                   duration: const Duration(
-                                                    seconds: 2,
+                                                    seconds: 5,
                                                   ),
                                                   behavior:
                                                       SnackBarBehavior.floating,
@@ -462,11 +485,11 @@ class VistaRegistroState extends State<VistaRegistro> {
   Widget _buildDropdownButtonDireccion(
     BuildContext context, {
     required String hintText,
-    required List<Direccion> items,
-    required Direccion? value,
-    required ValueChanged<Direccion?> onChanged,
+    required List<DtoDireccion> items,
+    required DtoDireccion? value,
+    required ValueChanged<DtoDireccion?> onChanged,
   }) {
-    return DropdownButtonFormField<Direccion>(
+    return DropdownButtonFormField<DtoDireccion>(
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
@@ -476,8 +499,11 @@ class VistaRegistroState extends State<VistaRegistro> {
       ),
       value: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
-      items: items.map((Direccion item) {
-        return DropdownMenuItem<Direccion>(value: item, child: Text(item.getNombre));
+      items: items.map((DtoDireccion item) {
+        return DropdownMenuItem<DtoDireccion>(
+          value: item,
+          child: Text(item.getNombreDireccion()),
+        );
       }).toList(),
       onChanged: onChanged,
       validator: (value) {
@@ -489,14 +515,14 @@ class VistaRegistroState extends State<VistaRegistro> {
     );
   }
 
-    Widget _buildDropdownButtonSubdireccion(
+  Widget _buildDropdownButtonSubdireccion(
     BuildContext context, {
     required String hintText,
-    required List<Subdireccion> items,
-    required Subdireccion? value,
-    required ValueChanged<Subdireccion?> onChanged,
+    required List<DtoSubdireccionLogistica> items,
+    required DtoSubdireccionLogistica? value,
+    required ValueChanged<DtoSubdireccionLogistica?> onChanged,
   }) {
-    return DropdownButtonFormField<Subdireccion>(
+    return DropdownButtonFormField<DtoSubdireccionLogistica>(
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
@@ -506,12 +532,15 @@ class VistaRegistroState extends State<VistaRegistro> {
       ),
       value: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
-      items: items.map((Subdireccion item) {
-        return DropdownMenuItem<Subdireccion>(value: item, child: Text(item.getNombre));
+      items: items.map((DtoSubdireccionLogistica item) {
+        return DropdownMenuItem<DtoSubdireccionLogistica>(
+          value: item,
+          child: Text(item.getNombreSubdireccion()),
+        );
       }).toList(),
       onChanged: onChanged,
       validator: (value) {
-/*if (value == null) {
+        /*if (value == null) {
           return 'Por favor selecciona una opción';
         }*/
         return null;
@@ -519,14 +548,14 @@ class VistaRegistroState extends State<VistaRegistro> {
     );
   }
 
-      Widget _buildDropdownButtonInstalaciones(
+    Widget _buildDropdownButtonGerencia(
     BuildContext context, {
     required String hintText,
-    required List<Instalacion> items,
-    required Instalacion? value,
-    required ValueChanged<Instalacion?> onChanged,
+    required List<DtoGerencia> items,
+    required DtoGerencia? value,
+    required ValueChanged<DtoGerencia?> onChanged,
   }) {
-    return DropdownButtonFormField<Instalacion>(
+    return DropdownButtonFormField<DtoGerencia>(
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
@@ -536,12 +565,48 @@ class VistaRegistroState extends State<VistaRegistro> {
       ),
       value: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
-      items: items.map((Instalacion item) {
-        return DropdownMenuItem<Instalacion>(value: item, child: Text(item.getNombreInstalacion));
+      items: items.map((DtoGerencia item) {
+        return DropdownMenuItem<DtoGerencia>(
+          value: item,
+          child: Text(item.getNombreGerencia()),
+        );
       }).toList(),
       onChanged: onChanged,
       validator: (value) {
-                /*if (value == null) {
+        /*if (value == null) {
+          return 'Por favor selecciona una opción';
+        }*/
+        return null;
+      },
+    );
+  }
+
+  Widget _buildDropdownButtonInstalaciones(
+    BuildContext context, {
+    required String hintText,
+    required List<DtoInstalacion> items,
+    required DtoInstalacion? value,
+    required ValueChanged<DtoInstalacion?> onChanged,
+  }) {
+    return DropdownButtonFormField<DtoInstalacion>(
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary),
+        ),
+      ),
+      value: value,
+      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      items: items.map((DtoInstalacion item) {
+        return DropdownMenuItem<DtoInstalacion>(
+          value: item,
+          child: Text(item.getNombreInstalacion()),
+        );
+      }).toList(),
+      onChanged: onChanged,
+      validator: (value) {
+        /*if (value == null) {
           return 'Por favor selecciona una opción';
         }*/
         return null;

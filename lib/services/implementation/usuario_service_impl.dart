@@ -8,7 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class UsuarioServiceImpl implements UsuarioService {
   final SupabaseClient supabase = Supabase.instance.client;
   final String urlN8N =
-      "http://127.0.0.1:5678/webhook/31f9de4b-5677-4e3a-aa03-31e7174c7b6a";
+      "https://n8n-1xb0.onrender.com/webhook/31f9de4b-5677-4e3a-aa03-31e7174c7b6a";
   @override
   Future<bool> registrarUsuario(
     String correoElectronico,
@@ -17,8 +17,11 @@ class UsuarioServiceImpl implements UsuarioService {
     String segundoApellido,
     String telefono,
     String password,
-    String rol,
-    bool verificacionAdmin,
+    String nombreDireccion,
+    String nombreSubdireccion,
+    String nombreGerencia,
+    int idInstalacion,
+    String nombreInstalacion
   ) async {
     try {
       final AuthResponse res = await supabase.auth.signUp(
@@ -38,12 +41,13 @@ class UsuarioServiceImpl implements UsuarioService {
           'primer_apellido': primerApellido,
           'segundo_apellido': segundoApellido,
           'telefono': telefono,
-          'rol': rol,
-          'verificacion_admin': verificacionAdmin,
-          'id_instalacion': 1, // Asignar una instalación por defecto
+          'rol': 'usuario',
+          'verificacion_admin': false,
+          'id_instalacion': idInstalacion,
         }]).select();
 
-/*
+        final Usuario usuario = Usuario.fromJsonCreate(data[0]);
+
         http.post(
           Uri.parse(urlN8N),
           body: jsonEncode({
@@ -51,13 +55,17 @@ class UsuarioServiceImpl implements UsuarioService {
             'nombre': '$nombre $primerApellido $segundoApellido',
             'telefono': telefono,
             'id_usuario': usuario.folioUsuario,
+            'direccion': nombreDireccion,
+            'subdireccion': nombreSubdireccion,
+            'gerencia': nombreGerencia,
+            'instalacion': nombreInstalacion
           }),
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
           },
         );
-        */
+        
 
         if (data.isEmpty) {
           throw Exception(

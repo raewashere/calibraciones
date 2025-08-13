@@ -11,6 +11,7 @@ class Usuario {
   String password = '';
   String rol;
   bool verificacionAdmin;
+  int idInstalacion;
   List<CalibracionEquipo> registroCalibraciones = [];
 
   // Constructor
@@ -22,7 +23,8 @@ class Usuario {
     this.segundoApellido,
     this.telefono,
     this.rol,
-    this.verificacionAdmin
+    this.verificacionAdmin,
+    this.idInstalacion,
   );
 
   
@@ -36,6 +38,7 @@ class Usuario {
   String get getPasword => password;
   String get getRol => rol;
   bool get getVerificacionAdmin => verificacionAdmin;
+  int get getIdInstalacion => idInstalacion;
   List<CalibracionEquipo> getRegistroCalibraciones() => registroCalibraciones;
 
   set setFolioUsuario(int value) {
@@ -78,6 +81,9 @@ class Usuario {
     registroCalibraciones = value;
   }
 
+  set setIdInstalacion(int value) {
+    idInstalacion = value;
+  }
 
   factory Usuario.fromJsonCreate(Map<String, dynamic> json) {
     return Usuario(
@@ -88,13 +94,14 @@ class Usuario {
       json['segundo_apellido'] as String,
       json['telefono'] as String,
       json['rol'] as String,
-      json['verificacion_admin'] as bool
+      json['verificacion_admin'] as bool,
+      json['id_instalacion'] as int
     );
   }
 
   //A String representation of the Usuario object
   @override
   String toString() {
-    return 'Usuario(folioUsuario: $folioUsuario, correoElectronico: $correoElectronico, nombre: $nombre, primerApellido: $primerApellido, segundoApellido: $segundoApellido, telefono: $telefono, rol: $rol, verificacionAdmin: $verificacionAdmin)';
+    return 'Usuario(folioUsuario: $folioUsuario, correoElectronico: $correoElectronico, nombre: $nombre, primerApellido: $primerApellido, segundoApellido: $segundoApellido, telefono: $telefono, rol: $rol, verificacionAdmin: $verificacionAdmin, idInstalacion: $idInstalacion)';
   }
 }

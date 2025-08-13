@@ -37,7 +37,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   @override
   void initState() {
     super.initState();
-    _futureDirecciones = direccionService.obtenerAllDirecciones();
+    //_futureDirecciones = direccionService.obtenerAllDirecciones();
+    _futureDirecciones = Future.delayed(
+      const Duration(seconds: 2),
+      () => [],
+    );
   }
 
   @override
