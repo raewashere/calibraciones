@@ -3,6 +3,7 @@ import 'package:calibraciones/screens/vista_cuenta.dart';
 import 'package:calibraciones/screens/vista_detalle_calibracion.dart';
 import 'package:calibraciones/screens/vista_equipo.dart';
 import 'package:calibraciones/screens/vista_inicio.dart';
+import 'package:calibraciones/screens/vista_recuperacion_contrasenia.dart';
 import 'package:calibraciones/screens/vista_registro.dart';
 import 'package:calibraciones/screens/vista_registro_calibracion.dart';
 import 'package:calibraciones/screens/vista_reporte_calibracion.dart';
@@ -15,7 +16,7 @@ Future<void> main() async {
     await Supabase.initialize(
     // TODO: Replace credentials with your own
     url: 'https://zkviewvpmswfgpiwpoez.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprdmlld3ZwbXN3ZmdwaXdwb2V6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0NTgxMzQsImV4cCI6MjA3MDAzNDEzNH0.E5i81N4_usUAqcLySjGZUk7rGOFHOLBBk8p1nzYjHbw',
+    anonKey: '',
   );
   runApp(PemexCalibraciones());
 }
@@ -164,6 +165,7 @@ class PemexCalibraciones extends StatefulWidget {
         '/reporte_calibraciones': (context) => VistaReporteCalibracion(),
         '/equipos': (context) => VistaEquipo(),
         '/cuenta': (context) => VistaCuenta(),
+        '/recuperacion_contrasenia': (context) => VistaRecuperacionContrasenia(),
       },
     );
   }

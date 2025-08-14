@@ -73,7 +73,7 @@ class VistaCuentaState extends State<VistaCuenta> {
 
   Future<void> cambiarContrasenia() async {
     try {
-      supabase.auth.resetPasswordForEmail("${usuarioActual?.email}");
+      supabase.auth.resetPasswordForEmail("${usuarioActual?.email}", redirectTo: 'https://www.google.com/');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(

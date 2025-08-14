@@ -174,7 +174,7 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                                         ),
                                       ),
                                     );
-                                    Navigator.pushNamed(context, '/login');
+                                    Navigator.pushNamed(context, '/recuperacion_contrasenia');
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
