@@ -1,5 +1,8 @@
+import 'package:calibraciones/dto/dto_instalacion.dart';
 import 'package:calibraciones/models/_usuario.dart';
+import 'package:calibraciones/services/implementation/instalacion_service_impl.dart';
 import 'package:calibraciones/services/implementation/usuario_service_impl.dart';
+import 'package:calibraciones/services/instalacion_service.dart';
 import 'package:calibraciones/services/usuario_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
@@ -16,31 +19,36 @@ class VistaCuentaState extends State<VistaCuenta> {
   final SupabaseClient supabase = Supabase.instance.client;
   final User? usuarioActual = Supabase.instance.client.auth.currentUser;
   final UsuarioService controlador = UsuarioServiceImpl();
-  late Future<Usuario?> usuario;
+  final InstalacionService servicioInstalacion = InstalacionServiceImpl();
   Usuario? login;
-  final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _primerApellidoController =
-      TextEditingController();
-  final TextEditingController _segundoApellidoController =
-      TextEditingController();
+  DtoInstalacion? instalacion;
 
-  Future<Usuario?> datosUsuario() async {
+  Future<void> datosUsuario() async {
     if (usuarioActual == null) {
-      return null; // Si no hay usuario actual, retorna null
+      return; // Si no hay usuario actual, retorna
     }
 
     // Obtiene los datos del usuario actual
     final data = await controlador.obtenerUsuario(usuarioActual?.email);
+
     setState(() {
       login = data;
     });
-    return data;
+
+    final instalacionData = await servicioInstalacion.obtenerInstalacionPorId(
+      login?.idInstalacion ?? 0,
+    );
+    setState(() {
+      instalacion = instalacionData;
+    });
+
+    print(instalacion.toString());
   }
 
   @override
   void initState() {
     super.initState();
-    usuario = datosUsuario();
+    datosUsuario();
   }
 
   Future<void> _logout() async {
@@ -82,9 +90,7 @@ class VistaCuentaState extends State<VistaCuenta> {
   }
 
   Future<void> cambiarContrasenia() async {
-    await supabase.auth.resetPasswordForEmail(
-      usuarioActual!.email!,
-    );
+    await supabase.auth.resetPasswordForEmail(usuarioActual!.email!);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -92,7 +98,9 @@ class VistaCuentaState extends State<VistaCuenta> {
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
           backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-          content: Text('PIN de recuperación enviado a ${usuarioActual!.email!}'),
+          content: Text(
+            'PIN de recuperación enviado a ${usuarioActual!.email!}',
+          ),
         ),
       );
       Navigator.pushNamed(
@@ -101,8 +109,6 @@ class VistaCuentaState extends State<VistaCuenta> {
         arguments: login?.correoElectronico,
       );
     }
-    // Aquí puedes implementar la lógica para cambiar la contraseña
-    // Por ejemplo, podrías abrir un formulario para que el usuario ingrese su nueva contraseña
   }
 
   @override
@@ -125,15 +131,13 @@ class VistaCuentaState extends State<VistaCuenta> {
                       children: [
                         ProfilePicture(
                           name:
-                              ////Cambiar Raymundo Torres por Cargando...
                               login != null
                               ? '${login?.nombre} ${login?.primerApellido}'
-                              : 'USUARIO USUARIO',
+                              : '',
                           radius: 31,
                           fontsize: 21,
                         ),
                         Padding(padding: EdgeInsets.all(5)),
-                        //Cambiar Raymundo Torres por Cargando...
                         Text(
                           login != null
                               ? 'Bienvenido ${login?.nombre}'
@@ -166,7 +170,6 @@ class VistaCuentaState extends State<VistaCuenta> {
                             ).textTheme.titleMedium?.fontSize,
                           ),
                         ),
-                        //Text('${usuarioActual?.email}'),
                       ],
                     ),
                     SizedBox(height: 16),
@@ -179,16 +182,18 @@ class VistaCuentaState extends State<VistaCuenta> {
                           ).colorScheme.secondaryContainer,
                         ),
                         Padding(padding: EdgeInsets.all(5)),
-                        Text(
-                          '${login?.idInstalacion}',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSecondary,
-                            fontSize: Theme.of(
-                              context,
-                            ).textTheme.titleMedium?.fontSize,
+                        Expanded(
+                          child: Text(
+                            instalacion?.getNombreInstalacion() ?? 'Cargando...',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSecondary,
+                              fontSize: Theme.of(
+                                context,
+                              ).textTheme.titleMedium?.fontSize,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        //Text('${usuarioActual?.email}'),
                       ],
                     ),
                   ],
@@ -211,7 +216,13 @@ class VistaCuentaState extends State<VistaCuenta> {
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
-              //onTap: _abrirFormularioCambioDatos,
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  '/modificacion_datos',
+                  arguments: login,
+                );
+              },
             ),
             ListTile(
               textColor: Theme.of(context).colorScheme.tertiary,
@@ -242,93 +253,4 @@ class VistaCuentaState extends State<VistaCuenta> {
       ),
     );
   }
-
-  /*  Future<void> _abrirFormularioCambioDatos() async {
-    _nombreController.text = login!.nombre;
-    _primerApellidoController.text = login!.primerApellido;
-    _segundoApellidoController.text = login!.segundoApellido;
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Cambio de datos'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: InputDecoration(labelText: 'Nombre'),
-                controller: _nombreController,
-              ),
-              TextField(
-                decoration: InputDecoration(labelText: 'Primer apellido'),
-                controller: _primerApellidoController,
-              ),
-              TextField(
-                decoration: InputDecoration(labelText: 'Segundo Apellido'),
-                controller: _segundoApellidoController,
-              ),
-              // Agrega más campos según sea necesario
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra el formulario
-              },
-              child: Text(
-                'Cancelar',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                login?.nombre = _nombreController.text;
-                login?.primerApellido = _primerApellidoController.text;
-                login?.segundoApellido = _segundoApellidoController.text;
-                UsuarioService controladorUsuario = UsuarioServiceImpl();
-                bool correcto = await controladorUsuario.actualizarUsuario(
-                  login!,
-                );
-                if (!correcto) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      duration: const Duration(seconds: 2),
-                      behavior: SnackBarBehavior.floating,
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.tertiaryContainer,
-                      content: Text('Hubo un error al actualizar'),
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      duration: const Duration(seconds: 2),
-                      behavior: SnackBarBehavior.floating,
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.tertiaryContainer,
-                      content: Text('Se actualizó correctamente'),
-                    ),
-                  );
-                }
-                // Lógica para guardar los datos del formulario
-                Navigator.of(
-                  context,
-                ).pop(); // Cierra el formulario después de guardar
-              },
-              child: Text(
-                'Guardar',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }*/
 }

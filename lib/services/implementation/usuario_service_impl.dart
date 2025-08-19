@@ -108,18 +108,33 @@ class UsuarioServiceImpl implements UsuarioService {
   }
 
   @override
-  Future<void> actualizarPerfil(
+  Future<bool> actualizarDatosUsuario(
+    int idUsuario,
+    String correoElectronico,
     String nombre,
-    String apellidoPaterno,
-    String apellidoMaterno,
-  ) {
+    String primerApellido,
+    String segundoApellido,
+    String telefono,
+  ) async {
     // Implementación de la actualización de perfil
     try {
-      // Aquí iría la lógica para actualizar el perfil del usuario en Firebase o en tu backend
+      /*final UserResponse res = await supabase.auth.updateUser(
+        UserAttributes(email: correoElectronico),
+      );*/
+
+      await supabase.from('usuario').update({
+        //'correo_electronico': correoElectronico,
+        'nombre': nombre,
+        'primer_apellido': primerApellido,
+        'segundo_apellido': segundoApellido,
+        'telefono': telefono,
+      }).eq('id_usuario', idUsuario);
+
+      return Future.value(true);
     } catch (e) {
       throw Exception('Error al actualizar perfil: $e');
     }
-    return Future.error('No implementado');
+    
   }
 
   @override
@@ -149,6 +164,5 @@ class UsuarioServiceImpl implements UsuarioService {
       print('Error al obtener usuario: $e');
       return Future.error(e);
     }
-    return null;
   }
 }

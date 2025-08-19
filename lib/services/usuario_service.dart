@@ -12,17 +12,20 @@ abstract class UsuarioService {
     String nombreSubdireccion,
     String nombreGerencia,
     int idInstalacion,
-    String nombreInstalacionw
+    String nombreInstalacion
   );
 
   Future<void> iniciarSesion(String correoElectronico, String password);
 
   Future<void> cerrarSesion();
 
-  Future<void> actualizarPerfil(
+  Future<bool> actualizarDatosUsuario(
+    int idUsuario,
+    String correoElectronico,
     String nombre,
-    String apellidoPaterno,
-    String apellidoMaterno,
+    String primerApellido,
+    String segundoApellido,
+    String telefono,
   );
 
   Future<String?> obtenerToken();

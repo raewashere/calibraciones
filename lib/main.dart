@@ -3,6 +3,7 @@ import 'package:calibraciones/screens/vista_cuenta.dart';
 import 'package:calibraciones/screens/vista_detalle_calibracion.dart';
 import 'package:calibraciones/screens/vista_equipo.dart';
 import 'package:calibraciones/screens/vista_inicio.dart';
+import 'package:calibraciones/screens/vista_modificacion_datos.dart';
 import 'package:calibraciones/screens/vista_recuperacion_contrasenia.dart';
 import 'package:calibraciones/screens/vista_registro.dart';
 import 'package:calibraciones/screens/vista_registro_calibracion.dart';
@@ -168,6 +169,7 @@ class _MainState extends State<PemexCalibraciones> {
         '/cuenta': (context) => VistaCuenta(),
         '/recuperacion_contrasenia': (context) =>
             VistaRecuperacionContrasenia(),
+        '/modificacion_datos': (context) => VistaModificacionDatos(),
       },
     );
   }
