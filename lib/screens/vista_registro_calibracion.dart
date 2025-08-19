@@ -38,10 +38,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   void initState() {
     super.initState();
     //_futureDirecciones = direccionService.obtenerAllDirecciones();
-    _futureDirecciones = Future.delayed(
-      const Duration(seconds: 2),
-      () => [],
-    );
+    _futureDirecciones = Future.delayed(const Duration(seconds: 2), () => []);
   }
 
   @override
@@ -126,10 +123,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                         if (direcccion != null) {
                                           setState(() {
                                             selectedDireccion = direcccion;
-                                            
+
                                             subdirecciones = direcccion
                                                 .getSubdirecciones();
-                                            selectedSubdireccion = subdirecciones.isNotEmpty
+                                            selectedSubdireccion =
+                                                subdirecciones.isNotEmpty
                                                 ? subdirecciones[0]
                                                 : null;
                                           });
@@ -383,7 +381,16 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                   ScaffoldMessenger.of(
                                                     context,
                                                   ).showSnackBar(
-                                                    const SnackBar(
+                                                    SnackBar(
+                                                      duration: const Duration(
+                                                        seconds: 2,
+                                                      ),
+                                                      behavior: SnackBarBehavior
+                                                          .floating,
+                                                      backgroundColor:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .tertiaryContainer,
                                                       content: Text(
                                                         'Verificar que las contraseñas son iguales',
                                                       ),
@@ -394,7 +401,16 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                 ScaffoldMessenger.of(
                                                   context,
                                                 ).showSnackBar(
-                                                  const SnackBar(
+                                                  SnackBar(
+                                                    duration: const Duration(
+                                                      seconds: 2,
+                                                    ),
+                                                    behavior: SnackBarBehavior
+                                                        .floating,
+                                                    backgroundColor:
+                                                        Theme.of(context)
+                                                            .colorScheme
+                                                            .tertiaryContainer,
                                                     content: Text(
                                                       'El correo introducido no es correcto',
                                                     ),
@@ -405,7 +421,16 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                               ScaffoldMessenger.of(
                                                 context,
                                               ).showSnackBar(
-                                                const SnackBar(
+                                                SnackBar(
+                                                  duration: const Duration(
+                                                    seconds: 2,
+                                                  ),
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  backgroundColor:
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .tertiaryContainer,
                                                   content: Text(
                                                     'Campo de correo electrónico limitado a 30 caracteres',
                                                   ),
@@ -416,7 +441,15 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
-                                              const SnackBar(
+                                              SnackBar(
+                                                duration: const Duration(
+                                                  seconds: 2,
+                                                ),
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                                backgroundColor: Theme.of(
+                                                  context,
+                                                ).colorScheme.tertiaryContainer,
                                                 content: Text(
                                                   'Campo de segundo apellido limitado a 30 caracteres',
                                                 ),
@@ -427,7 +460,15 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
-                                            const SnackBar(
+                                            SnackBar(
+                                              duration: const Duration(
+                                                seconds: 2,
+                                              ),
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              backgroundColor: Theme.of(
+                                                context,
+                                              ).colorScheme.tertiaryContainer,
                                               content: Text(
                                                 'Campo de primer apellido limitado a 30 caracteres',
                                               ),
@@ -438,7 +479,14 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(
-                                          const SnackBar(
+                                          SnackBar(
+                                            duration: const Duration(
+                                              seconds: 2,
+                                            ),
+                                            behavior: SnackBarBehavior.floating,
+                                            backgroundColor: Theme.of(
+                                              context,
+                                            ).colorScheme.tertiaryContainer,
                                             content: Text(
                                               'Campo de nombre limitado a 30 caracteres',
                                             ),
@@ -593,7 +641,16 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                   ScaffoldMessenger.of(
                                                     context,
                                                   ).showSnackBar(
-                                                    const SnackBar(
+                                                    SnackBar(
+                                                      duration: const Duration(
+                                                        seconds: 2,
+                                                      ),
+                                                      behavior: SnackBarBehavior
+                                                          .floating,
+                                                      backgroundColor:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .tertiaryContainer,
                                                       content: Text(
                                                         'Enviando información, validar registro',
                                                       ),
@@ -603,7 +660,16 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                   ScaffoldMessenger.of(
                                                     context,
                                                   ).showSnackBar(
-                                                    const SnackBar(
+                                                    SnackBar(
+                                                      duration: const Duration(
+                                                        seconds: 2,
+                                                      ),
+                                                      behavior: SnackBarBehavior
+                                                          .floating,
+                                                      backgroundColor:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .tertiaryContainer,
                                                       content: Text(
                                                         'Verificar que las contraseñas son iguales',
                                                       ),
@@ -614,7 +680,16 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                 ScaffoldMessenger.of(
                                                   context,
                                                 ).showSnackBar(
-                                                  const SnackBar(
+                                                  SnackBar(
+                                                    duration: const Duration(
+                                                      seconds: 2,
+                                                    ),
+                                                    behavior: SnackBarBehavior
+                                                        .floating,
+                                                    backgroundColor:
+                                                        Theme.of(context)
+                                                            .colorScheme
+                                                            .tertiaryContainer,
                                                     content: Text(
                                                       'El correo introducido no es correcto',
                                                     ),
@@ -625,7 +700,16 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                               ScaffoldMessenger.of(
                                                 context,
                                               ).showSnackBar(
-                                                const SnackBar(
+                                                SnackBar(
+                                                  duration: const Duration(
+                                                    seconds: 2,
+                                                  ),
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  backgroundColor:
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .tertiaryContainer,
                                                   content: Text(
                                                     'Campo de correo electrónico limitado a 30 caracteres',
                                                   ),
@@ -636,7 +720,15 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
-                                              const SnackBar(
+                                              SnackBar(
+                                                duration: const Duration(
+                                                  seconds: 2,
+                                                ),
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                                backgroundColor: Theme.of(
+                                                  context,
+                                                ).colorScheme.tertiaryContainer,
                                                 content: Text(
                                                   'Campo de segundo apellido limitado a 30 caracteres',
                                                 ),
@@ -647,7 +739,15 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
-                                            const SnackBar(
+                                            SnackBar(
+                                              duration: const Duration(
+                                                seconds: 2,
+                                              ),
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              backgroundColor: Theme.of(
+                                                context,
+                                              ).colorScheme.tertiaryContainer,
                                               content: Text(
                                                 'Campo de primer apellido limitado a 30 caracteres',
                                               ),
@@ -658,7 +758,14 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(
-                                          const SnackBar(
+                                          SnackBar(
+                                            duration: const Duration(
+                                              seconds: 2,
+                                            ),
+                                            behavior: SnackBarBehavior.floating,
+                                            backgroundColor: Theme.of(
+                                              context,
+                                            ).colorScheme.tertiaryContainer,
                                             content: Text(
                                               'Campo de nombre limitado a 30 caracteres',
                                             ),
@@ -767,7 +874,16 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                   ScaffoldMessenger.of(
                                                     context,
                                                   ).showSnackBar(
-                                                    const SnackBar(
+                                                    SnackBar(
+                                                      duration: const Duration(
+                                                        seconds: 2,
+                                                      ),
+                                                      behavior: SnackBarBehavior
+                                                          .floating,
+                                                      backgroundColor:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .tertiaryContainer,
                                                       content: Text(
                                                         'Enviando información, validar registro',
                                                       ),
@@ -777,7 +893,16 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                   ScaffoldMessenger.of(
                                                     context,
                                                   ).showSnackBar(
-                                                    const SnackBar(
+                                                    SnackBar(
+                                                      duration: const Duration(
+                                                        seconds: 2,
+                                                      ),
+                                                      behavior: SnackBarBehavior
+                                                          .floating,
+                                                      backgroundColor:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .tertiaryContainer,
                                                       content: Text(
                                                         'Verificar que las contraseñas son iguales',
                                                       ),
@@ -788,7 +913,16 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                 ScaffoldMessenger.of(
                                                   context,
                                                 ).showSnackBar(
-                                                  const SnackBar(
+                                                  SnackBar(
+                                                    duration: const Duration(
+                                                      seconds: 2,
+                                                    ),
+                                                    behavior: SnackBarBehavior
+                                                        .floating,
+                                                    backgroundColor:
+                                                        Theme.of(context)
+                                                            .colorScheme
+                                                            .tertiaryContainer,
                                                     content: Text(
                                                       'El correo introducido no es correcto',
                                                     ),
@@ -799,7 +933,16 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                               ScaffoldMessenger.of(
                                                 context,
                                               ).showSnackBar(
-                                                const SnackBar(
+                                                SnackBar(
+                                                  duration: const Duration(
+                                                    seconds: 2,
+                                                  ),
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  backgroundColor:
+                                                      Theme.of(context)
+                                                          .colorScheme
+                                                          .tertiaryContainer,
                                                   content: Text(
                                                     'Campo de correo electrónico limitado a 30 caracteres',
                                                   ),
@@ -810,7 +953,15 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
-                                              const SnackBar(
+                                              SnackBar(
+                                                duration: const Duration(
+                                                  seconds: 2,
+                                                ),
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                                backgroundColor: Theme.of(
+                                                  context,
+                                                ).colorScheme.tertiaryContainer,
                                                 content: Text(
                                                   'Campo de segundo apellido limitado a 30 caracteres',
                                                 ),
@@ -821,7 +972,15 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
-                                            const SnackBar(
+                                            SnackBar(
+                                              duration: const Duration(
+                                                seconds: 2,
+                                              ),
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                              backgroundColor: Theme.of(
+                                                context,
+                                              ).colorScheme.tertiaryContainer,
                                               content: Text(
                                                 'Campo de primer apellido limitado a 30 caracteres',
                                               ),
@@ -832,7 +991,14 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(
-                                          const SnackBar(
+                                          SnackBar(
+                                            duration: const Duration(
+                                              seconds: 2,
+                                            ),
+                                            behavior: SnackBarBehavior.floating,
+                                            backgroundColor: Theme.of(
+                                              context,
+                                            ).colorScheme.tertiaryContainer,
                                             content: Text(
                                               'Campo de nombre limitado a 30 caracteres',
                                             ),

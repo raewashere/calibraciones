@@ -2,11 +2,6 @@ import 'package:calibraciones/dto/dto_direccion.dart';
 import 'package:calibraciones/dto/dto_gerencia.dart';
 import 'package:calibraciones/dto/dto_instalacion.dart';
 import 'package:calibraciones/dto/dto_subdireccion_logistica.dart';
-import 'package:calibraciones/models/_direccion.dart';
-import 'package:calibraciones/models/_gerencia.dart';
-import 'package:calibraciones/models/_instalacion.dart';
-import 'package:calibraciones/models/_subdireccion.dart';
-import 'package:calibraciones/models/_usuario.dart';
 import 'package:calibraciones/services/direccion_service.dart';
 import 'package:calibraciones/services/implementation/direccion_service_impl.dart';
 import 'package:calibraciones/services/implementation/usuario_service_impl.dart';
@@ -62,12 +57,21 @@ class VistaRegistroState extends State<VistaRegistro> {
     });
   }
 
+  InputDecoration _inputDecoration(String label) =>
+      InputDecoration(labelText: label, border: const OutlineInputBorder());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Elabora tu registro'),
+        title: Text(
+          'Elabora tu registro',
+          style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+        ),
         backgroundColor: Theme.of(context).colorScheme.primary,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
       ),
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: Form(
@@ -134,7 +138,8 @@ class VistaRegistroState extends State<VistaRegistro> {
                                 onChanged: (value) {
                                   setState(() {
                                     direccionSeleccionada = value;
-                                    subdirecciones = value!.getSubdireccionesLogisticas();
+                                    subdirecciones = value!
+                                        .getSubdireccionesLogisticas();
                                   });
                                 },
                               ),
@@ -262,21 +267,25 @@ class VistaRegistroState extends State<VistaRegistro> {
                                                 ),
                                               ),
                                             );
-                                            respuestaRegistro =
-                                                await usuarioService
-                                                    .registrarUsuario(
-                                                      _emailController.text,
-                                                      _nombreController.text,
-                                                      _primerController.text,
-                                                      _segundoController.text,
-                                                      _telefonoController.text,
-                                                      _passwordController.text,
-                                                      direccionSeleccionada!.getNombreDireccion(),
-                                                      subdireccionSeleccionada!.getNombreSubdireccion(),
-                                                      gerenciaSeleccionada!.getNombreGerencia(),
-                                                      instalacionSeleccionada!.getIdInstalacion(),
-                                                      instalacionSeleccionada!.getNombreInstalacion(),
-                                                    );
+                                            respuestaRegistro = await usuarioService
+                                                .registrarUsuario(
+                                                  _emailController.text,
+                                                  _nombreController.text,
+                                                  _primerController.text,
+                                                  _segundoController.text,
+                                                  _telefonoController.text,
+                                                  _passwordController.text,
+                                                  direccionSeleccionada!
+                                                      .getNombreDireccion(),
+                                                  subdireccionSeleccionada!
+                                                      .getNombreSubdireccion(),
+                                                  gerenciaSeleccionada!
+                                                      .getNombreGerencia(),
+                                                  instalacionSeleccionada!
+                                                      .getIdInstalacion(),
+                                                  instalacionSeleccionada!
+                                                      .getNombreInstalacion(),
+                                                );
                                             print(
                                               'Respuesta del registro: $respuestaRegistro',
                                             );
@@ -457,21 +466,11 @@ class VistaRegistroState extends State<VistaRegistro> {
   }) {
     return Container(
       padding: EdgeInsets.all(5),
-      decoration: BoxDecoration(border: Border(bottom: BorderSide())),
       child: TextFormField(
         controller: controllerText,
         obscureText: obscureText,
         style: TextStyle(color: Theme.of(context).colorScheme.primary),
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
-          border: InputBorder.none,
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.tertiary,
-            ),
-          ),
-        ),
+        decoration: _inputDecoration(hintText),
         validator: (value) {
           if (value == null || value.isEmpty) {
             return validatorText;
@@ -490,13 +489,8 @@ class VistaRegistroState extends State<VistaRegistro> {
     required ValueChanged<DtoDireccion?> onChanged,
   }) {
     return DropdownButtonFormField<DtoDireccion>(
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
-        border: OutlineInputBorder(
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary),
-        ),
-      ),
+      isExpanded: true,
+      decoration: _inputDecoration(hintText),
       value: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
       items: items.map((DtoDireccion item) {
@@ -523,13 +517,8 @@ class VistaRegistroState extends State<VistaRegistro> {
     required ValueChanged<DtoSubdireccionLogistica?> onChanged,
   }) {
     return DropdownButtonFormField<DtoSubdireccionLogistica>(
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
-        border: OutlineInputBorder(
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary),
-        ),
-      ),
+      isExpanded: true,
+      decoration: _inputDecoration(hintText),
       value: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
       items: items.map((DtoSubdireccionLogistica item) {
@@ -548,7 +537,7 @@ class VistaRegistroState extends State<VistaRegistro> {
     );
   }
 
-    Widget _buildDropdownButtonGerencia(
+  Widget _buildDropdownButtonGerencia(
     BuildContext context, {
     required String hintText,
     required List<DtoGerencia> items,
@@ -556,13 +545,8 @@ class VistaRegistroState extends State<VistaRegistro> {
     required ValueChanged<DtoGerencia?> onChanged,
   }) {
     return DropdownButtonFormField<DtoGerencia>(
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
-        border: OutlineInputBorder(
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary),
-        ),
-      ),
+      isExpanded: true,
+      decoration: _inputDecoration(hintText),
       value: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
       items: items.map((DtoGerencia item) {
@@ -589,13 +573,8 @@ class VistaRegistroState extends State<VistaRegistro> {
     required ValueChanged<DtoInstalacion?> onChanged,
   }) {
     return DropdownButtonFormField<DtoInstalacion>(
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
-        border: OutlineInputBorder(
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary),
-        ),
-      ),
+      isExpanded: true,
+      decoration: _inputDecoration(hintText),
       value: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
       items: items.map((DtoInstalacion item) {

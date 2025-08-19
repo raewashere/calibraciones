@@ -21,7 +21,7 @@ class UsuarioServiceImpl implements UsuarioService {
     String nombreSubdireccion,
     String nombreGerencia,
     int idInstalacion,
-    String nombreInstalacion
+    String nombreInstalacion,
   ) async {
     try {
       final AuthResponse res = await supabase.auth.signUp(
@@ -35,16 +35,21 @@ class UsuarioServiceImpl implements UsuarioService {
         return false;
       } else {
         // Aquí puedes guardar el usuario en tu base de datos
-        final List<Map<String, dynamic>> data = await supabase.from('usuario').insert([{
-          'correo_electronico': correoElectronico,
-          'nombre': nombre,
-          'primer_apellido': primerApellido,
-          'segundo_apellido': segundoApellido,
-          'telefono': telefono,
-          'rol': 'usuario',
-          'verificacion_admin': false,
-          'id_instalacion': idInstalacion,
-        }]).select();
+        final List<Map<String, dynamic>> data = await supabase
+            .from('usuario')
+            .insert([
+              {
+                'correo_electronico': correoElectronico,
+                'nombre': nombre,
+                'primer_apellido': primerApellido,
+                'segundo_apellido': segundoApellido,
+                'telefono': telefono,
+                'rol': 'usuario',
+                'verificacion_admin': false,
+                'id_instalacion': idInstalacion,
+              },
+            ])
+            .select();
 
         final Usuario usuario = Usuario.fromJsonCreate(data[0]);
 
@@ -58,19 +63,16 @@ class UsuarioServiceImpl implements UsuarioService {
             'direccion': nombreDireccion,
             'subdireccion': nombreSubdireccion,
             'gerencia': nombreGerencia,
-            'instalacion': nombreInstalacion
+            'instalacion': nombreInstalacion,
           }),
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
           },
         );
-        
 
         if (data.isEmpty) {
-          throw Exception(
-            'Error al registrar usuario: ${data[0]['error']}',
-          );
+          throw Exception('Error al registrar usuario: ${data[0]['error']}');
         }
       }
 
@@ -127,8 +129,26 @@ class UsuarioServiceImpl implements UsuarioService {
   }
 
   @override
-  Future<Usuario?> obtenerUsuario(String? correoElectronico) {
+  Future<Usuario?> obtenerUsuario(String? correoElectronico) async {
     // Implementación de la consulta de usuario
-    return Future.error('No implementado');
+    try {
+      if (correoElectronico == null) {
+        throw Exception('Correo electrónico no proporcionado');
+      }
+
+      final data = await Supabase.instance.client
+          .from('usuario')
+          .select()
+          .eq('correo_electronico', correoElectronico);
+
+      if (data.isEmpty) {
+        return null;
+      }
+      return Usuario.fromJsonCreate(data[0]);
+    } catch (e) {
+      print('Error al obtener usuario: $e');
+      return Future.error(e);
+    }
+    return null;
   }
 }

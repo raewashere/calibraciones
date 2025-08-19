@@ -215,15 +215,16 @@ class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
             ),
             TextButton(
               onPressed: () async {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar( SnackBar(
-                  duration: const Duration(seconds: 2),
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(seconds: 2),
                     behavior: SnackBarBehavior.floating,
                     backgroundColor: Theme.of(
                       context,
                     ).colorScheme.tertiaryContainer,
-                  content: Text('Filtrando')));
+                    content: Text('Filtrando'),
+                  ),
+                );
                 // Lógica para guardar los datos del formulario
                 Navigator.of(
                   context,

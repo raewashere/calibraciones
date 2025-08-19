@@ -47,38 +47,12 @@ class VistaCuentaState extends State<VistaCuenta> {
     try {
       supabase.auth.signOut();
       Navigator.pushReplacementNamed(context, '/login');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Saliendo de la aplicacion")));
-    } on AuthException catch (e) {
-      String mensajeError;
-
-      // Verificar el tipo de error
-      if (e.code == 'user-not-found') {
-        mensajeError = 'No existe una cuenta con este correo electrónico.';
-      } else if (e.code == 'wrong-password') {
-        mensajeError = 'La contraseña es incorrecta.';
-      } else if (e.code == 'invalid-email') {
-        mensajeError = 'El correo electrónico no tiene un formato válido.';
-      } else {
-        mensajeError =
-            'Error al iniciar sesión. Por favor, inténtelo de nuevo.';
-      }
-      // Mostrar un SnackBar con el mensaje de error
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(mensajeError)));
-    }
-  }
-
-  Future<void> cambiarContrasenia() async {
-    try {
-      supabase.auth.resetPasswordForEmail("${usuarioActual?.email}", redirectTo: 'https://www.google.com/');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            "Se ha enviado un enlace a tu correo para reestablecer tu contrasenia",
-          ),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+          content: Text("Saliendo de la aplicacion"),
         ),
       );
     } on AuthException catch (e) {
@@ -96,10 +70,39 @@ class VistaCuentaState extends State<VistaCuenta> {
             'Error al iniciar sesión. Por favor, inténtelo de nuevo.';
       }
       // Mostrar un SnackBar con el mensaje de error
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(mensajeError)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+          content: Text(mensajeError),
+        ),
+      );
     }
+  }
+
+  Future<void> cambiarContrasenia() async {
+    await supabase.auth.resetPasswordForEmail(
+      usuarioActual!.email!,
+    );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+          content: Text('PIN de recuperación enviado a ${usuarioActual!.email!}'),
+        ),
+      );
+      Navigator.pushNamed(
+        context,
+        '/recuperacion_contrasenia',
+        arguments: login?.correoElectronico,
+      );
+    }
+    // Aquí puedes implementar la lógica para cambiar la contraseña
+    // Por ejemplo, podrías abrir un formulario para que el usuario ingrese su nueva contraseña
   }
 
   @override
@@ -125,7 +128,7 @@ class VistaCuentaState extends State<VistaCuenta> {
                               ////Cambiar Raymundo Torres por Cargando...
                               login != null
                               ? '${login?.nombre} ${login?.primerApellido}'
-                              : 'Raymundo Torres',
+                              : 'USUARIO USUARIO',
                           radius: 31,
                           fontsize: 21,
                         ),
@@ -134,7 +137,7 @@ class VistaCuentaState extends State<VistaCuenta> {
                         Text(
                           login != null
                               ? 'Bienvenido ${login?.nombre}'
-                              : 'Raymundo Torres',
+                              : 'Cargando...',
                           style: TextStyle(
                             fontSize: Theme.of(
                               context,
@@ -155,7 +158,29 @@ class VistaCuentaState extends State<VistaCuenta> {
                         ),
                         Padding(padding: EdgeInsets.all(5)),
                         Text(
-                          'correo@gmail.com',
+                          '${login?.correoElectronico}',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSecondary,
+                            fontSize: Theme.of(
+                              context,
+                            ).textTheme.titleMedium?.fontSize,
+                          ),
+                        ),
+                        //Text('${usuarioActual?.email}'),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.secondaryContainer,
+                        ),
+                        Padding(padding: EdgeInsets.all(5)),
+                        Text(
+                          '${login?.idInstalacion}',
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSecondary,
                             fontSize: Theme.of(
@@ -218,7 +243,7 @@ class VistaCuentaState extends State<VistaCuenta> {
     );
   }
 
-/*  Future<void> _abrirFormularioCambioDatos() async {
+  /*  Future<void> _abrirFormularioCambioDatos() async {
     _nombreController.text = login!.nombre;
     _primerApellidoController.text = login!.primerApellido;
     _segundoApellidoController.text = login!.segundoApellido;

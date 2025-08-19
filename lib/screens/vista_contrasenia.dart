@@ -13,12 +13,21 @@ class VistaContraseniaState extends State<VistaContrasenia> {
   final _formularioCorreo = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
 
+  InputDecoration _inputDecoration(String label) =>
+      InputDecoration(labelText: label, border: const OutlineInputBorder());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Recupera tu clave'),
+        title: Text(
+          'Recupera tu clave',
+          style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+        ),
         backgroundColor: Theme.of(context).colorScheme.primary,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
       ),
       resizeToAvoidBottomInset: true,
       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -82,9 +91,6 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                             children: <Widget>[
                               Container(
                                 padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  border: Border(bottom: BorderSide()),
-                                ),
                                 child: TextFormField(
                                   controller: _emailController,
                                   style: TextStyle(
@@ -92,21 +98,8 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                                       context,
                                     ).colorScheme.primary,
                                   ),
-                                  decoration: InputDecoration(
-                                    hintText: "Correo electrónico",
-                                    hintStyle: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.surface,
-                                    ),
-                                    border: InputBorder.none,
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.tertiary,
-                                      ),
-                                    ),
+                                  decoration: _inputDecoration(
+                                    "Correo electrónico",
                                   ),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -125,37 +118,60 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               ElevatedButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   if (_formularioCorreo.currentState!
                                       .validate()) {
                                     try {
-                                      supabase.auth
-                                          .resetPasswordForEmail(
+                                      await supabase.auth.resetPasswordForEmail(
                                         _emailController.text,
-                                      )
-                                          .then((value) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
+                                      );
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           SnackBar(
+                                            duration: const Duration(
+                                              seconds: 2,
+                                            ),
+                                            behavior: SnackBarBehavior.floating,
+                                            backgroundColor: Theme.of(
+                                              context,
+                                            ).colorScheme.tertiaryContainer,
                                             content: Text(
-                                              'Enlace de recuperación enviado a ${_emailController.text}',
+                                              'PIN de recuperación enviado a ${_emailController.text}',
                                             ),
                                           ),
                                         );
-                                      });
+                                      }
                                     } on AuthException catch (e) {
                                       e.message != null
                                           ? ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
                                               SnackBar(
-                                                content: Text(e.message!),
+                                                duration: const Duration(
+                                                  seconds: 2,
+                                                ),
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                                backgroundColor: Theme.of(
+                                                  context,
+                                                ).colorScheme.tertiaryContainer,
+                                                content: Text(e.message),
                                               ),
                                             )
                                           : ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
-                                              const SnackBar(
+                                              SnackBar(
+                                                duration: const Duration(
+                                                  seconds: 2,
+                                                ),
+                                                behavior:
+                                                    SnackBarBehavior.floating,
+                                                backgroundColor: Theme.of(
+                                                  context,
+                                                ).colorScheme.tertiaryContainer,
                                                 content: Text(
                                                   'Error al enviar el enlace de recuperación',
                                                 ),
@@ -170,11 +186,15 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                                           context,
                                         ).colorScheme.tertiaryContainer,
                                         content: Text(
-                                          'Enviando enlace a tu correo',
+                                          'Enviando token a tu correo',
                                         ),
                                       ),
                                     );
-                                    Navigator.pushNamed(context, '/recuperacion_contrasenia');
+                                    Navigator.pushNamed(
+                                      context,
+                                      '/recuperacion_contrasenia',
+                                      arguments: _emailController.text,
+                                    );
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(

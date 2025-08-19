@@ -17,27 +17,40 @@ class VistaLoginState extends State<VistaLogin> {
     Navigator.pushReplacementNamed(context, '/inicio');
   }
 
+  InputDecoration _inputDecoration(String label) =>
+      InputDecoration(labelText: label, border: const OutlineInputBorder());
+
   Future<void> _signIn() async {
     try {
-      final AuthResponse res = await supabase.auth.signInWithPassword(password: _passwordController.text, email: _emailController.text);
+      final AuthResponse res = await supabase.auth.signInWithPassword(
+        password: _passwordController.text,
+        email: _emailController.text,
+      );
       final Session? session = res.session;
       final User? user = res.user;
       //Navigator.pushReplacementNamed(context, '/inicio');
-       
+
       if (user != null && user.emailConfirmedAt != null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Bienvenido de nuevo')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Bienvenido de nuevo'),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+          ),
+        );
 
         Navigator.pushReplacementNamed(context, '/inicio');
       } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(
-          content: Text('Por favor verifica tu correo electrónico'),
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+            content: Text('Por favor verifica tu correo electrónico'),
+          ),
+        );
       }
-
 
       //print('User signed in: ${userCredential.user?.email}');
     } on AuthException catch (e) {
@@ -55,9 +68,14 @@ class VistaLoginState extends State<VistaLogin> {
             'Error al iniciar sesión. Por favor, inténtelo de nuevo.';
       }
       // Mostrar un SnackBar con el mensaje de error
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(mensajeError)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+          content: Text(mensajeError),
+        ),
+      );
     }
   }
 
@@ -131,59 +149,25 @@ class VistaLoginState extends State<VistaLogin> {
                           children: <Widget>[
                             Container(
                               padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                border: Border(bottom: BorderSide()),
-                              ),
                               child: TextField(
                                 controller: _emailController,
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.primary,
                                 ),
-                                decoration: InputDecoration(
-                                  hintText: "Correo electrónico",
-                                  hintStyle: TextStyle(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.surface,
-                                  ),
-                                  border: InputBorder.none,
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.tertiary,
-                                    ),
-                                  ),
+                                decoration: _inputDecoration(
+                                  "Correo electrónico",
                                 ),
                               ),
                             ),
                             Container(
                               padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                border: Border(bottom: BorderSide()),
-                              ),
                               child: TextField(
                                 controller: _passwordController,
                                 obscureText: true,
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.primary,
                                 ),
-                                decoration: InputDecoration(
-                                  hintText: "Contraseña",
-                                  hintStyle: TextStyle(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.surface,
-                                  ),
-                                  border: InputBorder.none,
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.tertiary,
-                                    ),
-                                  ),
-                                ),
+                                decoration: _inputDecoration("Contraseña"),
                               ),
                             ),
                           ],

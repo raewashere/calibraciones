@@ -13,10 +13,11 @@ import 'screens/vista_login.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-    await Supabase.initialize(
+  await Supabase.initialize(
     // TODO: Replace credentials with your own
     url: 'https://zkviewvpmswfgpiwpoez.supabase.co',
-    anonKey: '',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprdmlld3ZwbXN3ZmdwaXdwb2V6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0NTgxMzQsImV4cCI6MjA3MDAzNDEzNH0.E5i81N4_usUAqcLySjGZUk7rGOFHOLBBk8p1nzYjHbw',
   );
   runApp(PemexCalibraciones());
 }
@@ -28,7 +29,7 @@ class PemexCalibraciones extends StatefulWidget {
   State<StatefulWidget> createState() => _MainState();
 }
 
-  class _MainState extends State<PemexCalibraciones> {
+class _MainState extends State<PemexCalibraciones> {
   final User? usuarioActual = Supabase.instance.client.auth.currentUser;
   late String? token = "";
 
@@ -165,7 +166,8 @@ class PemexCalibraciones extends StatefulWidget {
         '/reporte_calibraciones': (context) => VistaReporteCalibracion(),
         '/equipos': (context) => VistaEquipo(),
         '/cuenta': (context) => VistaCuenta(),
-        '/recuperacion_contrasenia': (context) => VistaRecuperacionContrasenia(),
+        '/recuperacion_contrasenia': (context) =>
+            VistaRecuperacionContrasenia(),
       },
     );
   }
