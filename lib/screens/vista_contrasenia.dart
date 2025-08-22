@@ -51,7 +51,7 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                       Center(
                         child: Image.asset(
                           'assets/images/pemex_logo_blanco.png',
-                          scale: 3,
+                          scale: 1.5,
                         ),
                       ),
                       SizedBox(height: 10),
@@ -144,23 +144,7 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                                         );
                                       }
                                     } on AuthException catch (e) {
-                                      e.message != null
-                                          ? ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                duration: const Duration(
-                                                  seconds: 2,
-                                                ),
-                                                behavior:
-                                                    SnackBarBehavior.floating,
-                                                backgroundColor: Theme.of(
-                                                  context,
-                                                ).colorScheme.tertiaryContainer,
-                                                content: Text(e.message),
-                                              ),
-                                            )
-                                          : ScaffoldMessenger.of(
+                                       ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
                                               SnackBar(
@@ -173,7 +157,7 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                                                   context,
                                                 ).colorScheme.tertiaryContainer,
                                                 content: Text(
-                                                  'Error al enviar el enlace de recuperación',
+                                                  'Error al enviar el enlace de recuperación ${e.message}',
                                                 ),
                                               ),
                                             );

@@ -32,12 +32,9 @@ class VistaInicioState extends State<VistaInicio> {
         iconTheme: IconThemeData(color: colors.onPrimary),
         actionsIconTheme: IconThemeData(color: colors.onPrimary),
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              'assets/images/pemex_logo_blanco.png', // o Image.network(...)
-              height: 50,
-              width: 50,
-            ),
+            Image.asset('assets/images/pemex_logo_blanco.png', width: 50, height: 50),
             const SizedBox(width: 8),
             Text(
               'Calibraciones',

@@ -122,19 +122,21 @@ class UsuarioServiceImpl implements UsuarioService {
         UserAttributes(email: correoElectronico),
       );*/
 
-      await supabase.from('usuario').update({
-        //'correo_electronico': correoElectronico,
-        'nombre': nombre,
-        'primer_apellido': primerApellido,
-        'segundo_apellido': segundoApellido,
-        'telefono': telefono,
-      }).eq('id_usuario', idUsuario);
+      await supabase
+          .from('usuario')
+          .update({
+            //'correo_electronico': correoElectronico,
+            'nombre': nombre,
+            'primer_apellido': primerApellido,
+            'segundo_apellido': segundoApellido,
+            'telefono': telefono,
+          })
+          .eq('id_usuario', idUsuario);
 
       return Future.value(true);
     } catch (e) {
       throw Exception('Error al actualizar perfil: $e');
     }
-    
   }
 
   @override

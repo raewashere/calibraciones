@@ -13,12 +13,8 @@ class InstalacionServiceImpl extends InstalacionService {
     try {
       final response = await supabase.from('instalacion').select().eq('id_instalacion', idInstalacion).single();
 
-      if (response != null) {
-        return DtoInstalacion.fromJson(response);
-      } else {
-        throw Exception('No se encontró la instalación');
-      }
-    } catch (e) {
+      return DtoInstalacion.fromJson(response);
+        } catch (e) {
       throw Exception('Error en la conexión: $e');
     }
   }

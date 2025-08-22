@@ -12,6 +12,7 @@ class VistaLoginState extends State<VistaLogin> {
   final SupabaseClient supabase = Supabase.instance.client;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _obscureText = true;
 
   Future<void> prueba() async {
     Navigator.pushReplacementNamed(context, '/inicio');
@@ -19,6 +20,22 @@ class VistaLoginState extends State<VistaLogin> {
 
   InputDecoration _inputDecoration(String label) =>
       InputDecoration(labelText: label, border: const OutlineInputBorder());
+
+    InputDecoration _inputDecorationPassword(String label) =>
+      InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscureText ? Icons.visibility_off : Icons.visibility,
+          ),
+          onPressed: () {
+            setState(() {
+              _obscureText = !_obscureText;
+            });
+          },
+        ),
+      );
 
   Future<void> _signIn() async {
     try {
@@ -163,11 +180,11 @@ class VistaLoginState extends State<VistaLogin> {
                               padding: EdgeInsets.all(10),
                               child: TextField(
                                 controller: _passwordController,
-                                obscureText: true,
+                                obscureText: _obscureText,
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.primary,
                                 ),
-                                decoration: _inputDecoration("Contraseña"),
+                                decoration: _inputDecorationPassword("Contraseña"),
                               ),
                             ),
                           ],

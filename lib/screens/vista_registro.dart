@@ -42,6 +42,8 @@ class VistaRegistroState extends State<VistaRegistro> {
 
   DireccionService direccionService = DireccionServiceImpl();
 
+  bool _obscureText = true;
+
   bool validarEmail(String email) {
     final RegExp regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     return regex.hasMatch(email);
@@ -59,6 +61,19 @@ class VistaRegistroState extends State<VistaRegistro> {
 
   InputDecoration _inputDecoration(String label) =>
       InputDecoration(labelText: label, border: const OutlineInputBorder());
+
+  InputDecoration _inputDecorationPassword(String label) => InputDecoration(
+    labelText: label,
+    border: const OutlineInputBorder(),
+    suffixIcon: IconButton(
+      icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
+      onPressed: () {
+        setState(() {
+          _obscureText = !_obscureText;
+        });
+      },
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +108,7 @@ class VistaRegistroState extends State<VistaRegistro> {
                       Center(
                         child: Image.asset(
                           'assets/images/pemex_logo_blanco.png',
-                          scale: 2.5,
+                          scale: 1.5,
                         ),
                       ),
                       Center(
@@ -216,18 +231,18 @@ class VistaRegistroState extends State<VistaRegistro> {
                                 validatorText: 'Favor de escribir tu teléfono',
                                 controllerText: _telefonoController,
                               ),
-                              _buildTextFormField(
+                              _buildTextFormFieldPassword(
                                 context,
                                 hintText: "Contraseña",
-                                obscureText: true,
+                                obscureText: _obscureText,
                                 validatorText:
                                     'Favor de escribir tu contraseña',
                                 controllerText: _passwordController,
                               ),
-                              _buildTextFormField(
+                              _buildTextFormFieldPassword(
                                 context,
                                 hintText: "Repetir contraseña",
-                                obscureText: true,
+                                obscureText: _obscureText,
                                 validatorText: 'Favor de repetir tu contraseña',
                                 controllerText: _passwordValidatorController,
                               ),
@@ -471,6 +486,30 @@ class VistaRegistroState extends State<VistaRegistro> {
         obscureText: obscureText,
         style: TextStyle(color: Theme.of(context).colorScheme.primary),
         decoration: _inputDecoration(hintText),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return validatorText;
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+    Widget _buildTextFormFieldPassword(
+    BuildContext context, {
+    required String hintText,
+    required String validatorText,
+    required TextEditingController controllerText,
+    bool obscureText = false,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(5),
+      child: TextFormField(
+        controller: controllerText,
+        obscureText: obscureText,
+        style: TextStyle(color: Theme.of(context).colorScheme.primary),
+        decoration: _inputDecorationPassword(hintText),
         validator: (value) {
           if (value == null || value.isEmpty) {
             return validatorText;

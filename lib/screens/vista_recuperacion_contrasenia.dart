@@ -20,6 +20,8 @@ class _VistaRecuperacionContraseniaState
 
   String email = '';
   bool _isLoading = false;
+  bool _obscureText = true;
+
 
   Future<void> _updatePassword() async {
     if (_tokenController.text.isEmpty) {
@@ -79,10 +81,26 @@ class _VistaRecuperacionContraseniaState
     if (args != null && args is String) {
       email = args; // lo guardas en tu variable
     }
-  }
+    }
 
   InputDecoration _inputDecoration(String label) =>
       InputDecoration(labelText: label, border: const OutlineInputBorder());
+
+  InputDecoration _inputDecorationPassword(String label) =>
+      InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscureText ? Icons.visibility_off : Icons.visibility,
+          ),
+          onPressed: () {
+            setState(() {
+              _obscureText = !_obscureText;
+            });
+          },
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +133,7 @@ class _VistaRecuperacionContraseniaState
                     children: [
                       Image.asset(
                         'assets/images/pemex_logo_blanco.png',
-                        scale: 3,
+                        scale: 1.5,
                       ),
                       const SizedBox(height: 20),
                       Text(
@@ -161,8 +179,8 @@ class _VistaRecuperacionContraseniaState
                       const SizedBox(height: 15),
                       TextFormField(
                         controller: _passwordController,
-                        obscureText: true,
-                        decoration: _inputDecoration('Nueva contraseña'),
+                        obscureText: _obscureText,
+                        decoration: _inputDecorationPassword('Nueva contraseña'),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor ingresa la nueva contraseña';
@@ -176,8 +194,8 @@ class _VistaRecuperacionContraseniaState
                       const SizedBox(height: 15),
                       TextFormField(
                         controller: _confirmPasswordController,
-                        obscureText: true,
-                        decoration: _inputDecoration('Confirmar contraseña'),
+                        obscureText: _obscureText,
+                        decoration: _inputDecorationPassword('Confirmar contraseña'),
                         validator: (value) {
                           if (value != _passwordController.text) {
                             return 'Las contraseñas no coinciden';
