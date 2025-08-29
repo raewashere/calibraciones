@@ -1,454 +1,190 @@
+import 'package:calibraciones/dto/dto_equipo.dart';
+import 'package:calibraciones/services/equipo_service.dart';
+import 'package:calibraciones/services/implementation/equipo_service_impl.dart';
 import 'package:flutter/material.dart';
-
-class EquipoDataSource extends DataTableSource {
-  final List<EquipoAux> equipos;
-  final BuildContext context;
-
-  EquipoDataSource(this.equipos, this.context);
-
-  @override
-  DataRow? getRow(int index) {
-    if (index >= equipos.length) return null;
-    final equipo = equipos[index];
-    return DataRow(
-      cells: [
-        DataCell(Text(equipo.tag)),
-        DataCell(Text(equipo.tipoMedicion)),
-        DataCell(Text(equipo.estado)),
-        DataCell(Text(equipo.marca)),
-        DataCell(Text(equipo.modelo)),
-        DataCell(Text(equipo.noSerie)),
-        DataCell(Text(equipo.intCalibracion)),
-        DataCell(Text(equipo.intVerificacion)),
-        DataCell(Text(equipo.incertidumbre)),
-        DataCell(
-          ElevatedButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  duration: const Duration(seconds: 2),
-                  behavior: SnackBarBehavior.floating,
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.tertiaryContainer,
-                  content: Text('Acción para ${equipo.tag}'),
-                ),
-              );
-            },
-            child: const Text('mod'),
-          ),
-        ),
-      ],
-    );
-  }
-
-  @override
-  bool get isRowCountApproximate => false;
-  @override
-  int get rowCount => equipos.length;
-  @override
-  int get selectedRowCount => 0;
-}
-
-class EquipoAux {
-  final String tag;
-  final String tipoMedicion;
-  final String estado;
-  final String marca;
-  final String modelo;
-  final String noSerie;
-  final String intCalibracion;
-  final String intVerificacion;
-  final String incertidumbre;
-
-  EquipoAux(
-    this.tag,
-    this.tipoMedicion,
-    this.estado,
-    this.marca,
-    this.modelo,
-    this.noSerie,
-    this.intCalibracion,
-    this.intVerificacion,
-    this.incertidumbre,
-  );
-}
 
 class VistaEquipo extends StatefulWidget {
   const VistaEquipo({super.key});
 
   @override
-  State<VistaEquipo> createState() => _VistaEquipoState();
+  State<StatefulWidget> createState() => _InfiniteScrollCatalogoState();
 }
 
-class _VistaEquipoState extends State<VistaEquipo> {
-  late EquipoDataSource _dataSource;
-
-  List<EquipoAux> equipos = [
-    EquipoAux(
-      'TIT-160-1',
-      'DINÁMICO',
-      'OPERANDO',
-      'FOXBORO',
-      'RTT20-T1LCQFD-D2',
-      '310606',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-160-2',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5B4M5Q4',
-      '763668',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-141-1',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '741565',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-141-2',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '741564',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-142-1',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '740590',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-142-2',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '740591',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-160-1',
-      'DINÁMICO',
-      'OPERANDO',
-      'FOXBORO',
-      'RTT20-T1LCQFD-D2',
-      '310606',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-160-2',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5B4M5Q4',
-      '763668',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-141-1',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '741565',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-141-2',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '741564',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-142-1',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '740590',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-142-2',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '740591',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-160-1',
-      'DINÁMICO',
-      'OPERANDO',
-      'FOXBORO',
-      'RTT20-T1LCQFD-D2',
-      '310606',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-160-2',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5B4M5Q4',
-      '763668',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-141-1',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '741565',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-141-2',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '741564',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-142-1',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '740590',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-142-2',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '740591',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-160-1',
-      'DINÁMICO',
-      'OPERANDO',
-      'FOXBORO',
-      'RTT20-T1LCQFD-D2',
-      '310606',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-160-2',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5B4M5Q4',
-      '763668',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-141-1',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '741565',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-141-2',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '741564',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-142-1',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '740590',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-142-2',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '740591',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-160-1',
-      'DINÁMICO',
-      'OPERANDO',
-      'FOXBORO',
-      'RTT20-T1LCQFD-D2',
-      '310606',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-160-2',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5B4M5Q4',
-      '763668',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-141-1',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '741565',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-    EquipoAux(
-      'TIT-141-2',
-      'DINÁMICO',
-      'OPERANDO',
-      'ROSEMOUNT',
-      '3144PD1A1E5M5G1C2Q4XA',
-      '741564',
-      '01/01/2023',
-      '01/06/2023',
-      '0.01%',
-    ),
-  ];
-
-  int? sortColumnIndex;
-  bool sortAscending = true;
-
-  void ordenarPorTag(int columnIndex, bool ascending) {
-    equipos.sort(
-      (a, b) => ascending ? a.tag.compareTo(b.tag) : b.tag.compareTo(a.tag),
-    );
-    setState(() {
-      sortColumnIndex = columnIndex;
-      sortAscending = ascending;
-    });
-  }
-
-  void ordenarPorTipo(int columnIndex, bool ascending) {
-    equipos.sort(
-      (a, b) => ascending
-          ? a.tipoMedicion.compareTo(b.tipoMedicion)
-          : b.tipoMedicion.compareTo(a.tipoMedicion),
-    );
-    setState(() {
-      sortColumnIndex = columnIndex;
-      sortAscending = ascending;
-    });
-  }
+class _InfiniteScrollCatalogoState extends State<VistaEquipo> {
+  final ScrollController _scrollController = ScrollController();
+  List<DtoEquipo> equipos = [];
+  bool _isLoading = false;
+  EquipoService equipoService = EquipoServiceImpl();
 
   @override
   void initState() {
     super.initState();
-    _dataSource = EquipoDataSource(equipos, context);
+    equipoService.obtenerAllEquipos().then((value) {
+      setState(() {
+        equipos = value;
+      });
+    });
+  }
+
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        //scrollDirection: Axis.horizontal,
-        child: PaginatedDataTable(
-          header: const Text('Lista de Equipos'),
-          rowsPerPage: 8,
-          columns: [
-            DataColumn(label: const Text('TAG')),
-            DataColumn(label: const Text('Tipo de medición')),
-            DataColumn(label: const Text('Estado')),
-            DataColumn(label: const Text('Marca')),
-            DataColumn(label: const Text('Modelo')),
-            DataColumn(label: const Text('No de serie')),
-            DataColumn(label: const Text('Int. Calibración')),
-            DataColumn(label: const Text('Int. Verificación')),
-            DataColumn(label: const Text('Incertidumbre')),
-            DataColumn(label: const Text('Acción')),
-          ],
-          source: _dataSource,
-        ),
+      backgroundColor: Theme.of(context).colorScheme.onPrimary,
+      floatingActionButton: Stack(
+        children: [
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: FloatingActionButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(seconds: 2),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.tertiaryContainer,
+                    content: Text('Descargando reporte'),
+                  ),
+                );
+              }, // Icono del botón (puedes cambiarlo)
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              tooltip: 'Descargar',
+              child: Icon(Icons.download),
+            ),
+          ),
+          Positioned(
+            bottom: 16,
+            right: 80,
+            child: FloatingActionButton(
+              onPressed: () {
+                _abrirFormulario(context);
+              }, // Icono del botón (puedes cambiarlo)
+              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+              tooltip: 'Filtrar',
+              child: Icon(Icons.filter_list),
+            ),
+          ),
+        ],
       ),
+      body: ListView.builder(
+        padding: EdgeInsets.all(10),
+        controller: _scrollController,
+        itemCount: equipos.length + 1,
+        itemBuilder: (context, index) {
+          if (index < equipos.length) {
+            final equipo = equipos[index];
+            return ListTile(
+              textColor: Theme.of(context).colorScheme.secondary,
+              tileColor: Theme.of(context).colorScheme.onPrimary,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(equipo.tagEquipo),
+                        Text(
+                          'Marca: ${equipo.marca}',
+                        ),
+                        Text('Modelo: ${equipo.modelo}'),
+                        Text(
+                          'Estado: ${equipo.estado}',
+                        ),
+                        
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: "Ver detalle",
+                    color: Theme.of(context).colorScheme.tertiary,
+                    icon: Icon(
+                      Icons.zoom_in,
+                    ), // Icono del botón (puedes cambiarlo)
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/detalle_calibracion',
+                        arguments: equipo,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            );
+          } else if (_isLoading) {
+            return Center(child: CircularProgressIndicator());
+          } else {
+            return SizedBox.shrink();
+          }
+        },
+      ),
+    );
+  }
+
+  void _abrirFormulario(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+          title: Text('Filtrar por'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(decoration: InputDecoration(labelText: 'TAG')),
+              TextField(decoration: InputDecoration(labelText: 'SERIE')),
+              TextField(decoration: InputDecoration(labelText: 'TIPO')),
+              // Agrega más campos según sea necesario
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el formulario
+              },
+              child: Text(
+                'Cancelar',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(seconds: 2),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.tertiaryContainer,
+                    content: Text('Filtrando'),
+                  ),
+                );
+                // Lógica para guardar los datos del formulario
+                Navigator.of(
+                  context,
+                ).pop(); // Cierra el formulario después de guardar
+              },
+              child: Text(
+                'Guardar',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
