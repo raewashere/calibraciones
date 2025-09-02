@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/services.dart';
@@ -19,8 +21,56 @@ class _VistaRecuperacionContraseniaState
   final supabase = Supabase.instance.client;
 
   String email = '';
-  bool _isLoading = false;
   bool _obscureText = true;
+
+  bool _showButton = false;
+  bool _isLoading = false;
+
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _iniciarCooldown(); // espera inicial de 60s al cargar la vista
+  }
+
+  void _iniciarCooldown() {
+    setState(() => _showButton = false);
+
+    _timer?.cancel(); // cancelar si hay un timer previo
+    _timer = Timer(const Duration(seconds: 60), () {
+      if (mounted) {
+        setState(() => _showButton = true);
+      }
+    });
+  }
+
+    Future<void> _reenviarPin() async {
+    setState(() => _isLoading = true);
+
+    await supabase.auth.resetPasswordForEmail(email);
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+        content: const Text("Reenviando nuevo PIN"),
+      ),
+    );
+
+    // reiniciar cooldown después de usar el botón
+    _iniciarCooldown();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   Future<void> _updatePassword() async {
     if (_tokenController.text.isEmpty) {
@@ -59,7 +109,7 @@ class _VistaRecuperacionContraseniaState
     } on AuthException catch (e) {
       if (mounted) {
         if (e.message.contains("old")) {
-          await supabase.auth.resetPasswordForEmail(email);
+          _reenviarPin();
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -234,9 +284,10 @@ class _VistaRecuperacionContraseniaState
                       const SizedBox(height: 20),
 
                       //MOSTRAR 60 SEGUNDOS DESPUES
-                      ElevatedButton(
+                      _showButton
+            ? ElevatedButton(
                         onPressed: () async {
-                          await supabase.auth.resetPasswordForEmail(email);
+                          _reenviarPin();
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               duration: const Duration(seconds: 2),
@@ -244,7 +295,7 @@ class _VistaRecuperacionContraseniaState
                               backgroundColor: Theme.of(
                                 context,
                               ).colorScheme.tertiaryContainer,
-                              content: Text("Reenviando nuevo PUN"),
+                              content: Text("Reenviando nuevo PIN"),
                             ),
                           );
                         },
@@ -258,7 +309,7 @@ class _VistaRecuperacionContraseniaState
                                   ).colorScheme.onSecondary,
                                 ),
                               ),
-                      ),
+                      ): const Text("Espere 60 segundos para reenviar el PIN"),
                     ],
                   ),
                 ),
