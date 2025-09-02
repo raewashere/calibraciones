@@ -10,7 +10,7 @@ class VistaReporteCalibracion extends StatefulWidget {
 
 class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
   final ScrollController _scrollController = ScrollController();
-  final List<CalibracionEquipo> _calibraciones_equipos = [
+  final List<CalibracionEquipo> calibracionesEquipos = [
     CalibracionEquipo(
       1,
       'Certificado 001',
@@ -50,8 +50,8 @@ class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
     // Agrega más calibraciones de ejemplo aquí
   ];
   bool _isLoading = false;
-  final int _currentOffset = 0;
-  final int _limit = 10;
+  //final int _currentOffset = 0;
+  //final int _limit = 10;
 
   @override
   void initState() {
@@ -133,10 +133,10 @@ class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
       body: ListView.builder(
         padding: EdgeInsets.all(10),
         controller: _scrollController,
-        itemCount: _calibraciones_equipos.length + 1,
+        itemCount: calibracionesEquipos.length + 1,
         itemBuilder: (context, index) {
-          if (index < _calibraciones_equipos.length) {
-            final calibracion = _calibraciones_equipos[index];
+          if (index < calibracionesEquipos.length) {
+            final calibracion = calibracionesEquipos[index];
             return ListTile(
               textColor: Theme.of(context).colorScheme.secondary,
               tileColor: Theme.of(context).colorScheme.onPrimary,

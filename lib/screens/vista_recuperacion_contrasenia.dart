@@ -22,7 +22,6 @@ class _VistaRecuperacionContraseniaState
   bool _isLoading = false;
   bool _obscureText = true;
 
-
   Future<void> _updatePassword() async {
     if (_tokenController.text.isEmpty) {
       ScaffoldMessenger.of(
@@ -46,7 +45,7 @@ class _VistaRecuperacionContraseniaState
       await supabase.auth.updateUser(
         UserAttributes(password: _passwordController.text),
       );
-
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           duration: const Duration(seconds: 2),
@@ -55,19 +54,33 @@ class _VistaRecuperacionContraseniaState
           content: Text('Contraseña actualizada con éxito'),
         ),
       );
-
       Navigator.pushReplacementNamed(context, '/login');
       // Show success message
     } on AuthException catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-            content: Text("Weee ${e.message}"),
-          ),
-        );
+        if (e.message.contains("old")) {
+          await supabase.auth.resetPasswordForEmail(email);
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              duration: const Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+              content: Text(
+                "La contraseña nueva no puede ser la misma que la anterior",
+              ),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              duration: const Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Theme.of(context).colorScheme.error,
+              content: Text("Error: ${e.message}"),
+            ),
+          );
+        }
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -81,26 +94,23 @@ class _VistaRecuperacionContraseniaState
     if (args != null && args is String) {
       email = args; // lo guardas en tu variable
     }
-    }
+  }
 
   InputDecoration _inputDecoration(String label) =>
       InputDecoration(labelText: label, border: const OutlineInputBorder());
 
-  InputDecoration _inputDecorationPassword(String label) =>
-      InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscureText ? Icons.visibility_off : Icons.visibility,
-          ),
-          onPressed: () {
-            setState(() {
-              _obscureText = !_obscureText;
-            });
-          },
-        ),
-      );
+  InputDecoration _inputDecorationPassword(String label) => InputDecoration(
+    labelText: label,
+    border: const OutlineInputBorder(),
+    suffixIcon: IconButton(
+      icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
+      onPressed: () {
+        setState(() {
+          _obscureText = !_obscureText;
+        });
+      },
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -180,7 +190,9 @@ class _VistaRecuperacionContraseniaState
                       TextFormField(
                         controller: _passwordController,
                         obscureText: _obscureText,
-                        decoration: _inputDecorationPassword('Nueva contraseña'),
+                        decoration: _inputDecorationPassword(
+                          'Nueva contraseña',
+                        ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor ingresa la nueva contraseña';
@@ -195,7 +207,9 @@ class _VistaRecuperacionContraseniaState
                       TextFormField(
                         controller: _confirmPasswordController,
                         obscureText: _obscureText,
-                        decoration: _inputDecorationPassword('Confirmar contraseña'),
+                        decoration: _inputDecorationPassword(
+                          'Confirmar contraseña',
+                        ),
                         validator: (value) {
                           if (value != _passwordController.text) {
                             return 'Las contraseñas no coinciden';
@@ -210,6 +224,34 @@ class _VistaRecuperacionContraseniaState
                             ? CircularProgressIndicator()
                             : Text(
                                 'Actualizar contraseña',
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSecondary,
+                                ),
+                              ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      //MOSTRAR 60 SEGUNDOS DESPUES
+                      ElevatedButton(
+                        onPressed: () async {
+                          await supabase.auth.resetPasswordForEmail(email);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              duration: const Duration(seconds: 2),
+                              behavior: SnackBarBehavior.floating,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.tertiaryContainer,
+                              content: Text("Reenviando nuevo PUN"),
+                            ),
+                          );
+                        },
+                        child: _isLoading
+                            ? CircularProgressIndicator()
+                            : Text(
+                                'Reenviar PIN de recuperación',
                                 style: TextStyle(
                                   color: Theme.of(
                                     context,

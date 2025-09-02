@@ -41,8 +41,6 @@ class VistaCuentaState extends State<VistaCuenta> {
     setState(() {
       instalacion = instalacionData;
     });
-
-    print(instalacion.toString());
   }
 
   @override
@@ -130,8 +128,7 @@ class VistaCuentaState extends State<VistaCuenta> {
                     Row(
                       children: [
                         ProfilePicture(
-                          name:
-                              login != null
+                          name: login != null
                               ? '${login?.nombre} ${login?.primerApellido}'
                               : '',
                           radius: 31,
@@ -184,7 +181,8 @@ class VistaCuentaState extends State<VistaCuenta> {
                         Padding(padding: EdgeInsets.all(5)),
                         Expanded(
                           child: Text(
-                            instalacion?.getNombreInstalacion() ?? 'Cargando...',
+                            instalacion?.getNombreInstalacion() ??
+                                'Cargando...',
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSecondary,
                               fontSize: Theme.of(

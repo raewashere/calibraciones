@@ -125,60 +125,42 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                                       await supabase.auth.resetPasswordForEmail(
                                         _emailController.text,
                                       );
-                                      if (mounted) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            duration: const Duration(
-                                              seconds: 2,
-                                            ),
-                                            behavior: SnackBarBehavior.floating,
-                                            backgroundColor: Theme.of(
-                                              context,
-                                            ).colorScheme.tertiaryContainer,
-                                            content: Text(
-                                              'PIN de recuperación enviado a ${_emailController.text}',
-                                            ),
+                                      if (!mounted) return;
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          duration: const Duration(seconds: 2),
+                                          behavior: SnackBarBehavior.floating,
+                                          backgroundColor: Theme.of(
+                                            context,
+                                          ).colorScheme.tertiaryContainer,
+                                          content: Text(
+                                            'Se ha enviado un enlace de recuperación a ${_emailController.text}',
                                           ),
-                                        );
-                                      }
-                                    } on AuthException catch (e) {
-                                       ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                duration: const Duration(
-                                                  seconds: 2,
-                                                ),
-                                                behavior:
-                                                    SnackBarBehavior.floating,
-                                                backgroundColor: Theme.of(
-                                                  context,
-                                                ).colorScheme.tertiaryContainer,
-                                                content: Text(
-                                                  'Error al enviar el enlace de recuperación ${e.message}',
-                                                ),
-                                              ),
-                                            );
-                                    }
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        duration: const Duration(seconds: 2),
-                                        behavior: SnackBarBehavior.floating,
-                                        backgroundColor: Theme.of(
-                                          context,
-                                        ).colorScheme.tertiaryContainer,
-                                        content: Text(
-                                          'Enviando token a tu correo',
                                         ),
-                                      ),
-                                    );
-                                    Navigator.pushNamed(
-                                      context,
-                                      '/recuperacion_contrasenia',
-                                      arguments: _emailController.text,
-                                    );
+                                      );
+
+                                      Navigator.pushNamed(
+                                        context,
+                                        '/recuperacion_contrasenia',
+                                        arguments: _emailController.text,
+                                      );
+                                    } on AuthException catch (e) {
+                                      if (!mounted) return;
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          duration: const Duration(seconds: 3),
+                                          behavior: SnackBarBehavior.floating,
+                                          backgroundColor: Theme.of(
+                                            context,
+                                          ).colorScheme.error,
+                                          content: Text('Error: ${e.message}'),
+                                        ),
+                                      );
+                                    }
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -190,7 +172,7 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                                   ).colorScheme.onSecondary,
                                 ),
                                 child: const Text(
-                                  'Enviar enlace de recuperación',
+                                  'Enviar PIN de recuperación',
                                 ),
                               ),
                               const SizedBox(height: 30),

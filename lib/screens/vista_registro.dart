@@ -301,10 +301,9 @@ class VistaRegistroState extends State<VistaRegistro> {
                                                   instalacionSeleccionada!
                                                       .getNombreInstalacion(),
                                                 );
-                                            print(
-                                              'Respuesta del registro: $respuestaRegistro',
-                                            );
+
                                             if (!respuestaRegistro) {
+                                              if (!mounted) return;
                                               ScaffoldMessenger.of(
                                                 context,
                                               ).showSnackBar(
@@ -496,7 +495,7 @@ class VistaRegistroState extends State<VistaRegistro> {
     );
   }
 
-    Widget _buildTextFormFieldPassword(
+  Widget _buildTextFormFieldPassword(
     BuildContext context, {
     required String hintText,
     required String validatorText,

@@ -28,7 +28,6 @@ class UsuarioServiceImpl implements UsuarioService {
         email: correoElectronico,
         password: password,
       );
-      final Session? session = res.session;
       final User? user = res.user;
 
       if (user == null) {
@@ -78,7 +77,6 @@ class UsuarioServiceImpl implements UsuarioService {
 
       return true;
     } catch (e) {
-      print('Error al registrar usuario: $e');
       return false;
     }
   }
@@ -163,7 +161,6 @@ class UsuarioServiceImpl implements UsuarioService {
       }
       return Usuario.fromJsonCreate(data[0]);
     } catch (e) {
-      print('Error al obtener usuario: $e');
       return Future.error(e);
     }
   }

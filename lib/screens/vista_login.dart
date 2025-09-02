@@ -43,7 +43,9 @@ class VistaLoginState extends State<VistaLogin> {
         password: _passwordController.text,
         email: _emailController.text,
       );
-      final Session? session = res.session;
+
+      if (!mounted) return;
+      //final Session? session = res.session;
       final User? user = res.user;
       //Navigator.pushReplacementNamed(context, '/inicio');
 

@@ -13,7 +13,7 @@ class VistaEquipo extends StatefulWidget {
 class _InfiniteScrollCatalogoState extends State<VistaEquipo> {
   final ScrollController _scrollController = ScrollController();
   List<DtoEquipo> equipos = [];
-  bool _isLoading = false;
+  final bool _isLoading = false;
   EquipoService equipoService = EquipoServiceImpl();
 
   @override
@@ -82,6 +82,7 @@ class _InfiniteScrollCatalogoState extends State<VistaEquipo> {
           if (index < equipos.length) {
             final equipo = equipos[index];
             return ListTile(
+              contentPadding: EdgeInsets.all(12),
               textColor: Theme.of(context).colorScheme.secondary,
               tileColor: Theme.of(context).colorScheme.onPrimary,
               title: Row(
@@ -92,6 +93,7 @@ class _InfiniteScrollCatalogoState extends State<VistaEquipo> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(equipo.tagEquipo),
+                        Text('Tipo de sensor: ${equipo.tipoSensor}'),
                         Text(
                           'Marca: ${equipo.marca}',
                         ),

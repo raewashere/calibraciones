@@ -60,7 +60,7 @@ class VistaModificacionDatosState extends State<VistaModificacionDatos> {
     });
   }
 
-   @override
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)!.settings.arguments;
@@ -226,7 +226,6 @@ class VistaModificacionDatosState extends State<VistaModificacionDatos> {
                                                       _primerController.text,
                                                       _segundoController.text,
                                                       _telefonoController.text,
-                                                      
                                                     );
                                             if (!respuestaRegistro) {
                                               ScaffoldMessenger.of(
