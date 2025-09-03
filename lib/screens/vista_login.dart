@@ -1,3 +1,6 @@
+import 'package:calibraciones/models/_usuario.dart';
+import 'package:calibraciones/services/implementation/usuario_service_impl.dart';
+import 'package:calibraciones/services/usuario_service.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -13,6 +16,7 @@ class VistaLoginState extends State<VistaLogin> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscureText = true;
+  UsuarioService usuarioService = UsuarioServiceImpl();
 
   Future<void> prueba() async {
     Navigator.pushReplacementNamed(context, '/inicio');
@@ -21,24 +25,36 @@ class VistaLoginState extends State<VistaLogin> {
   InputDecoration _inputDecoration(String label) =>
       InputDecoration(labelText: label, border: const OutlineInputBorder());
 
-    InputDecoration _inputDecorationPassword(String label) =>
-      InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscureText ? Icons.visibility_off : Icons.visibility,
-          ),
-          onPressed: () {
-            setState(() {
-              _obscureText = !_obscureText;
-            });
-          },
-        ),
-      );
+  InputDecoration _inputDecorationPassword(String label) => InputDecoration(
+    labelText: label,
+    border: const OutlineInputBorder(),
+    suffixIcon: IconButton(
+      icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
+      onPressed: () {
+        setState(() {
+          _obscureText = !_obscureText;
+        });
+      },
+    ),
+  );
 
   Future<void> _signIn() async {
     try {
+      Usuario? usuario = await usuarioService.obtenerUsuario(
+        _emailController.text,
+      );
+      if (usuario?.getVerificacionAdmin == false) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+            content: Text('Tu cuenta está en revisión por un administrador'),
+          ),
+        );
+        return;
+      }
+
       final AuthResponse res = await supabase.auth.signInWithPassword(
         password: _passwordController.text,
         email: _emailController.text,
@@ -83,8 +99,12 @@ class VistaLoginState extends State<VistaLogin> {
       } else if (e.code == 'invalid-email') {
         mensajeError = 'El correo electrónico no tiene un formato válido.';
       } else {
-        mensajeError =
-            'Error al iniciar sesión. Por favor, inténtelo de nuevo.';
+        if (e.code == 'unconfirmed-email') {
+          mensajeError = 'Por favor verifica tu correo electrónico';
+        } else {
+          mensajeError =
+              'Error al iniciar sesión. Por favor, inténtelo de nuevo.';
+        }
       }
       // Mostrar un SnackBar con el mensaje de error
       ScaffoldMessenger.of(context).showSnackBar(
@@ -186,7 +206,9 @@ class VistaLoginState extends State<VistaLogin> {
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.primary,
                                 ),
-                                decoration: _inputDecorationPassword("Contraseña"),
+                                decoration: _inputDecorationPassword(
+                                  "Contraseña",
+                                ),
                               ),
                             ),
                           ],

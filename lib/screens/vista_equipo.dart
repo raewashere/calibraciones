@@ -51,13 +51,13 @@ class _InfiniteScrollCatalogoState extends State<VistaEquipo> {
                     backgroundColor: Theme.of(
                       context,
                     ).colorScheme.tertiaryContainer,
-                    content: Text('Descargando reporte'),
+                    content: Text('Abriendo formulario'),
                   ),
                 );
               }, // Icono del botón (puedes cambiarlo)
               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              tooltip: 'Descargar',
-              child: Icon(Icons.download),
+              tooltip: 'Agregar equipo',
+              child: Icon(Icons.add),
             ),
           ),
           Positioned(
