@@ -539,9 +539,9 @@ class VistaRegistroState extends State<VistaRegistro> {
       }).toList(),
       onChanged: onChanged,
       validator: (value) {
-        /*if (value == null) {
+        if (value == null) {
           return 'Por favor selecciona una opción';
-        }*/
+        }
         return null;
       },
     );
@@ -567,9 +567,9 @@ class VistaRegistroState extends State<VistaRegistro> {
       }).toList(),
       onChanged: onChanged,
       validator: (value) {
-        /*if (value == null) {
+        if (value == null) {
           return 'Por favor selecciona una opción';
-        }*/
+        }
         return null;
       },
     );
@@ -595,9 +595,9 @@ class VistaRegistroState extends State<VistaRegistro> {
       }).toList(),
       onChanged: onChanged,
       validator: (value) {
-        /*if (value == null) {
+        if (value == null) {
           return 'Por favor selecciona una opción';
-        }*/
+        }
         return null;
       },
     );
@@ -623,9 +623,9 @@ class VistaRegistroState extends State<VistaRegistro> {
       }).toList(),
       onChanged: onChanged,
       validator: (value) {
-        /*if (value == null) {
+        if (value == null) {
           return 'Por favor selecciona una opción';
-        }*/
+        }
         return null;
       },
     );

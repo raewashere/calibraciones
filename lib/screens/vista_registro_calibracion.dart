@@ -1,5 +1,9 @@
 import 'package:calibraciones/models/_direccion.dart';
+import 'package:calibraciones/models/_gerencia.dart';
+import 'package:calibraciones/models/_instalacion.dart';
+import 'package:calibraciones/models/_patin_medicion.dart';
 import 'package:calibraciones/models/_subdireccion.dart';
+import 'package:calibraciones/models/_tren_medicion.dart';
 import 'package:calibraciones/services/direccion_service.dart';
 import 'package:calibraciones/services/implementation/direccion_service_impl.dart';
 import 'package:flutter/material.dart';
@@ -21,13 +25,30 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final TextEditingController _passwordValidatorController =
       TextEditingController();
 
-  late Future<List<Direccion>> _futureDirecciones;
-  Direccion? selectedDireccion;
   DireccionService direccionService = DireccionServiceImpl();
 
-  List<Subdireccion> subdirecciones = [];
-  late Subdireccion subdireccion;
   Subdireccion? selectedSubdireccion;
+
+  late Future<List<Direccion>> _futureDirecciones;
+  Direccion? selectedDireccion;
+  Direccion? direccionSeleccionada;
+
+  List<Subdireccion> subdirecciones = [];
+  Subdireccion? subdireccionSeleccionada;
+
+  List<Gerencia> gerencias = [];
+  Gerencia? gerenciaSeleccionada;
+
+  List<Instalacion> instalaciones = [];
+  Instalacion? instalacionSeleccionada;
+
+  List<PatinMedicion> patinesMedicion = [];
+  PatinMedicion? patinMedicionSeleccionado;
+
+  List<TrenMedicion> trenesMedicion = [];
+  TrenMedicion? trenMedicionSeleccionado;
+
+  bool habilitaGerencia = false;
 
   bool validarEmail(String email) {
     final RegExp regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
@@ -37,8 +58,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   @override
   void initState() {
     super.initState();
-    //_futureDirecciones = direccionService.obtenerAllDirecciones();
-    _futureDirecciones = Future.delayed(const Duration(seconds: 2), () => []);
+    _futureDirecciones = direccionService.obtenerAllDirecciones();
   }
 
   @override
@@ -56,7 +76,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
             return const Center(child: Text('No hay direcciones disponibles'));
           } else {
             final lista = snapshot.data!;
-            selectedDireccion ??= lista[0];
+            direccionSeleccionada ??= lista[0];
             return Form(
               key: _formularioRegistro,
               child: SingleChildScrollView(
@@ -105,143 +125,111 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                 ),
                                 child: Column(
                                   children: <Widget>[
-                                    DropdownButton<Direccion>(
-                                      hint: Text("Dirección"),
-                                      value: selectedDireccion,
-                                      items: lista
-                                          .map<DropdownMenuItem<Direccion>>((
-                                            Direccion direccion,
-                                          ) {
-                                            return DropdownMenuItem<Direccion>(
-                                              alignment: Alignment.topLeft,
-                                              value: direccion,
-                                              child: Text(direccion.nombre),
-                                            );
-                                          })
-                                          .toList(),
-                                      onChanged: (Direccion? direcccion) {
-                                        if (direcccion != null) {
-                                          setState(() {
-                                            selectedDireccion = direcccion;
-
-                                            subdirecciones = direcccion
-                                                .getSubdirecciones();
-                                            selectedSubdireccion =
-                                                subdirecciones.isNotEmpty
-                                                ? subdirecciones[0]
-                                                : null;
-                                          });
-                                        }
+                                    _buildDropdownButtonDireccion(
+                                      context,
+                                      hintText: "Dirección",
+                                      items: _futureDirecciones,
+                                      value: direccionSeleccionada,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          subdireccionSeleccionada = null;
+                                          gerenciaSeleccionada = null;
+                                          instalacionSeleccionada = null;
+                                          patinMedicionSeleccionado = null;
+                                          trenMedicionSeleccionado = null;
+                                          direccionSeleccionada = value;
+                                          subdirecciones =
+                                              value!.subdirecciones;
+                                        });
                                       },
                                     ),
-                                    DropdownButton(
-                                      value: selectedSubdireccion,
-                                      hint: Text("Subdirección"),
-                                      items: subdirecciones
-                                          .map<DropdownMenuItem<Subdireccion>>((
-                                            Subdireccion subdireccion,
-                                          ) {
-                                            return DropdownMenuItem<
-                                              Subdireccion
-                                            >(
-                                              alignment: Alignment.topLeft,
-                                              value: subdireccion,
-                                              child: Text(subdireccion.nombre),
+                                    SizedBox(height: 10),
+                                    _buildDropdownButtonSubdireccion(
+                                      context,
+                                      hintText: "Subdirección",
+                                      items: subdirecciones,
+                                      value: subdireccionSeleccionada,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          gerenciaSeleccionada = null;
+                                          instalacionSeleccionada = null;
+                                          patinMedicionSeleccionado = null;
+                                          trenMedicionSeleccionado = null;
+                                          subdireccionSeleccionada = value;
+                                          if (value!.gerencias.isEmpty) {
+                                            instalaciones = value.instalaciones;
+                                            habilitaGerencia = false;
+                                            print(
+                                              'No hay gerencias, solo instalaciones directas',
                                             );
-                                          })
-                                          .toList(),
-                                      onChanged: (Subdireccion? subdireccion) {
-                                        if (subdireccion != null) {
-                                          setState(() {
-                                            selectedSubdireccion = subdireccion;
-                                          });
-                                        }
+                                          } else {
+                                            gerencias = value.gerencias;
+                                            habilitaGerencia = true;
+                                          }
+                                        });
                                       },
                                     ),
-                                    /*DropdownButton(
-                                      hint: Text("Gerencia"),
-                                      items: lista
-                                          .map<DropdownMenuItem<Direccion>>((
-                                            Direccion direccion,
-                                          ) {
-                                            return DropdownMenuItem<Direccion>(
-                                              alignment: Alignment.topLeft,
-                                              value: direccion,
-                                              child: Text(direccion.nombre),
-                                            );
-                                          })
-                                          .toList(),
-                                      onChanged: (Direccion? newObra) {
-                                        if (newObra != null) {
-                                          setState(() {
-                                            selectedDireccion = newObra;
-                                          });
-                                        }
-                                      },
-                                    ),*/
-                                    DropdownButton(
-                                      hint: Text("Instalación"),
-                                      items: lista
-                                          .map<DropdownMenuItem<Direccion>>((
-                                            Direccion direccion,
-                                          ) {
-                                            return DropdownMenuItem<Direccion>(
-                                              alignment: Alignment.topLeft,
-                                              value: direccion,
-                                              child: Text(direccion.nombre),
-                                            );
-                                          })
-                                          .toList(),
-                                      onChanged: (Direccion? newObra) {
-                                        if (newObra != null) {
-                                          setState(() {
-                                            selectedDireccion = newObra;
-                                          });
-                                        }
+                                    SizedBox(height: 10),
+                                    habilitaGerencia
+                                        ? _buildDropdownButtonGerencia(
+                                            context,
+                                            hintText: "Gerencia",
+                                            items: gerencias,
+                                            value: gerenciaSeleccionada,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                instalacionSeleccionada = null;
+                                                patinMedicionSeleccionado =
+                                                    null;
+                                                trenMedicionSeleccionado = null;
+                                                gerenciaSeleccionada = value;
+                                                instalaciones =
+                                                    value!.instalaciones;
+                                              });
+                                            },
+                                          )
+                                        : SizedBox.shrink(),
+                                    SizedBox(height: 10),
+                                    _buildDropdownButtonInstalaciones(
+                                      context,
+                                      hintText: "Instalación",
+                                      items: instalaciones,
+                                      value: instalacionSeleccionada,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          patinMedicionSeleccionado = null;
+                                          trenMedicionSeleccionado = null;
+                                          instalacionSeleccionada = value;
+                                          patinesMedicion =
+                                              value!.getPatinesMedicion;
+                                        });
                                       },
                                     ),
-                                    DropdownButton(
-                                      hint: Text(
-                                        "Sistema de transporte / Ducto",
-                                      ),
-                                      items: lista
-                                          .map<DropdownMenuItem<Direccion>>((
-                                            Direccion direccion,
-                                          ) {
-                                            return DropdownMenuItem<Direccion>(
-                                              alignment: Alignment.topLeft,
-                                              value: direccion,
-                                              child: Text(direccion.nombre),
-                                            );
-                                          })
-                                          .toList(),
-                                      onChanged: (Direccion? newObra) {
-                                        if (newObra != null) {
-                                          setState(() {
-                                            selectedDireccion = newObra;
-                                          });
-                                        }
+                                    SizedBox(height: 10),
+                                    _buildDropdownButtonPatines(
+                                      context,
+                                      hintText: "Patín de Medición",
+                                      items: patinesMedicion,
+                                      value: patinMedicionSeleccionado,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          trenMedicionSeleccionado = null;
+                                          patinMedicionSeleccionado = value;
+                                          trenesMedicion =
+                                              value!.getTrenMedicion;
+                                        });
                                       },
                                     ),
-                                    DropdownButton(
-                                      hint: Text("TAG"),
-                                      items: lista
-                                          .map<DropdownMenuItem<Direccion>>((
-                                            Direccion direccion,
-                                          ) {
-                                            return DropdownMenuItem<Direccion>(
-                                              alignment: Alignment.topLeft,
-                                              value: direccion,
-                                              child: Text(direccion.nombre),
-                                            );
-                                          })
-                                          .toList(),
-                                      onChanged: (Direccion? newObra) {
-                                        if (newObra != null) {
-                                          setState(() {
-                                            selectedDireccion = newObra;
-                                          });
-                                        }
+                                    SizedBox(height: 10),
+                                    _buildDropdownButtonTrenes(
+                                      context,
+                                      hintText: "Tren de Medición",
+                                      items: trenesMedicion,
+                                      value: trenMedicionSeleccionado,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          trenMedicionSeleccionado = value;
+                                        });
                                       },
                                     ),
                                   ],
@@ -1064,6 +1052,190 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           return null;
         },
       ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String label) =>
+      InputDecoration(labelText: label, border: const OutlineInputBorder());
+
+  Widget _buildDropdownButtonDireccion(
+    BuildContext context, {
+    required String hintText,
+    required Future<List<Direccion>> items,
+    required Direccion? value,
+    required ValueChanged<Direccion?> onChanged,
+  }) {
+    //future to list
+    return FutureBuilder<List<Direccion>>(
+      future: items,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          final direcciones = snapshot.data!;
+          return DropdownButtonFormField<Direccion>(
+            isExpanded: true,
+            decoration: _inputDecoration(hintText),
+            value: value,
+            dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+            items: direcciones.map((Direccion item) {
+              return DropdownMenuItem<Direccion>(
+                value: item,
+                child: Text(item.getNombre),
+              );
+            }).toList(),
+            onChanged: onChanged,
+            validator: (value) {
+              if (value == null) {
+                return 'Por favor selecciona una opción';
+              }
+              return null;
+            },
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildDropdownButtonSubdireccion(
+    BuildContext context, {
+    required String hintText,
+    required List<Subdireccion> items,
+    required Subdireccion? value,
+    required ValueChanged<Subdireccion?> onChanged,
+  }) {
+    return DropdownButtonFormField<Subdireccion>(
+      isExpanded: true,
+      decoration: _inputDecoration(hintText),
+      value: value,
+      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      items: items.map((Subdireccion item) {
+        return DropdownMenuItem<Subdireccion>(
+          value: item,
+          child: Text(item.nombre),
+        );
+      }).toList(),
+      onChanged: onChanged,
+      validator: (value) {
+        if (value == null) {
+          return 'Por favor selecciona una opción';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildDropdownButtonGerencia(
+    BuildContext context, {
+    required String hintText,
+    required List<Gerencia> items,
+    required Gerencia? value,
+    required ValueChanged<Gerencia?> onChanged,
+  }) {
+    return DropdownButtonFormField<Gerencia>(
+      isExpanded: true,
+      decoration: _inputDecoration(hintText),
+      value: value,
+      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      items: items.map((Gerencia item) {
+        return DropdownMenuItem<Gerencia>(
+          value: item,
+          child: Text(item.nombre),
+        );
+      }).toList(),
+      onChanged: onChanged,
+      validator: (value) {
+        if (value == null) {
+          return 'Por favor selecciona una opción';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildDropdownButtonInstalaciones(
+    BuildContext context, {
+    required String hintText,
+    required List<Instalacion> items,
+    required Instalacion? value,
+    required ValueChanged<Instalacion?> onChanged,
+  }) {
+    return DropdownButtonFormField<Instalacion>(
+      isExpanded: true,
+      decoration: _inputDecoration(hintText),
+      value: value,
+      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      items: items.map((Instalacion item) {
+        return DropdownMenuItem<Instalacion>(
+          value: item,
+          child: Text(item.getNombreInstalacion),
+        );
+      }).toList(),
+      onChanged: onChanged,
+      validator: (value) {
+        if (value == null) {
+          return 'Por favor selecciona una opción';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildDropdownButtonPatines(
+    BuildContext context, {
+    required String hintText,
+    required List<PatinMedicion> items,
+    required PatinMedicion? value,
+    required ValueChanged<PatinMedicion?> onChanged,
+  }) {
+    return DropdownButtonFormField<PatinMedicion>(
+      isExpanded: true,
+      decoration: _inputDecoration(hintText),
+      value: value,
+      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      items: items.map((PatinMedicion item) {
+        return DropdownMenuItem<PatinMedicion>(
+          value: item,
+          child: Text(item.getNombrePatin),
+        );
+      }).toList(),
+      onChanged: onChanged,
+      validator: (value) {
+        if (value == null) {
+          return 'Por favor selecciona una opción';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildDropdownButtonTrenes(
+    BuildContext context, {
+    required String hintText,
+    required List<TrenMedicion> items,
+    required TrenMedicion? value,
+    required ValueChanged<TrenMedicion?> onChanged,
+  }) {
+    return DropdownButtonFormField<TrenMedicion>(
+      isExpanded: true,
+      decoration: _inputDecoration(hintText),
+      value: value,
+      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      items: items.map((TrenMedicion item) {
+        return DropdownMenuItem<TrenMedicion>(
+          value: item,
+          child: Text(item.getTagTren),
+        );
+      }).toList(),
+      onChanged: onChanged,
+      validator: (value) {
+        if (value == null) {
+          return 'Por favor selecciona una opción';
+        }
+        return null;
+      },
     );
   }
 }

@@ -11,19 +11,16 @@ class Direccion {
     this.subdirecciones,
   );
 
-  // Getters para acceder a los atributos
   int get getIdDireccion => idDireccion;
   String get getNombre => nombre;
-  List<Subdireccion> getSubdirecciones() => subdirecciones;
+  List<Subdireccion> get getSubdirecciones => subdirecciones;
 
   set setIdDireccion(int value) {
-    idDireccion = value; // Asignación correcta
+    idDireccion = value;
   }
-
   set setNombre(String value) {
-    nombre = value; // Asignación correcta
+    nombre = value;
   }
-
   set setSubdirecciones(List<Subdireccion> value) {
     subdirecciones = value;
   }
@@ -32,9 +29,10 @@ class Direccion {
     return Direccion(
       direccionJson['id_direccion'],
       direccionJson['nombre_direccion'],
-      (direccionJson['subdirecciones'] as List)
-          .map((subdireccionJson) => Subdireccion.fromJson(subdireccionJson))
+      (direccionJson['subdireccion'] as List)
+          .map((subJson) => Subdireccion.fromJson(subJson))
           .toList(),
     );
   }
 }
+
