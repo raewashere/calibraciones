@@ -1,4 +1,5 @@
 import 'package:calibraciones/models/_direccion.dart';
+import 'package:calibraciones/models/_equipo.dart';
 import 'package:calibraciones/models/_gerencia.dart';
 import 'package:calibraciones/models/_instalacion.dart';
 import 'package:calibraciones/models/_patin_medicion.dart';
@@ -17,13 +18,62 @@ class VistaRegistroCalibracion extends StatefulWidget {
 
 class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final _formularioRegistro = GlobalKey<FormState>();
-  final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _primerController = TextEditingController();
-  final TextEditingController _segundoController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _passwordValidatorController =
+
+  //Datos laboratorio
+  final TextEditingController _laboratorioController = TextEditingController();
+  final TextEditingController _productoController = TextEditingController();
+  final TextEditingController _fechaController = TextEditingController();
+
+  //Datos corridas
+  final TextEditingController _caudalM3Controller = TextEditingController();
+  final TextEditingController _caudalBblController = TextEditingController();
+  final TextEditingController _temperaturaController = TextEditingController();
+  final TextEditingController _presionController = TextEditingController();
+  final TextEditingController _meterFactorController = TextEditingController();
+  final TextEditingController _kFactorPulsosM3Controller =
       TextEditingController();
+  final TextEditingController _kFactorPulsosBblController =
+      TextEditingController();
+  final TextEditingController _frecuenciaController = TextEditingController();
+  final TextEditingController _repetibilidadController =
+      TextEditingController();
+
+  Future<void> _seleccionarFecha(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000), // fecha mínima
+      lastDate: DateTime(2100), // fecha máxima
+      locale: Locale("es", "ES"), // idioma español
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Theme.of(
+                context,
+              ).colorScheme.primary, // Color del encabezado y selección
+              onPrimary: Theme.of(
+                context,
+              ).colorScheme.onPrimary, // Texto en el encabezado
+              onSurface: Theme.of(
+                context,
+              ).colorScheme.onSurface, // Texto de días
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _fechaController.text =
+            "${picked.day}/${picked.month}/${picked.year}"; // formato básico
+      });
+    }
+  }
+
+  final FocusNode _focusNodeLaboratorio = FocusNode();
+  final FocusNode _focusNodeCaudal = FocusNode();
 
   DireccionService direccionService = DireccionServiceImpl();
 
@@ -48,6 +98,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   List<TrenMedicion> trenesMedicion = [];
   TrenMedicion? trenMedicionSeleccionado;
 
+  List<Equipo> equiposTren = [];
+  Equipo? equipoSeleccionado;
+
   bool habilitaGerencia = false;
 
   bool validarEmail(String email) {
@@ -58,6 +111,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   @override
   void initState() {
     super.initState();
+    //_focusNode.dispose();
     _futureDirecciones = direccionService.obtenerAllDirecciones();
   }
 
@@ -137,6 +191,13 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           instalacionSeleccionada = null;
                                           patinMedicionSeleccionado = null;
                                           trenMedicionSeleccionado = null;
+                                          equipoSeleccionado = null;
+                                          subdirecciones = [];
+                                          gerencias = [];
+                                          instalaciones = [];
+                                          patinesMedicion = [];
+                                          trenesMedicion = [];
+                                          equiposTren = [];
                                           direccionSeleccionada = value;
                                           subdirecciones =
                                               value!.subdirecciones;
@@ -155,6 +216,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           instalacionSeleccionada = null;
                                           patinMedicionSeleccionado = null;
                                           trenMedicionSeleccionado = null;
+                                          equipoSeleccionado = null;
+                                          gerencias = [];
+                                          instalaciones = [];
+                                          patinesMedicion = [];
+                                          trenesMedicion = [];
+                                          equiposTren = [];
                                           subdireccionSeleccionada = value;
                                           if (value!.gerencias.isEmpty) {
                                             instalaciones = value.instalaciones;
@@ -182,6 +249,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                 patinMedicionSeleccionado =
                                                     null;
                                                 trenMedicionSeleccionado = null;
+                                                equipoSeleccionado = null;
+                                                instalaciones = [];
+                                                patinesMedicion = [];
+                                                trenesMedicion = [];
+                                                equiposTren = [];
                                                 gerenciaSeleccionada = value;
                                                 instalaciones =
                                                     value!.instalaciones;
@@ -199,6 +271,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                         setState(() {
                                           patinMedicionSeleccionado = null;
                                           trenMedicionSeleccionado = null;
+                                          equipoSeleccionado = null;
+                                          patinesMedicion = [];
+                                          trenesMedicion = [];
+                                          equiposTren = [];
                                           instalacionSeleccionada = value;
                                           patinesMedicion =
                                               value!.getPatinesMedicion;
@@ -214,6 +290,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       onChanged: (value) {
                                         setState(() {
                                           trenMedicionSeleccionado = null;
+                                          equipoSeleccionado = null;
+                                          trenesMedicion = [];
+                                          equiposTren = [];
                                           patinMedicionSeleccionado = value;
                                           trenesMedicion =
                                               value!.getTrenMedicion;
@@ -228,7 +307,22 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       value: trenMedicionSeleccionado,
                                       onChanged: (value) {
                                         setState(() {
+                                          equipoSeleccionado = null;
+                                          equiposTren = [];
                                           trenMedicionSeleccionado = value;
+                                          equiposTren = value!.getEquiposTren;
+                                        });
+                                      },
+                                    ),
+                                    SizedBox(height: 10),
+                                    _buildDropdownButtonEquipos(
+                                      context,
+                                      hintText: "Equipo",
+                                      items: equiposTren,
+                                      value: equipoSeleccionado,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          equipoSeleccionado = value;
                                         });
                                       },
                                     ),
@@ -239,16 +333,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                               Center(
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        duration: const Duration(seconds: 2),
-                                        behavior: SnackBarBehavior.floating,
-                                        backgroundColor: Theme.of(
-                                          context,
-                                        ).colorScheme.tertiaryContainer,
-                                        content: Text('Datos laboratorio'),
-                                      ),
-                                    );
+                                    FocusScope.of(
+                                      context,
+                                    ).requestFocus(_focusNodeLaboratorio);
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Theme.of(
@@ -258,7 +345,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       context,
                                     ).colorScheme.onSecondary,
                                   ),
-                                  child: const Text('Siguiente paso'),
+                                  child: const Text('Siguiente paso 1'),
                                 ),
                               ),
                             ],
@@ -309,21 +396,22 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       hintText: "Laboratorio de calibración",
                                       validatorText:
                                           'Favor de escribir el laboratorio de calibración',
-                                      controllerText: _nombreController,
+                                      controllerText: _laboratorioController,
+                                      focusNode: _focusNodeLaboratorio,
                                     ),
                                     _buildTextFormField(
                                       context,
                                       hintText: "Producto",
                                       validatorText:
                                           'Favor de escribir el producto',
-                                      controllerText: _primerController,
+                                      controllerText: _productoController,
                                     ),
-                                    _buildTextFormField(
+                                    _buildDateFormField(
                                       context,
                                       hintText: "Fecha",
                                       validatorText:
                                           'Favor de escribir la fecha',
-                                      controllerText: _primerController,
+                                      controllerText: _fechaController,
                                     ),
                                   ],
                                 ),
@@ -332,156 +420,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                               Center(
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    if (_formularioRegistro.currentState!
-                                        .validate()) {
-                                      if (_nombreController.text.length <= 50) {
-                                        if (_primerController.text.length <=
-                                            30) {
-                                          if (_segundoController.text.length <=
-                                              30) {
-                                            if (_emailController.text.length <=
-                                                30) {
-                                              if (validarEmail(
-                                                _emailController.text,
-                                              )) {
-                                                if (_passwordController.text ==
-                                                    _passwordValidatorController
-                                                        .text) {
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(
-                                                    SnackBar(
-                                                      duration: const Duration(
-                                                        seconds: 2,
-                                                      ),
-                                                      behavior: SnackBarBehavior
-                                                          .floating,
-                                                      backgroundColor:
-                                                          Theme.of(context)
-                                                              .colorScheme
-                                                              .tertiaryContainer,
-                                                      content: Text(
-                                                        'Enviando información, validar registro',
-                                                      ),
-                                                    ),
-                                                  );
-                                                } else {
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(
-                                                    SnackBar(
-                                                      duration: const Duration(
-                                                        seconds: 2,
-                                                      ),
-                                                      behavior: SnackBarBehavior
-                                                          .floating,
-                                                      backgroundColor:
-                                                          Theme.of(context)
-                                                              .colorScheme
-                                                              .tertiaryContainer,
-                                                      content: Text(
-                                                        'Verificar que las contraseñas son iguales',
-                                                      ),
-                                                    ),
-                                                  );
-                                                }
-                                              } else {
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  SnackBar(
-                                                    duration: const Duration(
-                                                      seconds: 2,
-                                                    ),
-                                                    behavior: SnackBarBehavior
-                                                        .floating,
-                                                    backgroundColor:
-                                                        Theme.of(context)
-                                                            .colorScheme
-                                                            .tertiaryContainer,
-                                                    content: Text(
-                                                      'El correo introducido no es correcto',
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-                                            } else {
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  duration: const Duration(
-                                                    seconds: 2,
-                                                  ),
-                                                  behavior:
-                                                      SnackBarBehavior.floating,
-                                                  backgroundColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .tertiaryContainer,
-                                                  content: Text(
-                                                    'Campo de correo electrónico limitado a 30 caracteres',
-                                                  ),
-                                                ),
-                                              );
-                                            }
-                                          } else {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                duration: const Duration(
-                                                  seconds: 2,
-                                                ),
-                                                behavior:
-                                                    SnackBarBehavior.floating,
-                                                backgroundColor: Theme.of(
-                                                  context,
-                                                ).colorScheme.tertiaryContainer,
-                                                content: Text(
-                                                  'Campo de segundo apellido limitado a 30 caracteres',
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        } else {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              duration: const Duration(
-                                                seconds: 2,
-                                              ),
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              backgroundColor: Theme.of(
-                                                context,
-                                              ).colorScheme.tertiaryContainer,
-                                              content: Text(
-                                                'Campo de primer apellido limitado a 30 caracteres',
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      } else {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            duration: const Duration(
-                                              seconds: 2,
-                                            ),
-                                            behavior: SnackBarBehavior.floating,
-                                            backgroundColor: Theme.of(
-                                              context,
-                                            ).colorScheme.tertiaryContainer,
-                                            content: Text(
-                                              'Campo de nombre limitado a 30 caracteres',
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    }
+                                    FocusScope.of(
+                                      context,
+                                    ).requestFocus(_focusNodeCaudal);
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Theme.of(
@@ -491,7 +432,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       context,
                                     ).colorScheme.onSecondary,
                                   ),
-                                  child: const Text('Siguiente paso'),
+                                  child: const Text('Registrar corridas'),
                                 ),
                               ),
                             ],
@@ -518,7 +459,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                 padding: EdgeInsets.all(10),
                                 child: Center(
                                   child: Text(
-                                    "Tabla corridas",
+                                    "Corridas",
                                     style: TextStyle(
                                       fontSize: 20,
                                       color: Theme.of(
@@ -542,67 +483,66 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       hintText: "Caudal (m3/hr)",
                                       validatorText:
                                           'Favor de escribir el caudal',
-                                      controllerText: _nombreController,
+                                      controllerText: _caudalM3Controller,
+                                      focusNode: _focusNodeCaudal,
                                     ),
                                     _buildTextFormField(
                                       context,
                                       hintText: "Caudal (bbl/hr)",
-                                      validatorText: '',
-                                      controllerText: _primerController,
+                                      validatorText:
+                                          'Favor de escribir el caudal',
+                                      controllerText: _caudalBblController,
                                     ),
                                     _buildTextFormField(
                                       context,
-                                      hintText: "Temp. (°C)",
+                                      hintText: "Temperatura (°C)",
                                       validatorText:
-                                          'Favor de escribir temp. (°C)',
-                                      controllerText: _segundoController,
+                                          'Favor de escribir la temperatura',
+                                      controllerText: _temperaturaController,
                                     ),
                                     _buildTextFormField(
                                       context,
                                       hintText: "Presión (kg/cm3)",
                                       validatorText:
-                                          'Favor de escribir tu correo electrónico',
-                                      controllerText: _emailController,
+                                          'Favor de escribir la presión',
+                                      controllerText: _presionController,
                                     ),
                                     _buildTextFormField(
                                       context,
                                       hintText: "Meter Factor",
-                                      obscureText: true,
                                       validatorText:
-                                          'Favor de escribir tu contraseña',
-                                      controllerText: _passwordController,
+                                          'Favor de escribir el Meter Factor',
+                                      controllerText: _meterFactorController,
                                     ),
                                     _buildTextFormField(
                                       context,
-                                      hintText: "K Factor (Pulsos/m3)",
-                                      obscureText: true,
+                                      hintText: "K Factor (pulsos/m3)",
                                       validatorText:
-                                          'Favor de escribir tu contraseña',
-                                      controllerText: _passwordController,
+                                          'Favor de escribir el K Factor (pulsos/m3)',
+                                      controllerText:
+                                          _kFactorPulsosM3Controller,
                                     ),
                                     _buildTextFormField(
                                       context,
-                                      hintText: "K Factor (Pulsos/bbl)",
-                                      obscureText: true,
+                                      hintText: "K Factor (pulsos/bbl)",
                                       validatorText:
-                                          'Favor de escribir tu contraseña',
-                                      controllerText: _passwordController,
+                                          'Favor de escribir el K Factor (pulsos/bbl)',
+                                      controllerText:
+                                          _kFactorPulsosBblController,
                                     ),
                                     _buildTextFormField(
                                       context,
                                       hintText: "Frecuencia (Hz)",
-                                      obscureText: true,
                                       validatorText:
-                                          'Favor de escribir tu contraseña',
-                                      controllerText: _passwordController,
+                                          'Favor de escribir la frecuencia',
+                                      controllerText: _frecuenciaController,
                                     ),
                                     _buildTextFormField(
                                       context,
-                                      hintText: "Repetibilidad",
-                                      obscureText: true,
+                                      hintText: "Repetibilidad (%)",
                                       validatorText:
                                           'Favor de escribir la repetibilidad',
-                                      controllerText: _passwordController,
+                                      controllerText: _repetibilidadController,
                                     ),
                                   ],
                                 ),
@@ -611,156 +551,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                               Center(
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    if (_formularioRegistro.currentState!
-                                        .validate()) {
-                                      if (_nombreController.text.length <= 50) {
-                                        if (_primerController.text.length <=
-                                            30) {
-                                          if (_segundoController.text.length <=
-                                              30) {
-                                            if (_emailController.text.length <=
-                                                30) {
-                                              if (validarEmail(
-                                                _emailController.text,
-                                              )) {
-                                                if (_passwordController.text ==
-                                                    _passwordValidatorController
-                                                        .text) {
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(
-                                                    SnackBar(
-                                                      duration: const Duration(
-                                                        seconds: 2,
-                                                      ),
-                                                      behavior: SnackBarBehavior
-                                                          .floating,
-                                                      backgroundColor:
-                                                          Theme.of(context)
-                                                              .colorScheme
-                                                              .tertiaryContainer,
-                                                      content: Text(
-                                                        'Enviando información, validar registro',
-                                                      ),
-                                                    ),
-                                                  );
-                                                } else {
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(
-                                                    SnackBar(
-                                                      duration: const Duration(
-                                                        seconds: 2,
-                                                      ),
-                                                      behavior: SnackBarBehavior
-                                                          .floating,
-                                                      backgroundColor:
-                                                          Theme.of(context)
-                                                              .colorScheme
-                                                              .tertiaryContainer,
-                                                      content: Text(
-                                                        'Verificar que las contraseñas son iguales',
-                                                      ),
-                                                    ),
-                                                  );
-                                                }
-                                              } else {
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  SnackBar(
-                                                    duration: const Duration(
-                                                      seconds: 2,
-                                                    ),
-                                                    behavior: SnackBarBehavior
-                                                        .floating,
-                                                    backgroundColor:
-                                                        Theme.of(context)
-                                                            .colorScheme
-                                                            .tertiaryContainer,
-                                                    content: Text(
-                                                      'El correo introducido no es correcto',
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-                                            } else {
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  duration: const Duration(
-                                                    seconds: 2,
-                                                  ),
-                                                  behavior:
-                                                      SnackBarBehavior.floating,
-                                                  backgroundColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .tertiaryContainer,
-                                                  content: Text(
-                                                    'Campo de correo electrónico limitado a 30 caracteres',
-                                                  ),
-                                                ),
-                                              );
-                                            }
-                                          } else {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                duration: const Duration(
-                                                  seconds: 2,
-                                                ),
-                                                behavior:
-                                                    SnackBarBehavior.floating,
-                                                backgroundColor: Theme.of(
-                                                  context,
-                                                ).colorScheme.tertiaryContainer,
-                                                content: Text(
-                                                  'Campo de segundo apellido limitado a 30 caracteres',
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        } else {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              duration: const Duration(
-                                                seconds: 2,
-                                              ),
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              backgroundColor: Theme.of(
-                                                context,
-                                              ).colorScheme.tertiaryContainer,
-                                              content: Text(
-                                                'Campo de primer apellido limitado a 30 caracteres',
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      } else {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            duration: const Duration(
-                                              seconds: 2,
-                                            ),
-                                            behavior: SnackBarBehavior.floating,
-                                            backgroundColor: Theme.of(
-                                              context,
-                                            ).colorScheme.tertiaryContainer,
-                                            content: Text(
-                                              'Campo de nombre limitado a 30 caracteres',
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    }
+                                    FocusScope.of(
+                                      context,
+                                    ).requestFocus(_focusNodeLaboratorio);
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Theme.of(
@@ -770,240 +563,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       context,
                                     ).colorScheme.onSecondary,
                                   ),
-                                  child: const Text('Agregar Corrida'),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(60),
-                            topRight: Radius.circular(60),
-                            bottomLeft: Radius.circular(60),
-                            bottomRight: Radius.circular(60),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(30),
-                          child: Column(
-                            children: <Widget>[
-                              SizedBox(height: 15),
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                child: Center(
-                                  child: Text(
-                                    "Datos calibración",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.tertiary,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onPrimary,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Column(
-                                  children: <Widget>[
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "Linealidad",
-                                      validatorText:
-                                          'Favor de escribir la linealidad',
-                                      controllerText: _nombreController,
-                                    ),
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "Reproducibilidad",
-                                      validatorText:
-                                          'Favor de escribir la reproducibilidad',
-                                      controllerText: _primerController,
-                                    ),
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "Observaciones",
-                                      validatorText:
-                                          'Favor de escribir tu observaciones',
-                                      controllerText: _segundoController,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: 20),
-                              Center(
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    if (_formularioRegistro.currentState!
-                                        .validate()) {
-                                      if (_nombreController.text.length <= 50) {
-                                        if (_primerController.text.length <=
-                                            30) {
-                                          if (_segundoController.text.length <=
-                                              30) {
-                                            if (_emailController.text.length <=
-                                                30) {
-                                              if (validarEmail(
-                                                _emailController.text,
-                                              )) {
-                                                if (_passwordController.text ==
-                                                    _passwordValidatorController
-                                                        .text) {
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(
-                                                    SnackBar(
-                                                      duration: const Duration(
-                                                        seconds: 2,
-                                                      ),
-                                                      behavior: SnackBarBehavior
-                                                          .floating,
-                                                      backgroundColor:
-                                                          Theme.of(context)
-                                                              .colorScheme
-                                                              .tertiaryContainer,
-                                                      content: Text(
-                                                        'Enviando información, validar registro',
-                                                      ),
-                                                    ),
-                                                  );
-                                                } else {
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(
-                                                    SnackBar(
-                                                      duration: const Duration(
-                                                        seconds: 2,
-                                                      ),
-                                                      behavior: SnackBarBehavior
-                                                          .floating,
-                                                      backgroundColor:
-                                                          Theme.of(context)
-                                                              .colorScheme
-                                                              .tertiaryContainer,
-                                                      content: Text(
-                                                        'Verificar que las contraseñas son iguales',
-                                                      ),
-                                                    ),
-                                                  );
-                                                }
-                                              } else {
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  SnackBar(
-                                                    duration: const Duration(
-                                                      seconds: 2,
-                                                    ),
-                                                    behavior: SnackBarBehavior
-                                                        .floating,
-                                                    backgroundColor:
-                                                        Theme.of(context)
-                                                            .colorScheme
-                                                            .tertiaryContainer,
-                                                    content: Text(
-                                                      'El correo introducido no es correcto',
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-                                            } else {
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  duration: const Duration(
-                                                    seconds: 2,
-                                                  ),
-                                                  behavior:
-                                                      SnackBarBehavior.floating,
-                                                  backgroundColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .tertiaryContainer,
-                                                  content: Text(
-                                                    'Campo de correo electrónico limitado a 30 caracteres',
-                                                  ),
-                                                ),
-                                              );
-                                            }
-                                          } else {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                duration: const Duration(
-                                                  seconds: 2,
-                                                ),
-                                                behavior:
-                                                    SnackBarBehavior.floating,
-                                                backgroundColor: Theme.of(
-                                                  context,
-                                                ).colorScheme.tertiaryContainer,
-                                                content: Text(
-                                                  'Campo de segundo apellido limitado a 30 caracteres',
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        } else {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              duration: const Duration(
-                                                seconds: 2,
-                                              ),
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              backgroundColor: Theme.of(
-                                                context,
-                                              ).colorScheme.tertiaryContainer,
-                                              content: Text(
-                                                'Campo de primer apellido limitado a 30 caracteres',
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      } else {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            duration: const Duration(
-                                              seconds: 2,
-                                            ),
-                                            behavior: SnackBarBehavior.floating,
-                                            backgroundColor: Theme.of(
-                                              context,
-                                            ).colorScheme.tertiaryContainer,
-                                            content: Text(
-                                              'Campo de nombre limitado a 30 caracteres',
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.secondary,
-                                    foregroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.onSecondary,
-                                  ),
-                                  child: const Text('Terminar registro'),
+                                  child: const Text('Agregar corrida'),
                                 ),
                               ),
                             ],
@@ -1027,11 +587,13 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required String validatorText,
     required TextEditingController controllerText,
     bool obscureText = false,
+    FocusNode? focusNode,
   }) {
     return Container(
       padding: EdgeInsets.all(5),
       decoration: BoxDecoration(border: Border(bottom: BorderSide())),
       child: TextFormField(
+        focusNode: focusNode,
         controller: controllerText,
         obscureText: obscureText,
         style: TextStyle(color: Theme.of(context).colorScheme.primary),
@@ -1045,6 +607,45 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
             ),
           ),
         ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return validatorText;
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _buildDateFormField(
+    BuildContext context, {
+    required String hintText,
+    required String validatorText,
+    required TextEditingController controllerText,
+    bool obscureText = false,
+    FocusNode? focusNode,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(5),
+      decoration: BoxDecoration(border: Border(bottom: BorderSide())),
+      child: TextFormField(
+        focusNode: focusNode,
+        readOnly: true,
+        controller: controllerText,
+        obscureText: obscureText,
+        style: TextStyle(color: Theme.of(context).colorScheme.primary),
+        decoration: InputDecoration(
+          suffixIcon: Icon(Icons.calendar_today),
+          hintText: hintText,
+          hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
+          border: InputBorder.none,
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
+          ),
+        ),
+        onTap: () => _seleccionarFecha(context),
         validator: (value) {
           if (value == null || value.isEmpty) {
             return validatorText;
@@ -1227,6 +828,34 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         return DropdownMenuItem<TrenMedicion>(
           value: item,
           child: Text(item.getTagTren),
+        );
+      }).toList(),
+      onChanged: onChanged,
+      validator: (value) {
+        if (value == null) {
+          return 'Por favor selecciona una opción';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildDropdownButtonEquipos(
+    BuildContext context, {
+    required String hintText,
+    required List<Equipo> items,
+    required Equipo? value,
+    required ValueChanged<Equipo?> onChanged,
+  }) {
+    return DropdownButtonFormField<Equipo>(
+      isExpanded: true,
+      decoration: _inputDecoration(hintText),
+      value: value,
+      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      items: items.map((Equipo item) {
+        return DropdownMenuItem<Equipo>(
+          value: item,
+          child: Text(item.getTagEquipo),
         );
       }).toList(),
       onChanged: onChanged,
