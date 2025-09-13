@@ -103,6 +103,37 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
   bool habilitaGerencia = false;
 
+  bool _editingM3 = false;
+  bool _editingBbl = false;
+
+  static const double factor = 6.28981 * 24; // m³/h a bbl/d
+
+  void _onM3Changed(String value) {
+    if (_editingBbl) return; // evita recursividad
+    setState(() => _editingM3 = true);
+    if (value.isNotEmpty) {
+      double m3 = double.tryParse(value) ?? 0;
+      double bbl = m3 * factor;
+      _caudalBblController.text = bbl.toStringAsFixed(2);
+    } else {
+      _caudalBblController.clear();
+    }
+    setState(() => _editingM3 = false);
+  }
+
+  void _onBblChanged(String value) {
+    if (_editingM3) return; // evita recursividad
+    setState(() => _editingBbl = true);
+    if (value.isNotEmpty) {
+      double bbl = double.tryParse(value) ?? 0;
+      double m3 = bbl / factor;
+      _caudalM3Controller.text = m3.toStringAsFixed(2);
+    } else {
+      _caudalM3Controller.clear();
+    }
+    setState(() => _editingBbl = false);
+  }
+
   bool validarEmail(String email) {
     final RegExp regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     return regex.hasMatch(email);
