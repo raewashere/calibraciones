@@ -172,11 +172,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (_editingPresionPSI) return; // evita recursividad
     setState(() => _editingPresion = true);
     if (value.isNotEmpty) {
-      double psi = double.tryParse(value) ?? 0;
-      double kgcm2 = psi / factorPresion;
+      double kgcm2 = double.tryParse(value) ?? 0;
+      double psi = kgcm2 * factorPresion;
       _presionController.text = kgcm2.toStringAsFixed(2);
     } else {
-      _presionController.clear();
+      _presionPSIController.clear();
     }
     setState(() => _editingPresion = false);
   }
@@ -706,16 +706,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         obscureText: obscureText,
         style: TextStyle(color: Theme.of(context).colorScheme.primary),
         decoration: _inputDecoration(hintText),
-        /*decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
-          border: InputBorder.none,
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.tertiary,
-            ),
-          ),
-        ),*/
         validator: (value) {
           if (value == null || value.isEmpty) {
             return validatorText;
