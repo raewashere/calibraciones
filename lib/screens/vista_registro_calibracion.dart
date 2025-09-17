@@ -29,6 +29,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final TextEditingController _caudalBblController = TextEditingController();
   final TextEditingController _temperaturaController = TextEditingController();
   final TextEditingController _presionController = TextEditingController();
+  final TextEditingController _presionPSIController = TextEditingController();
   final TextEditingController _meterFactorController = TextEditingController();
   final TextEditingController _kFactorPulsosM3Controller =
       TextEditingController();
@@ -107,9 +108,13 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   bool _editingBbl = false;
   bool _editingPulsosM3 = false;
   bool _editingPulsosBbl = false;
+  bool _editingPresion = false;
+  bool _editingPresionPSI = false;
 
-  static const double factor = 6.28981 ; // m³/h a bbl/h
+  static const double factor = 6.28981; // m³/h a bbl/h
   static const double factorPulsos = 0.158987; // bbl → m³
+
+  static const double factorPresion = 14.22334; // PSI → kg/cm²
 
   void _onCaudalM3Changed(String value) {
     if (_editingBbl) return; // evita recursividad
@@ -137,7 +142,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingBbl = false);
   }
 
-    void _onPulsosM3Changed(String value) {
+  void _onPulsosM3Changed(String value) {
     if (_editingPulsosBbl) return; // evita recursividad
     setState(() => _editingPulsosM3 = true);
     if (value.isNotEmpty) {
@@ -161,6 +166,32 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       _kFactorPulsosBblController.clear();
     }
     setState(() => _editingPulsosBbl = false);
+  }
+
+  void _onPresionChanged(String value) {
+    if (_editingPresionPSI) return; // evita recursividad
+    setState(() => _editingPresion = true);
+    if (value.isNotEmpty) {
+      double psi = double.tryParse(value) ?? 0;
+      double kgcm2 = psi / factorPresion;
+      _presionController.text = kgcm2.toStringAsFixed(2);
+    } else {
+      _presionController.clear();
+    }
+    setState(() => _editingPresion = false);
+  }
+
+  void _onPresionPSIChanged(String value) {
+    if (_editingPresion) return; // evita recursividad
+    setState(() => _editingPresionPSI = true);
+    if (value.isNotEmpty) {
+      double kgcm2 = double.tryParse(value) ?? 0;
+      double psi = kgcm2 * factorPresion;
+      _presionPSIController.text = psi.toStringAsFixed(2);
+    } else {
+      _presionPSIController.clear();
+    }
+    setState(() => _editingPresionPSI = false);
   }
 
   bool validarEmail(String email) {
@@ -564,10 +595,19 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     ),
                                     _buildTextFormField(
                                       context,
-                                      hintText: "Presión (kg/cm3)",
+                                      hintText: "Presión (kg/cm2)",
                                       validatorText:
                                           'Favor de escribir la presión',
                                       controllerText: _presionController,
+                                      onChanged: _onPresionChanged,
+                                    ),
+                                    _buildTextFormField(
+                                      context,
+                                      hintText: "Presión (PSI)",
+                                      validatorText:
+                                          'Favor de escribir la presión',
+                                      controllerText: _presionPSIController,
+                                      onChanged: _onPresionPSIChanged,
                                     ),
                                     _buildTextFormField(
                                       context,
@@ -645,6 +685,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     );
   }
 
+    InputDecoration _inputDecoration(String label) =>
+      InputDecoration(labelText: label, border: const OutlineInputBorder());
+
   Widget _buildTextFormField(
     BuildContext context, {
     required String hintText,
@@ -662,7 +705,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         controller: controllerText,
         obscureText: obscureText,
         style: TextStyle(color: Theme.of(context).colorScheme.primary),
-        decoration: InputDecoration(
+        decoration: _inputDecoration(hintText),
+        /*decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
           border: InputBorder.none,
@@ -671,7 +715,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
               color: Theme.of(context).colorScheme.tertiary,
             ),
           ),
-        ),
+        ),*/
         validator: (value) {
           if (value == null || value.isEmpty) {
             return validatorText;
@@ -721,9 +765,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       ),
     );
   }
-
-  InputDecoration _inputDecoration(String label) =>
-      InputDecoration(labelText: label, border: const OutlineInputBorder());
 
   Widget _buildDropdownButtonDireccion(
     BuildContext context, {
