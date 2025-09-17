@@ -105,10 +105,13 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
   bool _editingM3 = false;
   bool _editingBbl = false;
+  bool _editingPulsosM3 = false;
+  bool _editingPulsosBbl = false;
 
-  static const double factor = 6.28981 * 24; // m³/h a bbl/d
+  static const double factor = 6.28981 ; // m³/h a bbl/h
+  static const double factorPulsos = 0.158987; // bbl → m³
 
-  void _onM3Changed(String value) {
+  void _onCaudalM3Changed(String value) {
     if (_editingBbl) return; // evita recursividad
     setState(() => _editingM3 = true);
     if (value.isNotEmpty) {
@@ -121,7 +124,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingM3 = false);
   }
 
-  void _onBblChanged(String value) {
+  void _onCaudalBblChanged(String value) {
     if (_editingM3) return; // evita recursividad
     setState(() => _editingBbl = true);
     if (value.isNotEmpty) {
@@ -132,6 +135,32 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       _caudalM3Controller.clear();
     }
     setState(() => _editingBbl = false);
+  }
+
+    void _onPulsosM3Changed(String value) {
+    if (_editingPulsosBbl) return; // evita recursividad
+    setState(() => _editingPulsosM3 = true);
+    if (value.isNotEmpty) {
+      double pm3 = double.tryParse(value) ?? 0;
+      double pbbl = pm3 * factor;
+      _kFactorPulsosM3Controller.text = pbbl.toStringAsFixed(2);
+    } else {
+      _kFactorPulsosM3Controller.clear();
+    }
+    setState(() => _editingPulsosM3 = false);
+  }
+
+  void _onPulsosBblChanged(String value) {
+    if (_editingPulsosM3) return; // evita recursividad
+    setState(() => _editingPulsosBbl = true);
+    if (value.isNotEmpty) {
+      double pbbl = double.tryParse(value) ?? 0;
+      double pm3 = pbbl / factor;
+      _kFactorPulsosBblController.text = pm3.toStringAsFixed(2);
+    } else {
+      _kFactorPulsosBblController.clear();
+    }
+    setState(() => _editingPulsosBbl = false);
   }
 
   bool validarEmail(String email) {
@@ -516,6 +545,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           'Favor de escribir el caudal',
                                       controllerText: _caudalM3Controller,
                                       focusNode: _focusNodeCaudal,
+                                      onChanged: _onCaudalM3Changed,
                                     ),
                                     _buildTextFormField(
                                       context,
@@ -523,6 +553,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       validatorText:
                                           'Favor de escribir el caudal',
                                       controllerText: _caudalBblController,
+                                      onChanged: _onCaudalBblChanged,
                                     ),
                                     _buildTextFormField(
                                       context,
@@ -552,6 +583,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           'Favor de escribir el K Factor (pulsos/m3)',
                                       controllerText:
                                           _kFactorPulsosM3Controller,
+                                      onChanged: _onPulsosM3Changed,
                                     ),
                                     _buildTextFormField(
                                       context,
@@ -560,6 +592,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           'Favor de escribir el K Factor (pulsos/bbl)',
                                       controllerText:
                                           _kFactorPulsosBblController,
+                                      onChanged: _onPulsosBblChanged,
                                     ),
                                     _buildTextFormField(
                                       context,
@@ -619,6 +652,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required TextEditingController controllerText,
     bool obscureText = false,
     FocusNode? focusNode,
+    ValueChanged<String>? onChanged,
   }) {
     return Container(
       padding: EdgeInsets.all(5),
@@ -644,6 +678,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           }
           return null;
         },
+        onChanged: onChanged,
       ),
     );
   }
