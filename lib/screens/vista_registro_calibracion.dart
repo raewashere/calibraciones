@@ -172,9 +172,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (_editingPresionPSI) return; // evita recursividad
     setState(() => _editingPresion = true);
     if (value.isNotEmpty) {
-      double kgcm2 = double.tryParse(value) ?? 0;
-      double psi = kgcm2 * factorPresion;
-      _presionController.text = kgcm2.toStringAsFixed(2);
+      double psi = double.tryParse(value) ?? 0;
+      double kgcm2 = psi / factorPresion;
+      _presionPSIController.text = psi.toStringAsFixed(2);
     } else {
       _presionPSIController.clear();
     }
