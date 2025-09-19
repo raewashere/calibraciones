@@ -3,7 +3,8 @@ class Corrida {
   late double caudalM3Hr;
   late double caudalBblHr;
   late double temperaturaC;
-  late double presionKgCm3;
+  late double presionKgCm2;
+  late double presionPSI;
   late double meterFactor;
   late double kFactorPulseM3;
   late double kFactoPulseBbl;
@@ -15,7 +16,8 @@ class Corrida {
     this.caudalM3Hr,
     this.caudalBblHr,
     this.temperaturaC,
-    this.presionKgCm3,
+    this.presionKgCm2,
+    this.presionPSI,
     this.meterFactor,
     this.kFactorPulseM3,
     this.kFactoPulseBbl,
@@ -27,7 +29,8 @@ class Corrida {
   double get getCaudalM3Hr => caudalM3Hr;
   double get getCaudalBblHr => caudalBblHr;
   double get getTemperaturaC => temperaturaC;
-  double get getPresionKgCm3 => presionKgCm3;
+  double get getpresionKgCm2 => presionKgCm2;
+  double get getpresionPSI => presionPSI;
   double get getMeterFactor => meterFactor;
   double get getKFactorPulseM3 => kFactorPulseM3;
   double get getKFactoPulseBbl => kFactoPulseBbl;
@@ -51,8 +54,12 @@ class Corrida {
     temperaturaC = value;
   }
 
-  set setPresionKgCm3(double value) {
-    presionKgCm3 = value;
+  set setpresionKgCm2(double value) {
+    presionKgCm2 = value;
+  }
+
+  set setpresionPSI(double value) {
+    presionPSI = value;
   }
 
   set setMeterFactor(double value) {
@@ -81,7 +88,8 @@ class Corrida {
       corridaJson['caudal_m3_hr'],
       corridaJson['caudal_bbl_hr'],
       corridaJson['temperatura_c'],
-      corridaJson['presion_kg_cm3'],
+      corridaJson['presion_kg_cm2'],
+      corridaJson['presion_psi'],
       corridaJson['meter_factor'],
       corridaJson['k_factor_pulse_m3'],
       corridaJson['k_factor_pulse_bbl'],

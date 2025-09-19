@@ -1,3 +1,5 @@
+import 'package:calibraciones/models/_calibracion_equipo.dart';
+import 'package:calibraciones/models/_corrida.dart';
 import 'package:calibraciones/models/_direccion.dart';
 import 'package:calibraciones/models/_equipo.dart';
 import 'package:calibraciones/models/_gerencia.dart';
@@ -5,6 +7,7 @@ import 'package:calibraciones/models/_instalacion.dart';
 import 'package:calibraciones/models/_patin_medicion.dart';
 import 'package:calibraciones/models/_subdireccion.dart';
 import 'package:calibraciones/models/_tren_medicion.dart';
+import 'package:calibraciones/screens/components/tabla_calibracion.dart';
 import 'package:calibraciones/services/direccion_service.dart';
 import 'package:calibraciones/services/implementation/direccion_service_impl.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +41,17 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final TextEditingController _frecuenciaController = TextEditingController();
   final TextEditingController _repetibilidadController =
       TextEditingController();
+  final TextEditingController _linealidadController = TextEditingController();
+  final TextEditingController _reproducibilidadController =
+      TextEditingController();
+  final TextEditingController _observacionesController =
+      TextEditingController();
+
+  final List<Widget> _listaCorridas = [];
+  late Corrida _corridaActual;
+  late List<Corrida> _corridasRegistradas = [];
+
+  late CalibracionEquipo _calibracionEquipo;
 
   Future<void> _seleccionarFecha(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -148,9 +162,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double pm3 = double.tryParse(value) ?? 0;
       double pbbl = pm3 * factor;
-      _kFactorPulsosM3Controller.text = pbbl.toStringAsFixed(2);
+      _kFactorPulsosBblController.text = pbbl.toStringAsFixed(2);
     } else {
-      _kFactorPulsosM3Controller.clear();
+      _kFactorPulsosBblController.clear();
     }
     setState(() => _editingPulsosM3 = false);
   }
@@ -161,9 +175,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double pbbl = double.tryParse(value) ?? 0;
       double pm3 = pbbl / factor;
-      _kFactorPulsosBblController.text = pm3.toStringAsFixed(2);
+      _kFactorPulsosM3Controller.text = pm3.toStringAsFixed(2);
     } else {
-      _kFactorPulsosBblController.clear();
+      _kFactorPulsosM3Controller.clear();
     }
     setState(() => _editingPulsosBbl = false);
   }
@@ -173,8 +187,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingPresion = true);
     if (value.isNotEmpty) {
       double psi = double.tryParse(value) ?? 0;
-      double kgcm2 = psi / factorPresion;
-      _presionPSIController.text = psi.toStringAsFixed(2);
+      double kgcm2 = (psi * factorPresion);
+      _presionPSIController.text = kgcm2.toStringAsFixed(2);
     } else {
       _presionPSIController.clear();
     }
@@ -186,10 +200,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingPresionPSI = true);
     if (value.isNotEmpty) {
       double kgcm2 = double.tryParse(value) ?? 0;
-      double psi = kgcm2 * factorPresion;
-      _presionPSIController.text = psi.toStringAsFixed(2);
+      double psi = (kgcm2 / factorPresion);
+      _presionController.text = psi.toStringAsFixed(2);
     } else {
-      _presionPSIController.clear();
+      _presionController.clear();
     }
     setState(() => _editingPresionPSI = false);
   }
@@ -317,9 +331,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           if (value!.gerencias.isEmpty) {
                                             instalaciones = value.instalaciones;
                                             habilitaGerencia = false;
-                                            print(
-                                              'No hay gerencias, solo instalaciones directas',
-                                            );
                                           } else {
                                             gerencias = value.gerencias;
                                             habilitaGerencia = true;
@@ -648,17 +659,28 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           'Favor de escribir la repetibilidad',
                                       controllerText: _repetibilidadController,
                                     ),
+                                    SizedBox(height: 20),
+                                    _listaCorridas.isNotEmpty
+                                        ? Column(children: _listaCorridas)
+                                        : Padding(
+                                            padding: EdgeInsets.all(20),
+                                            child: Text(
+                                              'No hay corridas registradas',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
+                                              ),
+                                            ),
+                                          ),
                                   ],
                                 ),
                               ),
                               SizedBox(height: 20),
                               Center(
                                 child: ElevatedButton(
-                                  onPressed: () async {
-                                    FocusScope.of(
-                                      context,
-                                    ).requestFocus(_focusNodeLaboratorio);
-                                  },
+                                  onPressed: _agregarCorrida,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Theme.of(
                                       context,
@@ -668,6 +690,89 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     ).colorScheme.onSecondary,
                                   ),
                                   child: const Text('Agregar corrida'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(60),
+                            topRight: Radius.circular(60),
+                            bottomLeft: Radius.circular(60),
+                            bottomRight: Radius.circular(60),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(30),
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(height: 15),
+                              Container(
+                                padding: EdgeInsets.all(10),
+                                child: Center(
+                                  child: Text(
+                                    "Extras",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.tertiary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Column(
+                                  children: <Widget>[
+                                    _buildTextFormField(
+                                      context,
+                                      hintText: "Linealidad (%)",
+                                      validatorText:
+                                          'Favor de escribir la linealidad',
+                                      controllerText: _linealidadController,
+                                    ),
+                                    _buildTextFormField(
+                                      context,
+                                      hintText: "Reproducibilidad (%)",
+                                      validatorText:
+                                          'Favor de escribir la reproducibilidad',
+                                      controllerText:
+                                          _reproducibilidadController,
+                                    ),
+                                    _buildTextFormField(
+                                      context,
+                                      hintText: "Observaciones",
+                                      validatorText:
+                                          'Favor de escribir las observaciones',
+                                      controllerText: _observacionesController,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 20),
+                              Center(
+                                child: ElevatedButton(
+                                  onPressed: _guardarCalibracion,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.secondary,
+                                    foregroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.onSecondary,
+                                  ),
+                                  child: Text('Registrar'),
                                 ),
                               ),
                             ],
@@ -685,7 +790,64 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     );
   }
 
-    InputDecoration _inputDecoration(String label) =>
+  void _guardarCalibracion() async {
+    if (!_formularioRegistro.currentState!.validate()) {
+      return;
+    }
+
+    _calibracionEquipo = CalibracionEquipo(
+      0,
+      _laboratorioController.text,
+      DateTime.parse(_fechaController.text),
+      DateTime.now().add(Duration(days: 180)), //fecha proxima calibracion
+      double.tryParse(_linealidadController.text) ?? 0,
+      double.tryParse(_reproducibilidadController.text) ?? 0,
+      _observacionesController.text,
+      '', //documento certificado
+      _corridasRegistradas,
+      equipoSeleccionado!.getTagEquipo,
+    );
+  }
+
+  void _agregarCorrida() async {
+    //validar formulario
+    if (!_formularioRegistro.currentState!.validate()) {
+      return;
+    }
+
+    _corridaActual = Corrida(
+      _listaCorridas.length + 1,
+      double.tryParse(_caudalM3Controller.text) ?? 0,
+      double.tryParse(_caudalBblController.text) ?? 0,
+      double.tryParse(_temperaturaController.text) ?? 0,
+      double.tryParse(_presionController.text) ?? 0,
+      double.tryParse(_presionPSIController.text) ?? 0,
+      double.tryParse(_meterFactorController.text) ?? 0,
+      double.tryParse(_kFactorPulsosM3Controller.text) ?? 0,
+      double.tryParse(_kFactorPulsosBblController.text) ?? 0,
+      double.tryParse(_frecuenciaController.text) ?? 0,
+      double.tryParse(_repetibilidadController.text) ?? 0,
+    );
+    _corridasRegistradas.add(_corridaActual);
+    _listaCorridas.add(TablaCalibracion(corrida: _corridaActual));
+    if (_listaCorridas.length < 4) {
+      setState(() {
+        _caudalM3Controller.clear();
+        _caudalBblController.clear();
+        _temperaturaController.clear();
+        _presionController.clear();
+        _presionPSIController.clear();
+        _meterFactorController.clear();
+        _kFactorPulsosM3Controller.clear();
+        _kFactorPulsosBblController.clear();
+        _frecuenciaController.clear();
+        _repetibilidadController.clear();
+      });
+      FocusScope.of(context).requestFocus(_focusNodeCaudal);
+    }
+  }
+
+  InputDecoration _inputDecoration(String label) =>
       InputDecoration(labelText: label, border: const OutlineInputBorder());
 
   Widget _buildTextFormField(
@@ -699,7 +861,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }) {
     return Container(
       padding: EdgeInsets.all(5),
-      decoration: BoxDecoration(border: Border(bottom: BorderSide())),
       child: TextFormField(
         focusNode: focusNode,
         controller: controllerText,
@@ -727,7 +888,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }) {
     return Container(
       padding: EdgeInsets.all(5),
-      decoration: BoxDecoration(border: Border(bottom: BorderSide())),
       child: TextFormField(
         focusNode: focusNode,
         readOnly: true,
@@ -737,13 +897,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         decoration: InputDecoration(
           suffixIcon: Icon(Icons.calendar_today),
           hintText: hintText,
+          label: Text(hintText),
           hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
-          border: InputBorder.none,
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.tertiary,
-            ),
-          ),
+          border: const OutlineInputBorder(),
         ),
         onTap: () => _seleccionarFecha(context),
         validator: (value) {

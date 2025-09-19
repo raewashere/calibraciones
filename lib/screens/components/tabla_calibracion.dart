@@ -1,7 +1,17 @@
+import 'package:calibraciones/models/_corrida.dart';
 import 'package:flutter/material.dart';
 
 class TablaCalibracion extends StatelessWidget {
-  const TablaCalibracion({super.key});
+
+  //TablaCalibracion({super.key});
+  
+  //Recibe parametros para llenar la tabla
+  final Corrida corrida;
+
+  TablaCalibracion({
+    super.key,
+    required this.corrida
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -10,12 +20,6 @@ class TablaCalibracion extends StatelessWidget {
         inside: const BorderSide(color: Colors.black, width: 1),
         outside: const BorderSide(color: Colors.black, width: 2),
       ),
-      /*columnWidths: const {
-            0: FlexColumnWidth(2),
-            1: FlexColumnWidth(2),
-            2: FlexColumnWidth(2),
-            3: FlexColumnWidth(2),
-          },*/
       children: [
         // Fila 1: Títulos
         TableRow(
@@ -61,12 +65,12 @@ class TablaCalibracion extends StatelessWidget {
                 color: Colors.amber[100],
                 alignment: Alignment.center,
                 height: 200, // Altura que cubre las siguientes 5 filas
-                child: Text('1', textAlign: TextAlign.center),
+                child: Text(this.corrida.idCorrida.toString(), textAlign: TextAlign.center),
               ),
             ),
-            const Padding(padding: EdgeInsets.all(8.0), child: Text('')),
-            const Padding(padding: EdgeInsets.all(8.0), child: Text('')),
-            const Padding(padding: EdgeInsets.all(8.0), child: Text('')),
+            Padding(padding: EdgeInsets.all(8.0), child: Text(corrida.caudalM3Hr.toString())),
+            Padding(padding: EdgeInsets.all(8.0), child: Text(corrida.caudalBblHr.toString())),
+            Padding(padding: EdgeInsets.all(8.0), child: Text(corrida.temperaturaC.toString())),
           ],
         ),
         TableRow(
@@ -75,7 +79,7 @@ class TablaCalibracion extends StatelessWidget {
             Padding(
               padding: EdgeInsets.all(8.0),
               child: Text(
-                'Presión (kg/cm3)',
+                'Presión (kg/cm2)',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -96,11 +100,11 @@ class TablaCalibracion extends StatelessWidget {
           ],
         ),
         TableRow(
-          children: const [
+          children:  [
             SizedBox.shrink(),
-            Padding(padding: EdgeInsets.all(8.0), child: Text('')),
-            Padding(padding: EdgeInsets.all(8.0), child: Text('')),
-            Padding(padding: EdgeInsets.all(8.0), child: Text('')),
+            Padding(padding: EdgeInsets.all(8.0), child: Text("${this.corrida.presionKgCm2} (${this.corrida.presionPSI})")),
+            Padding(padding: EdgeInsets.all(8.0), child: Text(this.corrida.meterFactor.toString())),
+            Padding(padding: EdgeInsets.all(8.0), child: Text(this.corrida.frecuenciaHz.toString())),
           ],
         ),
         TableRow(
@@ -130,11 +134,11 @@ class TablaCalibracion extends StatelessWidget {
           ],
         ),
         TableRow(
-          children: const [
+          children: [
             SizedBox.shrink(),
-            Padding(padding: EdgeInsets.all(8.0), child: Text('')),
-            Padding(padding: EdgeInsets.all(8.0), child: Text('')),
-            Padding(padding: EdgeInsets.all(8.0), child: Text('')),
+            Padding(padding: EdgeInsets.all(8.0), child: Text(this.corrida.kFactorPulseM3.toString())),
+            Padding(padding: EdgeInsets.all(8.0), child: Text(this.corrida.kFactoPulseBbl.toString())),
+            Padding(padding: EdgeInsets.all(8.0), child: Text(this.corrida.repetibilidad.toString())),
           ],
         ),
       ],

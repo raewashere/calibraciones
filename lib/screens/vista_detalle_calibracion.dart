@@ -382,19 +382,19 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                         ),
                         Container(
                           padding: EdgeInsets.all(10),
-                          child: Center(child: TablaCalibracion()),
+                          child: Center(),
                         ),
                         Container(
                           padding: EdgeInsets.all(10),
-                          child: Center(child: TablaCalibracion()),
+                          child: Center(),
                         ),
                         Container(
                           padding: EdgeInsets.all(10),
-                          child: Center(child: TablaCalibracion()),
+                          child: Center(),
                         ),
                         Container(
                           padding: EdgeInsets.all(10),
-                          child: Center(child: TablaCalibracion()),
+                          child: Center(),
                         ),
                       ],
                     ),
