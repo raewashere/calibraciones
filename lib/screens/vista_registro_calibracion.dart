@@ -8,7 +8,9 @@ import 'package:calibraciones/models/_patin_medicion.dart';
 import 'package:calibraciones/models/_subdireccion.dart';
 import 'package:calibraciones/models/_tren_medicion.dart';
 import 'package:calibraciones/screens/components/tabla_calibracion.dart';
+import 'package:calibraciones/services/calibracion_service.dart';
 import 'package:calibraciones/services/direccion_service.dart';
+import 'package:calibraciones/services/implementation/calibracion_service_impl.dart';
 import 'package:calibraciones/services/implementation/direccion_service_impl.dart';
 import 'package:flutter/material.dart';
 
@@ -52,6 +54,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   late List<Corrida> _corridasRegistradas = [];
 
   late CalibracionEquipo _calibracionEquipo;
+
+  CalibracionService calibracionService = CalibracionServiceImpl();
 
   Future<void> _seleccionarFecha(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -447,7 +451,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       context,
                                     ).colorScheme.onSecondary,
                                   ),
-                                  child: const Text('Siguiente paso 1'),
+                                  child: const Text('Siguiente paso'),
                                 ),
                               ),
                             ],
@@ -534,7 +538,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       context,
                                     ).colorScheme.onSecondary,
                                   ),
-                                  child: const Text('Registrar corridas'),
+                                  child: const Text('Siguiente paso'),
                                 ),
                               ),
                             ],
@@ -791,30 +795,84 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void _guardarCalibracion() async {
-    if (!_formularioRegistro.currentState!.validate()) {
+    if (_corridasRegistradas.length < 1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+          content: Text('Debe registrar al menos 4 corridas'),
+        ),
+      );
       return;
-    }
+    } else {
+      if (!_formularioRegistro.currentState!.validate()) {
+        return;
+      }
 
-    _calibracionEquipo = CalibracionEquipo(
-      0,
-      _laboratorioController.text,
-      DateTime.parse(_fechaController.text),
-      DateTime.now().add(Duration(days: 180)), //fecha proxima calibracion
-      double.tryParse(_linealidadController.text) ?? 0,
-      double.tryParse(_reproducibilidadController.text) ?? 0,
-      _observacionesController.text,
-      '', //documento certificado
-      _corridasRegistradas,
-      equipoSeleccionado!.getTagEquipo,
-    );
+      _calibracionEquipo = CalibracionEquipo(
+        0,
+        _laboratorioController.text,
+        DateTime.now().add(Duration(days: 90)),
+        DateTime.now().add(Duration(days: 180)), //fecha proxima calibracion
+        double.tryParse(_linealidadController.text) ?? 0,
+        double.tryParse(_reproducibilidadController.text) ?? 0,
+        _observacionesController.text,
+        '', //documento certificado
+        _corridasRegistradas,
+        equipoSeleccionado!.getTagEquipo,
+      );
+
+      bool exito = await calibracionService.registrarCalibracionEquipo(
+        _calibracionEquipo,
+      );
+
+      if (exito) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+            content: Text('Calibración registrada con éxito'),
+          ),
+        );
+        //limpiar formulario
+        setState(() {
+          _formularioRegistro.currentState!.reset();
+          _laboratorioController.clear();
+          _productoController.clear();
+          _fechaController.clear();
+          _linealidadController.clear();
+          _reproducibilidadController.clear();
+          _observacionesController.clear();
+          _caudalM3Controller.clear();
+          _caudalBblController.clear();
+          _temperaturaController.clear();
+          _presionController.clear();
+          _presionPSIController.clear();
+          _meterFactorController.clear();
+          _kFactorPulsosM3Controller.clear();
+          _kFactorPulsosBblController.clear();
+          _frecuenciaController.clear();
+          _repetibilidadController.clear();
+          _listaCorridas.clear();
+          _corridasRegistradas.clear();
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Theme.of(context).colorScheme.errorContainer,
+            content: Text('Error al registrar la calibración'),
+          ),
+        );
+      }
+    }
   }
 
   void _agregarCorrida() async {
-    //validar formulario
-    if (!_formularioRegistro.currentState!.validate()) {
-      return;
-    }
-
+    
     _corridaActual = Corrida(
       _listaCorridas.length + 1,
       double.tryParse(_caudalM3Controller.text) ?? 0,
@@ -828,9 +886,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       double.tryParse(_frecuenciaController.text) ?? 0,
       double.tryParse(_repetibilidadController.text) ?? 0,
     );
-    _corridasRegistradas.add(_corridaActual);
     _listaCorridas.add(TablaCalibracion(corrida: _corridaActual));
-    if (_listaCorridas.length < 4) {
+    _corridasRegistradas.add(_corridaActual);
+    
+    if (_listaCorridas.length < 1) {
       setState(() {
         _caudalM3Controller.clear();
         _caudalBblController.clear();

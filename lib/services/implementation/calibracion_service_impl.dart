@@ -1,28 +1,36 @@
+import 'package:calibraciones/models/_calibracion_equipo.dart';
 import 'package:calibraciones/models/_corrida.dart';
 import 'package:calibraciones/services/calibracion_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CalibracionServiceImpl implements CalibracionService {
+  final SupabaseClient supabase = Supabase.instance.client;
+
   @override
   Future<bool> registrarCalibracionEquipo(
-    String certificadoCalibracion,
-    String documentoCertificado,
-    DateTime fechaCalibracion,
-    DateTime fechaProximaCalibracion,
-    double linealidad,
-    double reproducibilidad,
-    String observaciones,    
-    String tagEquipo,
-    int idLaboratorio,
-    List<Corrida> corridasPorEquipo,
-    int idUsuario
+    CalibracionEquipo calibracionEquipo,
   ) async {
-    // Aquí iría la lógica para registrar la calibración del equipo.
-    // Por ejemplo, podrías hacer una llamada a una API o guardar los datos en una base de datos.
-    
-    // Simulando una operación asíncrona con un retraso
-    await Future.delayed(Duration(seconds: 2));
-    
-    // Retornar true si la operación fue exitosa, false en caso contrario
+    final response = await supabase
+        .from('calibracion_equipo')
+        .insert(calibracionEquipo.toJson());
+
+    /*if (response.error != null) {
+      print('Ojoooooo: ${response.error!.message}');
+      return false;
+    }*/
+
+    List<Corrida> corridas = calibracionEquipo.getCorridas();
+    for (var corrida in corridas) {
+      final responseCorridas = await supabase
+          .from('corrida')
+          .insert(corrida.toJson());
+
+      /*if (responseCorridas.error != null) {
+        print('Ojoooooo: ${responseCorridas.error!.message}');
+        return false;
+      }*/
+    }
+
     return true;
   }
 }

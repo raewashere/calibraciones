@@ -94,4 +94,21 @@ class CalibracionEquipo {
       calibracionJson['tag_equipo'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      //'id_calibracion': 1,
+      'certificado_calibracion': certificadoCalibracion,
+      'fecha_calibracion': fechaCalibracion.toIso8601String(),
+      'fecha_proxima_calibracion': fechaProximaCalibracion.toIso8601String(),
+      'linealidad': linealidad,
+      'reproducibilidad': reproducibilidad,
+      'observaciones': observaciones,
+      'documento_certificado': documentoCertificado,
+      //'corrida': corridas.map((corrida) => corrida.toJson()).toList(),
+      'tag_equipo': tagEquipo,
+      'id_laboratorio_calibracion': 1, // Valor fijo por ahora
+      'id_usuario': 41, // Valor fijo por ahora
+    };
+  }
 }

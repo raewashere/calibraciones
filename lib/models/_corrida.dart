@@ -37,7 +37,6 @@ class Corrida {
   double get getRepetibilidad => repetibilidad;
   double get getFrecuenciaHz => frecuenciaHz;
 
-
   set setIdCorrida(int value) {
     idCorrida = value;
   }
@@ -96,5 +95,22 @@ class Corrida {
       corridaJson['repetibilidad'],
       corridaJson['frecuencia'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id_corrida': idCorrida,
+      'caudal_m3_hr': caudalM3Hr,
+      'caudal_bbl_hr': caudalBblHr,
+      'temperatura': temperaturaC,
+      'presion': presionKgCm2,
+      //'presion_psi': presionPSI,
+      'meter_factor': meterFactor,
+      'k_factor_pulsos_m3': kFactorPulseM3,
+      'k_factor_pulsos_bbl': kFactoPulseBbl,
+      'repetibilidad': repetibilidad,
+      'frecuencia': frecuenciaHz,
+      'id_calibracion': 8,
+    };
   }
 }
