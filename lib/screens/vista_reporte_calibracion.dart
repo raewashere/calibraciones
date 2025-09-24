@@ -22,6 +22,8 @@ class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
       'documento_certificado_001.pdf',
       [],
       'Equipo A',
+      1,
+      41,
     ),
     CalibracionEquipo(
       2,
@@ -34,6 +36,8 @@ class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
       'documento_certificado_002.pdf',
       [],
       'Equipo B',
+      1,
+      41,
     ),
     CalibracionEquipo(
       3,
@@ -46,6 +50,8 @@ class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
       'documento_certificado_003.pdf',
       [],
       'Equipo C',
+      1,
+      41,
     ),
     // Agrega más calibraciones de ejemplo aquí
   ];

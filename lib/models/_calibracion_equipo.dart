@@ -1,4 +1,3 @@
-
 import 'package:calibraciones/models/_corrida.dart';
 
 class CalibracionEquipo {
@@ -13,6 +12,8 @@ class CalibracionEquipo {
   late List<Corrida> corridas;
   //Referencias a otros objetos
   late String tagEquipo;
+  late int idLaboratorioCalibracion;
+  late int idUsuario;
 
   CalibracionEquipo(
     this.idCalibracionEquipo,
@@ -25,6 +26,8 @@ class CalibracionEquipo {
     this.documentoCertificado,
     this.corridas,
     this.tagEquipo,
+    this.idLaboratorioCalibracion,
+    this.idUsuario,
   );
 
   int get getIdCalibracionEquipo => idCalibracionEquipo;
@@ -78,6 +81,14 @@ class CalibracionEquipo {
     tagEquipo = value;
   }
 
+  set setIdLaboratorioCalibracion(int value) {
+    idLaboratorioCalibracion = value;
+  }
+
+  set setIdUsuario(int value) {
+    idUsuario = value;
+  }
+
   factory CalibracionEquipo.fromJson(Map<String, dynamic> calibracionJson) {
     return CalibracionEquipo(
       calibracionJson['id_calibracion'],
@@ -92,6 +103,8 @@ class CalibracionEquipo {
           .map((corridaJson) => Corrida.fromJson(corridaJson))
           .toList(),
       calibracionJson['tag_equipo'],
+      calibracionJson['id_laboratorio_calibracion'],
+      calibracionJson['id_usuario'],
     );
   }
 
@@ -107,8 +120,9 @@ class CalibracionEquipo {
       'documento_certificado': documentoCertificado,
       //'corrida': corridas.map((corrida) => corrida.toJson()).toList(),
       'tag_equipo': tagEquipo,
-      'id_laboratorio_calibracion': 1, // Valor fijo por ahora
-      'id_usuario': 41, // Valor fijo por ahora
+      'id_laboratorio_calibracion':
+          idLaboratorioCalibracion, // Valor fijo por ahora
+      'id_usuario': idUsuario, // Valor fijo por ahora
     };
   }
 }

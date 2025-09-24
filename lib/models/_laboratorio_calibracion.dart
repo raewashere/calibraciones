@@ -37,4 +37,12 @@ class LaboratorioCalibracion {
           .toList(),
     );
   }
+
+  factory LaboratorioCalibracion.fromJsonFactory(Map<String, dynamic> json) {
+    return LaboratorioCalibracion(
+      json['id_laboratorio_calibracion'],
+      json['nombre'],
+      [],
+    );
+  }
 }

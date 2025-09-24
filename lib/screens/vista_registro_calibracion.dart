@@ -4,6 +4,7 @@ import 'package:calibraciones/models/_direccion.dart';
 import 'package:calibraciones/models/_equipo.dart';
 import 'package:calibraciones/models/_gerencia.dart';
 import 'package:calibraciones/models/_instalacion.dart';
+import 'package:calibraciones/models/_laboratorio_calibracion.dart';
 import 'package:calibraciones/models/_patin_medicion.dart';
 import 'package:calibraciones/models/_subdireccion.dart';
 import 'package:calibraciones/models/_tren_medicion.dart';
@@ -12,6 +13,9 @@ import 'package:calibraciones/services/calibracion_service.dart';
 import 'package:calibraciones/services/direccion_service.dart';
 import 'package:calibraciones/services/implementation/calibracion_service_impl.dart';
 import 'package:calibraciones/services/implementation/direccion_service_impl.dart';
+import 'package:calibraciones/services/implementation/laboratorio_calibracion_service_impl.dart';
+import 'package:calibraciones/services/laboratorio_calibracion_service.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 class VistaRegistroCalibracion extends StatefulWidget {
@@ -27,6 +31,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   //Datos laboratorio
   final TextEditingController _laboratorioController = TextEditingController();
   final TextEditingController _productoController = TextEditingController();
+  final TextEditingController _certificadoController = TextEditingController();
+  final TextEditingController _archivoController = TextEditingController();
   final TextEditingController _fechaController = TextEditingController();
 
   //Datos corridas
@@ -95,6 +101,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final FocusNode _focusNodeCaudal = FocusNode();
 
   DireccionService direccionService = DireccionServiceImpl();
+  LaboratorioCalibracionService laboratorioService =
+      LaboratorioCalibracionServiceImpl();
 
   Subdireccion? selectedSubdireccion;
 
@@ -120,6 +128,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   List<Equipo> equiposTren = [];
   Equipo? equipoSeleccionado;
 
+  late Future<List<LaboratorioCalibracion>> _futureLaboratorios;
+  LaboratorioCalibracion? laboratorioSeleccionado;
+
   bool habilitaGerencia = false;
 
   bool _editingM3 = false;
@@ -140,7 +151,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double m3 = double.tryParse(value) ?? 0;
       double bbl = m3 * factor;
-      _caudalBblController.text = bbl.toStringAsFixed(2);
+      _caudalBblController.text = bbl.toStringAsFixed(5);
     } else {
       _caudalBblController.clear();
     }
@@ -153,7 +164,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double bbl = double.tryParse(value) ?? 0;
       double m3 = bbl / factor;
-      _caudalM3Controller.text = m3.toStringAsFixed(2);
+      _caudalM3Controller.text = m3.toStringAsFixed(5);
     } else {
       _caudalM3Controller.clear();
     }
@@ -166,7 +177,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double pm3 = double.tryParse(value) ?? 0;
       double pbbl = pm3 * factor;
-      _kFactorPulsosBblController.text = pbbl.toStringAsFixed(2);
+      _kFactorPulsosBblController.text = pbbl.toStringAsFixed(5);
     } else {
       _kFactorPulsosBblController.clear();
     }
@@ -179,7 +190,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double pbbl = double.tryParse(value) ?? 0;
       double pm3 = pbbl / factor;
-      _kFactorPulsosM3Controller.text = pm3.toStringAsFixed(2);
+      _kFactorPulsosM3Controller.text = pm3.toStringAsFixed(5);
     } else {
       _kFactorPulsosM3Controller.clear();
     }
@@ -192,7 +203,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double psi = double.tryParse(value) ?? 0;
       double kgcm2 = (psi * factorPresion);
-      _presionPSIController.text = kgcm2.toStringAsFixed(2);
+      _presionPSIController.text = kgcm2.toStringAsFixed(5);
     } else {
       _presionPSIController.clear();
     }
@@ -205,7 +216,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double kgcm2 = double.tryParse(value) ?? 0;
       double psi = (kgcm2 / factorPresion);
-      _presionController.text = psi.toStringAsFixed(2);
+      _presionController.text = psi.toStringAsFixed(5);
     } else {
       _presionController.clear();
     }
@@ -222,6 +233,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     super.initState();
     //_focusNode.dispose();
     _futureDirecciones = direccionService.obtenerAllDirecciones();
+    _futureLaboratorios = laboratorioService.obtenerAllLaboratorios();
   }
 
   @override
@@ -497,13 +509,16 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                 ),
                                 child: Column(
                                   children: <Widget>[
-                                    _buildTextFormField(
+                                    _buildDropdownButtonLaboratorio(
                                       context,
                                       hintText: "Laboratorio de calibración",
-                                      validatorText:
-                                          'Favor de escribir el laboratorio de calibración',
-                                      controllerText: _laboratorioController,
-                                      focusNode: _focusNodeLaboratorio,
+                                      items: _futureLaboratorios,
+                                      value: laboratorioSeleccionado,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          laboratorioSeleccionado = value;
+                                        });
+                                      },
                                     ),
                                     _buildTextFormField(
                                       context,
@@ -511,6 +526,20 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       validatorText:
                                           'Favor de escribir el producto',
                                       controllerText: _productoController,
+                                    ),
+                                    _buildTextFormField(
+                                      context,
+                                      hintText: "No. Certificado",
+                                      validatorText:
+                                          'Favor de escribir el número de certificado',
+                                      controllerText: _certificadoController,
+                                    ),
+                                    _buildFileFormField(
+                                      context,
+                                      hintText: "Archivo certificado",
+                                      validatorText:
+                                          'Favor de seleccionar el archivo del certificado',
+                                      controllerText: _archivoController,
                                     ),
                                     _buildDateFormField(
                                       context,
@@ -812,7 +841,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
       _calibracionEquipo = CalibracionEquipo(
         0,
-        _laboratorioController.text,
+        _certificadoController.text,
         DateTime.now().add(Duration(days: 90)),
         DateTime.now().add(Duration(days: 180)), //fecha proxima calibracion
         double.tryParse(_linealidadController.text) ?? 0,
@@ -821,6 +850,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         '', //documento certificado
         _corridasRegistradas,
         equipoSeleccionado!.getTagEquipo,
+        laboratorioSeleccionado!.getIdLaboratorioCalibracion,
+        0,
       );
 
       bool exito = await calibracionService.registrarCalibracionEquipo(
@@ -872,7 +903,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void _agregarCorrida() async {
-    
     _corridaActual = Corrida(
       _listaCorridas.length + 1,
       double.tryParse(_caudalM3Controller.text) ?? 0,
@@ -885,10 +915,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       double.tryParse(_kFactorPulsosBblController.text) ?? 0,
       double.tryParse(_frecuenciaController.text) ?? 0,
       double.tryParse(_repetibilidadController.text) ?? 0,
+      0,
     );
     _listaCorridas.add(TablaCalibracion(corrida: _corridaActual));
     _corridasRegistradas.add(_corridaActual);
-    
+
     if (_listaCorridas.length < 1) {
       setState(() {
         _caudalM3Controller.clear();
@@ -1177,6 +1208,95 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         }
         return null;
       },
+    );
+  }
+
+  Widget _buildDropdownButtonLaboratorio(
+    BuildContext context, {
+    required String hintText,
+    required Future<List<LaboratorioCalibracion>> items,
+    required LaboratorioCalibracion? value,
+    required ValueChanged<LaboratorioCalibracion?> onChanged,
+  }) {
+    //future to list
+    return FutureBuilder<List<LaboratorioCalibracion>>(
+      future: items,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          final direcciones = snapshot.data!;
+          return DropdownButtonFormField<LaboratorioCalibracion>(
+            isExpanded: true,
+            decoration: _inputDecoration(hintText),
+            value: value,
+            dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+            items: direcciones.map((LaboratorioCalibracion item) {
+              return DropdownMenuItem<LaboratorioCalibracion>(
+                value: item,
+                child: Text(item.getNombre),
+              );
+            }).toList(),
+            onChanged: onChanged,
+            validator: (value) {
+              if (value == null) {
+                return 'Por favor selecciona una opción';
+              }
+              return null;
+            },
+          );
+        }
+      },
+    );
+  }
+
+  Future<void> _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+
+    if (result != null && result.files.isNotEmpty) {
+      setState(() {
+        _archivoController.text =
+            result.files.single.name;
+      });
+    }
+  }
+
+  Widget _buildFileFormField(
+    BuildContext context, {
+    required String hintText,
+    required String validatorText,
+    required TextEditingController controllerText,
+    bool obscureText = false,
+    FocusNode? focusNode,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(5),
+      child: TextFormField(
+        focusNode: focusNode,
+        readOnly: true,
+        controller: controllerText,
+        obscureText: obscureText,
+        style: TextStyle(color: Theme.of(context).colorScheme.primary),
+        decoration: InputDecoration(
+          suffixIcon: Icon(Icons.upload_file),
+          hintText: hintText,
+          label: Text(hintText),
+          hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
+          border: const OutlineInputBorder(),
+        ),
+        onTap: () => _pickFile(),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return "Por favor selecciona un archivo PDF";
+          }
+          return null;
+        },
+      ),
     );
   }
 }

@@ -39,6 +39,7 @@ dependencies:
   flutter_profile_picture: ^2.0.0
   http: ^1.4.0
   supabase_flutter: ^2.9.1
+  file_picker: ^10.3.3
 
 dev_dependencies:
   flutter_test:

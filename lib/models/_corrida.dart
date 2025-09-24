@@ -10,6 +10,7 @@ class Corrida {
   late double kFactoPulseBbl;
   late double repetibilidad;
   late double frecuenciaHz;
+  late int idCalibracion;
 
   Corrida(
     this.idCorrida,
@@ -23,6 +24,7 @@ class Corrida {
     this.kFactoPulseBbl,
     this.repetibilidad,
     this.frecuenciaHz,
+    this.idCalibracion,
   );
 
   int get getIdCorrida => idCorrida;
@@ -36,6 +38,7 @@ class Corrida {
   double get getKFactoPulseBbl => kFactoPulseBbl;
   double get getRepetibilidad => repetibilidad;
   double get getFrecuenciaHz => frecuenciaHz;
+  int get getIdCalibracion => idCalibracion;
 
   set setIdCorrida(int value) {
     idCorrida = value;
@@ -81,6 +84,10 @@ class Corrida {
     frecuenciaHz = value;
   }
 
+  set setIdCalibracion(int value) {
+    idCalibracion = value;
+  }
+
   factory Corrida.fromJson(Map<String, dynamic> corridaJson) {
     return Corrida(
       corridaJson['id_corrida'],
@@ -94,12 +101,13 @@ class Corrida {
       corridaJson['k_factor_pulse_bbl'],
       corridaJson['repetibilidad'],
       corridaJson['frecuencia'],
+      corridaJson['idCalibracion']
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id_corrida': idCorrida,
+      //'id_corrida': idCorrida,
       'caudal_m3_hr': caudalM3Hr,
       'caudal_bbl_hr': caudalBblHr,
       'temperatura': temperaturaC,
@@ -110,7 +118,7 @@ class Corrida {
       'k_factor_pulsos_bbl': kFactoPulseBbl,
       'repetibilidad': repetibilidad,
       'frecuencia': frecuenciaHz,
-      'id_calibracion': 8,
+      'id_calibracion': idCalibracion,
     };
   }
 }

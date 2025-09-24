@@ -10,25 +10,34 @@ class CalibracionServiceImpl implements CalibracionService {
   Future<bool> registrarCalibracionEquipo(
     CalibracionEquipo calibracionEquipo,
   ) async {
+    //Obtener email usuario
+    String? emailUsuario = supabase.auth.currentSession!.user.email;
+
+    //Obtener id usuario
+    final responseUsuario = await supabase
+        .from('usuario')
+        .select()
+        .eq('correo_electronico', emailUsuario!)
+        .single();
+
+    int idUsuario = responseUsuario['id_usuario'];
+    calibracionEquipo.setIdUsuario = idUsuario;
+
     final response = await supabase
         .from('calibracion_equipo')
-        .insert(calibracionEquipo.toJson());
-
-    /*if (response.error != null) {
-      print('Ojoooooo: ${response.error!.message}');
-      return false;
-    }*/
+        .insert(calibracionEquipo.toJson()).select();
+    
+    //Busca id de calibracion
+    int idCalibracionEquipo= response[0]['id_calibracion'];
+    
 
     List<Corrida> corridas = calibracionEquipo.getCorridas();
     for (var corrida in corridas) {
+      corrida.setIdCalibracion = idCalibracionEquipo;
       final responseCorridas = await supabase
           .from('corrida')
           .insert(corrida.toJson());
 
-      /*if (responseCorridas.error != null) {
-        print('Ojoooooo: ${responseCorridas.error!.message}');
-        return false;
-      }*/
     }
 
     return true;
