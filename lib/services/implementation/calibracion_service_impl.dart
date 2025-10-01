@@ -1,9 +1,10 @@
+import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:calibraciones/models/_calibracion_equipo.dart';
 import 'package:calibraciones/models/_corrida.dart';
 import 'package:calibraciones/services/calibracion_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class CalibracionServiceImpl implements CalibracionService {
   final SupabaseClient supabase = Supabase.instance.client;
@@ -42,18 +43,32 @@ class CalibracionServiceImpl implements CalibracionService {
           .insert(corrida.toJson());
     }
 
-    final storageResponse = await supabase.storage
-        .from('certificados')
-        .uploadBinary(
-          '${calibracionEquipo.certificadoCalibracion}.pdf',
-          certificadoFile,
-          fileOptions: const FileOptions(
-            cacheControl: '3600',
-            upsert: false,
-            contentType: 'application/pdf',
-          ),
-        );
-      
+    if (kIsWeb) {
+      await supabase.storage
+          .from('certificados')
+          .uploadBinary(
+            '${calibracionEquipo.certificadoCalibracion}.pdf',
+            certificadoFile,
+            fileOptions: const FileOptions(
+              cacheControl: '3600',
+              upsert: false,
+              contentType: 'application/pdf',
+            ),
+          );
+    } else {
+      await supabase.storage
+          .from('certificados')
+          .upload(
+            '${calibracionEquipo.certificadoCalibracion}.pdf',
+            File.fromRawPath(certificadoFile),
+            fileOptions: const FileOptions(
+              cacheControl: '3600',
+              upsert: false,
+              contentType: 'application/pdf',
+            ),
+          );
+    }
+
     return true;
   }
 

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:calibraciones/models/_calibracion_equipo.dart';
 import 'package:calibraciones/models/_corrida.dart';
 import 'package:calibraciones/models/_direccion.dart';
@@ -1287,20 +1288,26 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     );
   }
 
-  Future<void> _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-    );
 
-    if (result != null && result.files.isNotEmpty) {
-      setState(() {
-        _archivoController.text = result.files.single.name;
-        fileCertificado = File(result.files.single.path!);        
-        fileBytes = result.files.single.bytes;
-      });
-    }
+Future<void> _pickFile() async {
+  FilePickerResult? result = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['pdf'],
+    withData: true,
+  );
+
+  if (result != null && result.files.isNotEmpty) {
+    setState(() {
+      _archivoController.text = result.files.single.name;
+
+      if (kIsWeb) {
+        fileBytes = result.files.single.bytes; // Web usa bytes
+      } else {
+        fileCertificado = File(result.files.single.path!); // Móvil usa File
+      }
+    });
   }
+}
 
   Widget _buildFileFormField(
     BuildContext context, {
