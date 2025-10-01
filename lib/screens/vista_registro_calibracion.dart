@@ -1301,8 +1301,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
       reader.readAsArrayBuffer(file);
       reader.onLoadEnd.listen((e) {
+        _archivoController.text = file.name;
         final fileBytes = reader.result as Uint8List;
-        print("Archivo: ${file.name}, bytes: ${fileBytes.length}");
+        //print("Archivo: ${file.name}, bytes: ${fileBytes.length}");
       });
     });
   }
