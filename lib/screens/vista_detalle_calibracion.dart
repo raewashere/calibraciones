@@ -1,4 +1,3 @@
-import 'package:calibraciones/screens/components/tabla_calibracion.dart';
 import 'package:flutter/material.dart';
 
 class VistaDetalleCalibracion extends StatefulWidget {

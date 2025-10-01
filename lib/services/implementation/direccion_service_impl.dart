@@ -84,8 +84,16 @@ class DireccionServiceImpl extends DireccionService {
         // Aquí podrías agregar lógica adicional si es necesario
         direcciones.add(direccion);
       }
-    } else {
-      print(response.reasonPhrase);
+    }
+    else {
+      if (response.statusCode == 404) {
+        // Decodificar la respuesta JSON
+        throw Exception('No hay direcciones registradas');
+      } else {
+        throw Exception(
+          'Hubo un error al recuperar la lista de direcciones 1',
+        );
+      }
     }
 
     return direcciones;

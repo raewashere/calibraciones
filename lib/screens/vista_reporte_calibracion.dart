@@ -1,4 +1,6 @@
 import 'package:calibraciones/models/_calibracion_equipo.dart';
+import 'package:calibraciones/services/calibracion_service.dart';
+import 'package:calibraciones/services/implementation/calibracion_service_impl.dart';
 import 'package:flutter/material.dart';
 
 class VistaReporteCalibracion extends StatefulWidget {
@@ -10,54 +12,11 @@ class VistaReporteCalibracion extends StatefulWidget {
 
 class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
   final ScrollController _scrollController = ScrollController();
-  final List<CalibracionEquipo> calibracionesEquipos = [
-    CalibracionEquipo(
-      1,
-      'Certificado 001',
-      DateTime(2023, 1, 15),
-      DateTime(2024, 1, 15),
-      0.01,
-      0.02,
-      'Observaciones de calibración 001',
-      'documento_certificado_001.pdf',
-      [],
-      'Equipo A',
-      1,
-      41,
-    ),
-    CalibracionEquipo(
-      2,
-      'Certificado 002',
-      DateTime(2023, 2, 20),
-      DateTime(2024, 2, 20),
-      0.015,
-      0.025,
-      'Observaciones de calibración 002',
-      'documento_certificado_002.pdf',
-      [],
-      'Equipo B',
-      1,
-      41,
-    ),
-    CalibracionEquipo(
-      3,
-      'Certificado 003',
-      DateTime(2023, 3, 10),
-      DateTime(2024, 3, 10),
-      0.02,
-      0.03,
-      'Observaciones de calibración 003',
-      'documento_certificado_003.pdf',
-      [],
-      'Equipo C',
-      1,
-      41,
-    ),
-    // Agrega más calibraciones de ejemplo aquí
-  ];
+  List<CalibracionEquipo> calibracionesEquipos = [];
+  CalibracionService calibracionService = CalibracionServiceImpl();
   bool _isLoading = false;
-  //final int _currentOffset = 0;
-  //final int _limit = 10;
+  int _currentOffset = 0;
+  final int _limit = 10;
 
   @override
   void initState() {
@@ -79,12 +38,12 @@ class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
     });
 
     // Espera el resultado de obtener_catalogo
-    //List<CalibracionEquipo> newObras =
-    //    await catalogo_controlador.obtener_catalogo(_currentOffset, _limit);
+    List<CalibracionEquipo> newObras =
+      await calibracionService.obtenerCalibracionesEquipo(_currentOffset, _limit);
     //print(newObras.length);
     setState(() {
-      //_calibraciones_equipos.addAll(newObras);
-      //_currentOffset += _limit;
+      calibracionesEquipos.addAll(newObras);
+      _currentOffset += _limit;
       _isLoading = false;
     });
   }

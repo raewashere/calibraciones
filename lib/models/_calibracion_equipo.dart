@@ -8,7 +8,7 @@ class CalibracionEquipo {
   late double linealidad;
   late double reproducibilidad;
   late String observaciones;
-  late String documentoCertificado;
+  //late String documentoCertificado;
   late List<Corrida> corridas;
   //Referencias a otros objetos
   late String tagEquipo;
@@ -23,8 +23,23 @@ class CalibracionEquipo {
     this.linealidad,
     this.reproducibilidad,
     this.observaciones,
-    this.documentoCertificado,
+    //this.documentoCertificado,
     this.corridas,
+    this.tagEquipo,
+    this.idLaboratorioCalibracion,
+    this.idUsuario,
+  );
+
+  //Otro constructor sin corridas
+  CalibracionEquipo.sinCorridas(
+    this.idCalibracionEquipo,
+    this.certificadoCalibracion,
+    this.fechaCalibracion,
+    this.fechaProximaCalibracion,
+    this.linealidad,
+    this.reproducibilidad,
+    this.observaciones,
+    //this.documentoCertificado,
     this.tagEquipo,
     this.idLaboratorioCalibracion,
     this.idUsuario,
@@ -37,7 +52,7 @@ class CalibracionEquipo {
   double get getLinealidad => linealidad;
   double get getReproducibilidad => reproducibilidad;
   String get getObservaciones => observaciones;
-  String get getDocumentoCertificado => documentoCertificado;
+  //String get getDocumentoCertificado => documentoCertificado;
   List<Corrida> getCorridas() => corridas;
   String getTagEquipo() => tagEquipo;
 
@@ -69,9 +84,9 @@ class CalibracionEquipo {
     observaciones = value;
   }
 
-  set setDocumentoCertificado(String value) {
+  /*set setDocumentoCertificado(String value) {
     documentoCertificado = value;
-  }
+  }*/
 
   set setCorridas(List<Corrida> value) {
     corridas = value;
@@ -90,18 +105,20 @@ class CalibracionEquipo {
   }
 
   factory CalibracionEquipo.fromJson(Map<String, dynamic> calibracionJson) {
-    return CalibracionEquipo(
+    return CalibracionEquipo.sinCorridas(
       calibracionJson['id_calibracion'],
       calibracionJson['certificado_calibracion'],
+
+      //Cover
       DateTime.parse(calibracionJson['fecha_calibracion']),
       DateTime.parse(calibracionJson['fecha_proxima_calibracion']),
       calibracionJson['linealidad'],
       calibracionJson['reproducibilidad'],
       calibracionJson['observaciones'],
-      calibracionJson['documento_certificado'],
-      (calibracionJson['lista_corridas'] as List)
+      //calibracionJson['documento_certificado'],
+      /*(calibracionJson['lista_corridas'] as List)
           .map((corridaJson) => Corrida.fromJson(corridaJson))
-          .toList(),
+          .toList(),*/
       calibracionJson['tag_equipo'],
       calibracionJson['id_laboratorio_calibracion'],
       calibracionJson['id_usuario'],
@@ -117,7 +134,7 @@ class CalibracionEquipo {
       'linealidad': linealidad,
       'reproducibilidad': reproducibilidad,
       'observaciones': observaciones,
-      'documento_certificado': documentoCertificado,
+      //'documento_certificado': documentoCertificado,
       //'corrida': corridas.map((corrida) => corrida.toJson()).toList(),
       'tag_equipo': tagEquipo,
       'id_laboratorio_calibracion':

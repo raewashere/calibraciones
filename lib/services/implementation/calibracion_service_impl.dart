@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:calibraciones/models/_calibracion_equipo.dart';
 import 'package:calibraciones/models/_corrida.dart';
 import 'package:calibraciones/services/calibracion_service.dart';
@@ -9,6 +11,7 @@ class CalibracionServiceImpl implements CalibracionService {
   @override
   Future<bool> registrarCalibracionEquipo(
     CalibracionEquipo calibracionEquipo,
+    Uint8List certificadoFile,
   ) async {
     //Obtener email usuario
     String? emailUsuario = supabase.auth.currentSession!.user.email;
@@ -25,11 +28,11 @@ class CalibracionServiceImpl implements CalibracionService {
 
     final response = await supabase
         .from('calibracion_equipo')
-        .insert(calibracionEquipo.toJson()).select();
-    
+        .insert(calibracionEquipo.toJson())
+        .select();
+
     //Busca id de calibracion
-    int idCalibracionEquipo= response[0]['id_calibracion'];
-    
+    int idCalibracionEquipo = response[0]['id_calibracion'];
 
     List<Corrida> corridas = calibracionEquipo.getCorridas();
     for (var corrida in corridas) {
@@ -37,9 +40,42 @@ class CalibracionServiceImpl implements CalibracionService {
       final responseCorridas = await supabase
           .from('corrida')
           .insert(corrida.toJson());
-
     }
 
+    final storageResponse = await supabase.storage
+        .from('certificados')
+        .uploadBinary(
+          '${calibracionEquipo.certificadoCalibracion}.pdf',
+          certificadoFile,
+          fileOptions: const FileOptions(
+            cacheControl: '3600',
+            upsert: false,
+            contentType: 'application/pdf',
+          ),
+        );
+
     return true;
+  }
+
+  @override
+  Future<List<CalibracionEquipo>> obtenerCalibracionesEquipo(
+    int offset,
+    int limit,
+  ) async {
+    try {
+      final response = await supabase
+          .from('calibracion_equipo')
+          .select()
+          .range(offset, offset + limit - 1);
+
+      // response ya es una List<Map<String, dynamic>>
+      return (response as List)
+          .map(
+            (item) => CalibracionEquipo.fromJson(item as Map<String, dynamic>),
+          )
+          .toList();
+    } catch (e) {
+      throw Exception('Error al obtener calibraciones: $e');
+    }
   }
 }

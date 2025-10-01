@@ -8,7 +8,7 @@ class TablaCalibracion extends StatelessWidget {
   //Recibe parametros para llenar la tabla
   final Corrida corrida;
 
-  TablaCalibracion({
+  const TablaCalibracion({
     super.key,
     required this.corrida
   });
@@ -65,7 +65,7 @@ class TablaCalibracion extends StatelessWidget {
                 color: Colors.amber[100],
                 alignment: Alignment.center,
                 height: 200, // Altura que cubre las siguientes 5 filas
-                child: Text(this.corrida.idCorrida.toString(), textAlign: TextAlign.center),
+                child: Text(corrida.idCorrida.toString(), textAlign: TextAlign.center),
               ),
             ),
             Padding(padding: EdgeInsets.all(8.0), child: Text(corrida.caudalM3Hr.toString())),
@@ -102,9 +102,9 @@ class TablaCalibracion extends StatelessWidget {
         TableRow(
           children:  [
             SizedBox.shrink(),
-            Padding(padding: EdgeInsets.all(8.0), child: Text("${this.corrida.presionKgCm2} (${this.corrida.presionPSI})")),
-            Padding(padding: EdgeInsets.all(8.0), child: Text(this.corrida.meterFactor.toString())),
-            Padding(padding: EdgeInsets.all(8.0), child: Text(this.corrida.frecuenciaHz.toString())),
+            Padding(padding: EdgeInsets.all(8.0), child: Text("${corrida.presionKgCm2} (${corrida.presionPSI})")),
+            Padding(padding: EdgeInsets.all(8.0), child: Text(corrida.meterFactor.toString())),
+            Padding(padding: EdgeInsets.all(8.0), child: Text(corrida.frecuenciaHz.toString())),
           ],
         ),
         TableRow(
@@ -136,9 +136,9 @@ class TablaCalibracion extends StatelessWidget {
         TableRow(
           children: [
             SizedBox.shrink(),
-            Padding(padding: EdgeInsets.all(8.0), child: Text(this.corrida.kFactorPulseM3.toString())),
-            Padding(padding: EdgeInsets.all(8.0), child: Text(this.corrida.kFactoPulseBbl.toString())),
-            Padding(padding: EdgeInsets.all(8.0), child: Text(this.corrida.repetibilidad.toString())),
+            Padding(padding: EdgeInsets.all(8.0), child: Text(corrida.kFactorPulseM3.toString())),
+            Padding(padding: EdgeInsets.all(8.0), child: Text(corrida.kFactoPulseBbl.toString())),
+            Padding(padding: EdgeInsets.all(8.0), child: Text(corrida.repetibilidad.toString())),
           ],
         ),
       ],

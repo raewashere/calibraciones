@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:intl/intl.dart';
 import 'package:calibraciones/models/_calibracion_equipo.dart';
 import 'package:calibraciones/models/_corrida.dart';
 import 'package:calibraciones/models/_direccion.dart';
@@ -28,12 +31,18 @@ class VistaRegistroCalibracion extends StatefulWidget {
 class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final _formularioRegistro = GlobalKey<FormState>();
 
+  DateFormat formato = DateFormat("dd/MM/yyyy");
+
   //Datos laboratorio
   final TextEditingController _laboratorioController = TextEditingController();
   final TextEditingController _productoController = TextEditingController();
   final TextEditingController _certificadoController = TextEditingController();
   final TextEditingController _archivoController = TextEditingController();
   final TextEditingController _fechaController = TextEditingController();
+  final TextEditingController _fechaProximaController = TextEditingController();
+
+  DateTime selectedFecha = DateTime.now();
+  DateTime selectedFechaProxima = DateTime.now();
 
   //Datos corridas
   final TextEditingController _caudalM3Controller = TextEditingController();
@@ -55,15 +64,18 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final TextEditingController _observacionesController =
       TextEditingController();
 
-  final List<Widget> _listaCorridas = [];
+  List<Widget> _listaCorridas = [];
   late Corrida _corridaActual;
-  late List<Corrida> _corridasRegistradas = [];
+  late final List<Corrida> _corridasRegistradas = [];
 
   late CalibracionEquipo _calibracionEquipo;
 
   CalibracionService calibracionService = CalibracionServiceImpl();
 
-  Future<void> _seleccionarFecha(BuildContext context) async {
+  late File fileCertificado;
+  late Uint8List? fileBytes;
+
+  Future<void> _seleccionarFecha(BuildContext context, int tipoFecha) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -91,8 +103,13 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     );
     if (picked != null) {
       setState(() {
-        _fechaController.text =
-            "${picked.day}/${picked.month}/${picked.year}"; // formato básico
+        if (tipoFecha == 1) {
+          _fechaController.text = formato.format(picked);
+          selectedFecha = picked;
+        } else {
+          _fechaProximaController.text = formato.format(picked);
+          selectedFechaProxima = picked;
+        }
       });
     }
   }
@@ -231,7 +248,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   @override
   void initState() {
     super.initState();
-    //_focusNode.dispose();
     _futureDirecciones = direccionService.obtenerAllDirecciones();
     _futureLaboratorios = laboratorioService.obtenerAllLaboratorios();
   }
@@ -543,10 +559,19 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     ),
                                     _buildDateFormField(
                                       context,
-                                      hintText: "Fecha",
+                                      hintText: "Fecha calibración",
                                       validatorText:
                                           'Favor de escribir la fecha',
                                       controllerText: _fechaController,
+                                      tipoFecha: 1,
+                                    ),
+                                    _buildDateFormField(
+                                      context,
+                                      hintText: "Fecha de próxima calibración",
+                                      validatorText:
+                                          'Favor de escribir la fecha',
+                                      controllerText: _fechaProximaController,
+                                      tipoFecha: 2,
                                     ),
                                   ],
                                 ),
@@ -824,7 +849,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void _guardarCalibracion() async {
-    if (_corridasRegistradas.length < 1) {
+    if (_corridasRegistradas.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           duration: const Duration(seconds: 2),
@@ -842,12 +867,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       _calibracionEquipo = CalibracionEquipo(
         0,
         _certificadoController.text,
-        DateTime.now().add(Duration(days: 90)),
-        DateTime.now().add(Duration(days: 180)), //fecha proxima calibracion
+        selectedFecha,
+        selectedFechaProxima,
         double.tryParse(_linealidadController.text) ?? 0,
         double.tryParse(_reproducibilidadController.text) ?? 0,
         _observacionesController.text,
-        '', //documento certificado
         _corridasRegistradas,
         equipoSeleccionado!.getTagEquipo,
         laboratorioSeleccionado!.getIdLaboratorioCalibracion,
@@ -856,6 +880,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
       bool exito = await calibracionService.registrarCalibracionEquipo(
         _calibracionEquipo,
+        fileBytes!,
       );
 
       if (exito) {
@@ -872,7 +897,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           _formularioRegistro.currentState!.reset();
           _laboratorioController.clear();
           _productoController.clear();
+          _certificadoController.clear();
+          _archivoController.clear();
           _fechaController.clear();
+          _fechaProximaController.clear();
           _linealidadController.clear();
           _reproducibilidadController.clear();
           _observacionesController.clear();
@@ -902,7 +930,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     }
   }
 
-  void _agregarCorrida() async {
+  void _agregarCorrida() {
     _corridaActual = Corrida(
       _listaCorridas.length + 1,
       double.tryParse(_caudalM3Controller.text) ?? 0,
@@ -917,24 +945,25 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       double.tryParse(_repetibilidadController.text) ?? 0,
       0,
     );
-    _listaCorridas.add(TablaCalibracion(corrida: _corridaActual));
-    _corridasRegistradas.add(_corridaActual);
 
-    if (_listaCorridas.length < 1) {
-      setState(() {
-        _caudalM3Controller.clear();
-        _caudalBblController.clear();
-        _temperaturaController.clear();
-        _presionController.clear();
-        _presionPSIController.clear();
-        _meterFactorController.clear();
-        _kFactorPulsosM3Controller.clear();
-        _kFactorPulsosBblController.clear();
-        _frecuenciaController.clear();
-        _repetibilidadController.clear();
-      });
-      FocusScope.of(context).requestFocus(_focusNodeCaudal);
-    }
+    setState(() {
+      _listaCorridas.add(TablaCalibracion(corrida: _corridaActual));
+      _corridasRegistradas.add(_corridaActual);
+      // limpiar inputs al terminar
+      /*_caudalM3Controller.clear();
+      _caudalBblController.clear();
+      _temperaturaController.clear();
+      _presionController.clear();
+      _presionPSIController.clear();
+      _meterFactorController.clear();
+      _kFactorPulsosM3Controller.clear();
+      _kFactorPulsosBblController.clear();
+      _frecuenciaController.clear();
+      _repetibilidadController.clear();*/
+    });
+
+    // dar focus después de limpiar
+    FocusScope.of(context).requestFocus(_focusNodeCaudal);
   }
 
   InputDecoration _inputDecoration(String label) =>
@@ -964,6 +993,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           return null;
         },
         onChanged: onChanged,
+        onTap: () {
+          setState(() {
+            controllerText.text = '';
+          });
+        },
       ),
     );
   }
@@ -975,6 +1009,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required TextEditingController controllerText,
     bool obscureText = false,
     FocusNode? focusNode,
+    required int tipoFecha,
   }) {
     return Container(
       padding: EdgeInsets.all(5),
@@ -991,7 +1026,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
           border: const OutlineInputBorder(),
         ),
-        onTap: () => _seleccionarFecha(context),
+        onTap: () => _seleccionarFecha(context, tipoFecha),
         validator: (value) {
           if (value == null || value.isEmpty) {
             return validatorText;
@@ -1260,8 +1295,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
     if (result != null && result.files.isNotEmpty) {
       setState(() {
-        _archivoController.text =
-            result.files.single.name;
+        _archivoController.text = result.files.single.name;
+        fileCertificado = File(result.files.single.path!);        
+        fileBytes = result.files.single.bytes;
       });
     }
   }
