@@ -64,7 +64,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final TextEditingController _observacionesController =
       TextEditingController();
 
-  List<Widget> _listaCorridas = [];
+  final List<Widget> _listaCorridas = [];
   late Corrida _corridaActual;
   late final List<Corrida> _corridasRegistradas = [];
 
