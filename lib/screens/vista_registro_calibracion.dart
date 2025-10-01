@@ -882,6 +882,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       bool exito = await calibracionService.registrarCalibracionEquipo(
         _calibracionEquipo,
         fileBytes!,
+        fileCertificado!,
       );
 
       if (exito) {

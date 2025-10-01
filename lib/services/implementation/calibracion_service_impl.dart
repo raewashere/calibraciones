@@ -12,7 +12,8 @@ class CalibracionServiceImpl implements CalibracionService {
   @override
   Future<bool> registrarCalibracionEquipo(
     CalibracionEquipo calibracionEquipo,
-    Uint8List certificadoFile,
+    Uint8List certificadoBytes,
+    File certificadoFile,
   ) async {
     //Obtener email usuario
     String? emailUsuario = supabase.auth.currentSession!.user.email;
@@ -48,7 +49,7 @@ class CalibracionServiceImpl implements CalibracionService {
           .from('certificados')
           .uploadBinary(
             '${calibracionEquipo.certificadoCalibracion}.pdf',
-            certificadoFile,
+            certificadoBytes,
             fileOptions: const FileOptions(
               cacheControl: '3600',
               upsert: false,
@@ -60,7 +61,7 @@ class CalibracionServiceImpl implements CalibracionService {
           .from('certificados')
           .upload(
             '${calibracionEquipo.certificadoCalibracion}.pdf',
-            File.fromRawPath(certificadoFile),
+            certificadoFile,
             fileOptions: const FileOptions(
               cacheControl: '3600',
               upsert: false,
