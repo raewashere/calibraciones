@@ -1,6 +1,6 @@
-import 'dart:io';
+import 'dart:io' show File; // Esto solo se usa en móviles/escritorio
+import 'dart:html' as html;
 import 'dart:typed_data';
-import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:calibraciones/models/_calibracion_equipo.dart';
 import 'package:calibraciones/models/_corrida.dart';
@@ -21,6 +21,7 @@ import 'package:calibraciones/services/implementation/laboratorio_calibracion_se
 import 'package:calibraciones/services/laboratorio_calibracion_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class VistaRegistroCalibracion extends StatefulWidget {
   const VistaRegistroCalibracion({super.key});
@@ -73,7 +74,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
   CalibracionService calibracionService = CalibracionServiceImpl();
 
-  late File fileCertificado;
+  File? fileCertificado;
   late Uint8List? fileBytes;
 
   Future<void> _seleccionarFecha(BuildContext context, int tipoFecha) async {
@@ -1289,12 +1290,27 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     );
   }
 
+  void _pickFileWeb() {
+    final uploadInput = html.FileUploadInputElement();
+    uploadInput.accept = '.pdf';
+    uploadInput.click();
 
-Future<void> _pickFile() async {
+    uploadInput.onChange.listen((e) {
+      final file = uploadInput.files!.first;
+      final reader = html.FileReader();
+
+      reader.readAsArrayBuffer(file);
+      reader.onLoadEnd.listen((e) {
+        final fileBytes = reader.result as Uint8List;
+        print("Archivo: ${file.name}, bytes: ${fileBytes.length}");
+      });
+    });
+  }
+
+  /*Future<void> _pickFile() async {
   FilePickerResult? result = await FilePicker.platform.pickFiles(
     type: FileType.custom,
     allowedExtensions: ['pdf'],
-    withData: true,
   );
 
   if (result != null && result.files.isNotEmpty) {
@@ -1302,13 +1318,17 @@ Future<void> _pickFile() async {
       _archivoController.text = result.files.single.name;
 
       if (kIsWeb) {
-        fileBytes = result.files.single.bytes; // Web usa bytes
+        // En web NO hay path, solo bytes
+        fileBytes = result.files.single.bytes;
+        fileCertificado = null; // o ignóralo
       } else {
-        fileCertificado = File(result.files.single.path!); // Móvil usa File
+        // En móvil/escritorio SÍ hay path
+        fileCertificado = File(result.files.single.path!);
+        fileBytes = null; // o ambas, según necesites
       }
     });
   }
-}
+} */
 
   Widget _buildFileFormField(
     BuildContext context, {
@@ -1333,7 +1353,7 @@ Future<void> _pickFile() async {
           hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
           border: const OutlineInputBorder(),
         ),
-        onTap: () => _pickFile(),
+        onTap: () => _pickFileWeb(),
         validator: (value) {
           if (value == null || value.isEmpty) {
             return "Por favor selecciona un archivo PDF";
