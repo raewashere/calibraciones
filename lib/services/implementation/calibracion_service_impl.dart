@@ -13,7 +13,6 @@ class CalibracionServiceImpl implements CalibracionService {
   Future<bool> registrarCalibracionEquipo(
     CalibracionEquipo calibracionEquipo,
     Uint8List certificadoBytes,
-    File certificadoFile,
   ) async {
     //Obtener email usuario
     String? emailUsuario = supabase.auth.currentSession!.user.email;
@@ -44,31 +43,17 @@ class CalibracionServiceImpl implements CalibracionService {
           .insert(corrida.toJson());
     }
 
-    if (kIsWeb) {
-      await supabase.storage
-          .from('certificados')
-          .uploadBinary(
-            '${calibracionEquipo.certificadoCalibracion}.pdf',
-            certificadoBytes,
-            fileOptions: const FileOptions(
-              cacheControl: '3600',
-              upsert: false,
-              contentType: 'application/pdf',
-            ),
-          );
-    } else {
-      await supabase.storage
-          .from('certificados')
-          .upload(
-            '${calibracionEquipo.certificadoCalibracion}.pdf',
-            certificadoFile,
-            fileOptions: const FileOptions(
-              cacheControl: '3600',
-              upsert: false,
-              contentType: 'application/pdf',
-            ),
-          );
-    }
+    await supabase.storage
+        .from('certificados')
+        .uploadBinary(
+          '${calibracionEquipo.certificadoCalibracion}.pdf',
+          certificadoBytes,
+          fileOptions: const FileOptions(
+            cacheControl: '3600',
+            upsert: false,
+            contentType: 'application/pdf',
+          ),
+        );
 
     return true;
   }

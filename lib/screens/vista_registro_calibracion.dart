@@ -882,8 +882,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
       bool exito = await calibracionService.registrarCalibracionEquipo(
         _calibracionEquipo,
-        fileBytes!,
-        fileCertificado!,
+        fileBytes!
       );
 
       if (exito) {
@@ -1302,7 +1301,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       reader.readAsArrayBuffer(file);
       reader.onLoadEnd.listen((e) {
         _archivoController.text = file.name;
-        final fileBytes = reader.result as Uint8List;
+        fileBytes = reader.result as Uint8List;
         //print("Archivo: ${file.name}, bytes: ${fileBytes.length}");
       });
     });
