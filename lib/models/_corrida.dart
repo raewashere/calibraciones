@@ -7,7 +7,7 @@ class Corrida {
   late double presionPSI;
   late double meterFactor;
   late double kFactorPulseM3;
-  late double kFactoPulseBbl;
+  late double kFactorPulseBbl;
   late double repetibilidad;
   late double frecuenciaHz;
   late int idCalibracion;
@@ -21,7 +21,7 @@ class Corrida {
     this.presionPSI,
     this.meterFactor,
     this.kFactorPulseM3,
-    this.kFactoPulseBbl,
+    this.kFactorPulseBbl,
     this.repetibilidad,
     this.frecuenciaHz,
     this.idCalibracion,
@@ -35,7 +35,7 @@ class Corrida {
   double get getpresionPSI => presionPSI;
   double get getMeterFactor => meterFactor;
   double get getKFactorPulseM3 => kFactorPulseM3;
-  double get getKFactoPulseBbl => kFactoPulseBbl;
+  double get getkFactorPulseBbl => kFactorPulseBbl;
   double get getRepetibilidad => repetibilidad;
   double get getFrecuenciaHz => frecuenciaHz;
   int get getIdCalibracion => idCalibracion;
@@ -72,8 +72,8 @@ class Corrida {
     kFactorPulseM3 = value;
   }
 
-  set setKFactoPulseBbl(double value) {
-    kFactoPulseBbl = value;
+  set setkFactorPulseBbl(double value) {
+    kFactorPulseBbl = value;
   }
 
   set setRepetibilidad(double value) {
@@ -115,7 +115,7 @@ class Corrida {
       //'presion_psi': presionPSI,
       'meter_factor': meterFactor,
       'k_factor_pulsos_m3': kFactorPulseM3,
-      'k_factor_pulsos_bbl': kFactoPulseBbl,
+      'k_factor_pulsos_bbl': kFactorPulseBbl,
       'repetibilidad': repetibilidad,
       'frecuencia': frecuenciaHz,
       'id_calibracion': idCalibracion,

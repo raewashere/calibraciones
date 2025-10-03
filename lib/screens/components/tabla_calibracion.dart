@@ -2,20 +2,160 @@ import 'package:calibraciones/models/_corrida.dart';
 import 'package:flutter/material.dart';
 
 class TablaCalibracion extends StatelessWidget {
-
   //TablaCalibracion({super.key});
-  
+
   //Recibe parametros para llenar la tabla
   final Corrida corrida;
 
-  const TablaCalibracion({
-    super.key,
-    required this.corrida
-  });
+  const TablaCalibracion({super.key, required this.corrida});
 
   @override
   Widget build(BuildContext context) {
     return Table(
+      border: TableBorder.symmetric(
+        inside: const BorderSide(color: Colors.black, width: 1),
+        outside: const BorderSide(color: Colors.black, width: 2),
+      ),
+      children: [
+        TableRow(
+          decoration: BoxDecoration(color: Colors.grey[300]),
+          children: [
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Caudal (m3/hr)',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Caudal (bbl/hr)',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Temp. (°C)',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Presión (kg/cm2)',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Meter Factor',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Frecuencia (Hz)',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'K Factor (Pulsos/m3)',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'K Factor (Pulsos/bbl)',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Repetiblidad  (%)',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        TableRow(
+          decoration: BoxDecoration(color: Colors.grey[300]),
+          children: [
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                '${corrida.caudalM3Hr}',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                '${corrida.caudalBblHr}',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                '${corrida.temperaturaC}',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                '${corrida.presionKgCm2} (${corrida.presionPSI})',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                '${corrida.meterFactor}',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                '${corrida.frecuenciaHz}',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                '${corrida.kFactorPulseM3}',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                '${corrida.kFactorPulseBbl}',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                '${corrida.repetibilidad}',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+    /*return Table(
       border: TableBorder.symmetric(
         inside: const BorderSide(color: Colors.black, width: 1),
         outside: const BorderSide(color: Colors.black, width: 2),
@@ -142,6 +282,6 @@ class TablaCalibracion extends StatelessWidget {
           ],
         ),
       ],
-    );
+    );*/
   }
 }

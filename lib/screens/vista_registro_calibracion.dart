@@ -481,7 +481,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       context,
                                     ).colorScheme.onSecondary,
                                   ),
-                                  child: const Text('Siguiente paso'),
+                                  child: Text('Siguiente paso'),
                                 ),
                               ),
                             ],
@@ -720,20 +720,235 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       controllerText: _repetibilidadController,
                                     ),
                                     SizedBox(height: 20),
-                                    _listaCorridas.isNotEmpty
-                                        ? Column(children: _listaCorridas)
-                                        : Padding(
-                                            padding: EdgeInsets.all(20),
-                                            child: Text(
-                                              'No hay corridas registradas',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.primary,
+                                    Table(
+                                      border: TableBorder.symmetric(
+                                        inside: const BorderSide(
+                                          color: Colors.black,
+                                          width: 1,
+                                        ),
+                                        outside: const BorderSide(
+                                          color: Colors.black,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      children: [
+                                        TableRow(
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.tertiary,
+                                          ),
+                                          children: const [
+                                            Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'Caudal (m3/hr)',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
                                             ),
-                                          ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'Caudal (bbl/hr)',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'Temp. (°C)',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'Presión (kg/cm2)',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'Meter Factor',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'Frecuencia (Hz)',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'K Factor (Pulsos/m3)',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'K Factor (Pulsos/bbl)',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'Repetiblidad  (%)',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        ...(_corridasRegistradas.isNotEmpty
+                                            ? _corridasRegistradas
+                                                  .map(
+                                                    (corrida) => TableRow(
+                                                      decoration: BoxDecoration(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .tertiaryContainer,
+                                                      ),
+                                                      children: [
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                8.0,
+                                                              ),
+                                                          child: Text(
+                                                            corrida.caudalM3Hr
+                                                                .toString(),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                8.0,
+                                                              ),
+                                                          child: Text(
+                                                            corrida.caudalBblHr
+                                                                .toString(),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                8.0,
+                                                              ),
+                                                          child: Text(
+                                                            corrida.temperaturaC
+                                                                .toString(),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                8.0,
+                                                              ),
+                                                          child: Text(
+                                                            corrida.presionKgCm2
+                                                                .toString(),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                8.0,
+                                                              ),
+                                                          child: Text(
+                                                            corrida.meterFactor
+                                                                .toString(),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                8.0,
+                                                              ),
+                                                          child: Text(
+                                                            corrida.frecuenciaHz
+                                                                .toString(),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                8.0,
+                                                              ),
+                                                          child: Text(
+                                                            corrida
+                                                                .kFactorPulseM3
+                                                                .toString(),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                8.0,
+                                                              ),
+                                                          child: Text(
+                                                            corrida
+                                                                .kFactorPulseBbl
+                                                                .toString(),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                8.0,
+                                                              ),
+                                                          child: Text(
+                                                            corrida
+                                                                .repetibilidad
+                                                                .toString(),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )
+                                                  .toList()
+                                            : [
+                                                TableRow(
+                                                  decoration: BoxDecoration(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .tertiaryContainer,
+                                                  ),
+                                                  children: List.generate(
+                                                    9,
+                                                    (index) => Padding(
+                                                      padding: EdgeInsets.all(
+                                                        8.0,
+                                                      ),
+                                                      child: Text(''),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ]),
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),
@@ -882,7 +1097,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
       bool exito = await calibracionService.registrarCalibracionEquipo(
         _calibracionEquipo,
-        fileBytes!
+        fileBytes!,
       );
 
       if (exito) {
@@ -963,6 +1178,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       _frecuenciaController.clear();
       _repetibilidadController.clear();*/
     });
+
+    calcularLinealidad();
 
     // dar focus después de limpiar
     FocusScope.of(context).requestFocus(_focusNodeCaudal);
@@ -1362,5 +1579,29 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         },
       ),
     );
+  }
+
+  double calcularLinealidad() {
+    if (_corridasRegistradas.isEmpty) return 0.0;
+    
+    List<double> valores =
+        _corridasRegistradas.map((c) => c.getMeterFactor).toList();
+    // 1. Promedio
+    double promedio = valores.reduce((a, b) => a + b) / valores.length;
+
+    // 2. Calcular desviaciones absolutas respecto al promedio
+    List<double> desviaciones = valores
+        .map((v) => (v - promedio).abs())
+        .toList();
+
+    // 3. Obtener la máxima desviación
+    double maxDesviacion = desviaciones.reduce((a, b) => a > b ? a : b);
+
+    // 4. Porcentaje de linealidad
+    double porcentajeLinealidad = (maxDesviacion / promedio) * 100;
+
+    _linealidadController.text = porcentajeLinealidad.toStringAsFixed(2);
+
+    return porcentajeLinealidad;
   }
 }
