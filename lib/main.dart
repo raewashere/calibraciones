@@ -1,17 +1,19 @@
-import 'package:calibraciones/screens/vista_contrasenia.dart';
-import 'package:calibraciones/screens/vista_cuenta.dart';
-import 'package:calibraciones/screens/vista_detalle_calibracion.dart';
-import 'package:calibraciones/screens/vista_equipo.dart';
-import 'package:calibraciones/screens/vista_inicio.dart';
-import 'package:calibraciones/screens/vista_modificacion_datos.dart';
-import 'package:calibraciones/screens/vista_recuperacion_contrasenia.dart';
-import 'package:calibraciones/screens/vista_registro.dart';
-import 'package:calibraciones/screens/vista_registro_calibracion.dart';
-import 'package:calibraciones/screens/vista_reporte_calibracion.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'screens/vista_login.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+// Pantallas
+import 'screens/vista_login.dart';
+import 'screens/vista_inicio.dart';
+import 'screens/vista_registro.dart';
+import 'screens/vista_cuenta.dart';
+import 'screens/vista_contrasenia.dart';
+import 'screens/vista_recuperacion_contrasenia.dart';
+import 'screens/vista_modificacion_datos.dart';
+import 'screens/vista_equipo.dart';
+import 'screens/vista_detalle_calibracion.dart';
+import 'screens/vista_registro_calibracion.dart';
+import 'screens/vista_reporte_calibracion.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +22,7 @@ Future<void> main() async {
     anonKey:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprdmlld3ZwbXN3ZmdwaXdwb2V6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0NTgxMzQsImV4cCI6MjA3MDAzNDEzNH0.E5i81N4_usUAqcLySjGZUk7rGOFHOLBBk8p1nzYjHbw',
   );
-  runApp(PemexCalibraciones());
+  runApp(const PemexCalibraciones());
 }
 
 class PemexCalibraciones extends StatefulWidget {
@@ -32,154 +34,146 @@ class PemexCalibraciones extends StatefulWidget {
 
 class _MainState extends State<PemexCalibraciones> {
   final User? usuarioActual = Supabase.instance.client.auth.currentUser;
-  late String? token = "";
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Calibraciones',
-      theme: ThemeData(
-        colorScheme: const ColorScheme(
-          primary: Color(0xFF9B2247), // "#58111A"
-          onPrimary: Color(0xFFE3E1E1), // "#E3E1E1"
-          primaryContainer: Color(0xFFDE688C), // "#CC3448"
-          onPrimaryContainer: Color(0xFF161A1D), // "#131010"
-
-          secondary: Color(0xFF1E5B4F), // "#11584F"
-          onSecondary: Color(0xFFE3E1E1), // "#E3E1E1"
-          secondaryContainer: Color(0xFF57C7B0), // "#29A797"
-          onSecondaryContainer: Color(0xFF161A1D), // "#131010"
-
-          tertiary: Color(0xFFA57F2C), // "#2B1158"
-          onTertiary: Color(0xFF161A1D), // "#E3E1E1"
-          tertiaryContainer: Color(0xFFE6D194), // "#9472E7"
-          onTertiaryContainer: Color(0xFF000F08), // "#CCC5B9"
-          surface: Color(0xFF1E5B4F), // Default surface color
-          outline: Color(0xFF161A1D),
-          onSurface: Color(0xFF161A1D), // Default on surface color
-          error: Colors.red, // Default error color
-          onError: Colors.white, // Default on error color
-          brightness: Brightness.light, // Can be Brightness.dark for dark theme
-        ),
-        useMaterial3: true,
-        fontFamily: 'Roboto', // Font family
-        textTheme: const TextTheme(
-          displayLarge: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 57, // Tamaño sugerido por las nuevas guías de Material 3
-            fontWeight: FontWeight.bold,
-            letterSpacing: -0.25,
-          ),
-          displayMedium: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 45,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.0,
-          ),
-          displaySmall: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 36,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.0,
-          ),
-          headlineLarge: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.0,
-          ),
-          headlineMedium: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 28,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.0,
-          ),
-          headlineSmall: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 24,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 0.0,
-          ),
-          titleLarge: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 22,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 0.0,
-          ),
-          titleMedium: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 0.15,
-          ),
-          titleSmall: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 0.1,
-          ),
-          bodyLarge: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 0.5,
-          ),
-          bodyMedium: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 0.25,
-          ),
-          bodySmall: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 0.4,
-          ),
-          labelLarge: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 1.25,
-          ),
-          labelMedium: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 1.0,
-          ),
-          labelSmall: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
+      title: 'Calibraciones PEMEX',
+      debugShowCheckedModeBanner: false,
+      theme: _buildTheme(Brightness.light),
+      darkTheme: _buildTheme(Brightness.dark),
+      themeMode: ThemeMode.system,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('es', 'ES'), // Español
-        Locale('en', 'US'), // Inglés
-      ],
-      home: VistaLogin(),
+      supportedLocales: const [Locale('es', 'ES'), Locale('en', 'US')],
+      initialRoute: '/login',
       routes: {
-        '/login': (context) => VistaLogin(),
-        '/registro': (context) => VistaRegistro(),
-        '/inicio': (context) => VistaInicio(),
-        '/contrasenia': (context) => VistaContrasenia(),
-        '/detalle_calibracion': (context) => VistaDetalleCalibracion(),
-        '/registro_calibracion': (context) => VistaRegistroCalibracion(),
-        '/reporte_calibraciones': (context) => VistaReporteCalibracion(),
-        '/equipos': (context) => VistaEquipo(),
-        '/cuenta': (context) => VistaCuenta(),
+        '/login': (context) => const VistaLogin(),
+        '/registro': (context) => const VistaRegistro(),
+        '/inicio': (context) => const VistaInicio(),
+        '/contrasenia': (context) => const VistaContrasenia(),
+        '/detalle_calibracion': (context) => const VistaDetalleCalibracion(),
+        '/registro_calibracion': (context) => const VistaRegistroCalibracion(),
+        '/reporte_calibraciones': (context) => const VistaReporteCalibracion(),
+        '/equipos': (context) => const VistaEquipo(),
+        '/cuenta': (context) => const VistaCuenta(),
         '/recuperacion_contrasenia': (context) =>
-            VistaRecuperacionContrasenia(),
-        '/modificacion_datos': (context) => VistaModificacionDatos(),
+            const VistaRecuperacionContrasenia(),
+        '/modificacion_datos': (context) => const VistaModificacionDatos(),
       },
+    );
+  }
+
+  /// 🔧 Tema unificado con soporte claro/oscuro y mejor tipografía
+  ThemeData _buildTheme(Brightness brightness) {
+    final bool isDark = brightness == Brightness.dark;
+
+    final baseColorScheme = ColorScheme(
+      brightness: brightness,
+      primary: const Color(0xFF9B2247),
+      onPrimary: Colors.white,
+      primaryContainer: const Color(0xFFDE688C),
+      onPrimaryContainer: Colors.black,
+      secondary: const Color(0xFF1E5B4F),
+      onSecondary: Colors.white,
+      secondaryContainer: const Color(0xFF57C7B0),
+      onSecondaryContainer: Colors.black,
+      tertiary: const Color(0xFFA57F2C),
+      onTertiary: Colors.white,
+      tertiaryContainer: const Color(0xFFE6D194),
+      onTertiaryContainer: Colors.black,
+      surface: isDark ? const Color(0xFF121212) : Colors.white,
+      onSurface: isDark ? Colors.white : const Color(0xFF161A1D),
+      outline: isDark ? Colors.white54 : const Color(0xFF5F5F5F),
+      error: Colors.red,
+      onError: Colors.white,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: baseColorScheme,
+      scaffoldBackgroundColor: baseColorScheme.surface,
+      fontFamily: 'Montserrat', // 🎨 Fuente más moderna y elegante
+      textTheme: _buildTextTheme(baseColorScheme.onSurface),
+      appBarTheme: AppBarTheme(
+        backgroundColor: baseColorScheme.primary,
+        foregroundColor: baseColorScheme.onPrimary,
+        centerTitle: true,
+        elevation: 2,
+        titleTextStyle: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Montserrat',
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: baseColorScheme.surface,
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: isDark ? Colors.grey[800] : Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: baseColorScheme.outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: baseColorScheme.primary, width: 2),
+        ),
+        labelStyle: TextStyle(color: baseColorScheme.onSurface),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: baseColorScheme.primary,
+          foregroundColor: baseColorScheme.onPrimary,
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 🧩 Tipografía refinada
+  TextTheme _buildTextTheme(Color textColor) {
+    return TextTheme(
+      displayLarge: TextStyle(
+        fontSize: 56,
+        fontWeight: FontWeight.bold,
+        color: textColor,
+      ),
+      headlineMedium: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.w600,
+        color: textColor,
+      ),
+      titleLarge: TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.w500,
+        color: textColor,
+      ),
+      bodyLarge: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        color: textColor,
+      ),
+      bodyMedium: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: textColor,
+      ),
+      labelLarge: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        color: textColor,
+      ),
     );
   }
 }

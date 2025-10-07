@@ -1,7 +1,6 @@
 import 'dart:io' show File; // Esto solo se usa en móviles/escritorio
 import 'dart:html' as html;
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:calibraciones/models/_calibracion_equipo.dart';
 import 'package:calibraciones/models/_corrida.dart';
 import 'package:calibraciones/models/_direccion.dart';
@@ -19,7 +18,6 @@ import 'package:calibraciones/services/implementation/calibracion_service_impl.d
 import 'package:calibraciones/services/implementation/direccion_service_impl.dart';
 import 'package:calibraciones/services/implementation/laboratorio_calibracion_service_impl.dart';
 import 'package:calibraciones/services/laboratorio_calibracion_service.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -170,7 +168,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double m3 = double.tryParse(value) ?? 0;
       double bbl = m3 * factor;
-      _caudalBblController.text = bbl.toStringAsFixed(5);
+      _caudalBblController.text = bbl.toStringAsFixed(2);
     } else {
       _caudalBblController.clear();
     }
@@ -183,7 +181,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double bbl = double.tryParse(value) ?? 0;
       double m3 = bbl / factor;
-      _caudalM3Controller.text = m3.toStringAsFixed(5);
+      _caudalM3Controller.text = m3.toStringAsFixed(2);
     } else {
       _caudalM3Controller.clear();
     }
@@ -196,7 +194,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double pm3 = double.tryParse(value) ?? 0;
       double pbbl = pm3 * factor;
-      _kFactorPulsosBblController.text = pbbl.toStringAsFixed(5);
+      _kFactorPulsosBblController.text = pbbl.toStringAsFixed(2);
     } else {
       _kFactorPulsosBblController.clear();
     }
@@ -209,7 +207,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double pbbl = double.tryParse(value) ?? 0;
       double pm3 = pbbl / factor;
-      _kFactorPulsosM3Controller.text = pm3.toStringAsFixed(5);
+      _kFactorPulsosM3Controller.text = pm3.toStringAsFixed(2);
     } else {
       _kFactorPulsosM3Controller.clear();
     }
@@ -222,7 +220,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double psi = double.tryParse(value) ?? 0;
       double kgcm2 = (psi * factorPresion);
-      _presionPSIController.text = kgcm2.toStringAsFixed(5);
+      _presionPSIController.text = kgcm2.toStringAsFixed(2);
     } else {
       _presionPSIController.clear();
     }
@@ -235,7 +233,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double kgcm2 = double.tryParse(value) ?? 0;
       double psi = (kgcm2 / factorPresion);
-      _presionController.text = psi.toStringAsFixed(5);
+      _presionController.text = psi.toStringAsFixed(2);
     } else {
       _presionController.clear();
     }
@@ -738,85 +736,283 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                               context,
                                             ).colorScheme.tertiary,
                                           ),
-                                          children: const [
-                                            Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text(
-                                                'Caudal (m3/hr)',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
+                                          children: [
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'Caudal',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                            Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text(
-                                                'Caudal (bbl/hr)',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'Caudal',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                            Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text(
-                                                'Temp. (°C)',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'Temperatura',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                            Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text(
-                                                'Presión (kg/cm2)',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'Presión',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                            Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text(
-                                                'Meter Factor',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'Meter',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                            Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text(
-                                                'Frecuencia (Hz)',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'Frecuencia',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                            Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text(
-                                                'K Factor (Pulsos/m3)',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'K Factor',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                            Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text(
-                                                'K Factor (Pulsos/bbl)',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'K Factor',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                            Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text(
-                                                'Repetiblidad  (%)',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'Repetibilidad',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        TableRow(
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.tertiary,
+                                          ),
+                                          children: [
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'm3/hr',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'bbl/hr',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  '°C',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'kg/cm2',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'Factor',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'Hz',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'Pulsos/m3',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'Pulsos/bbl',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  '%',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -832,97 +1028,165 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                             .tertiaryContainer,
                                                       ),
                                                       children: [
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                8.0,
+                                                        TableCell(
+                                                          child: Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            padding:
+                                                                const EdgeInsets.all(
+                                                                  2.0,
+                                                                ),
+                                                            child: Text(
+                                                              corrida.caudalM3Hr
+                                                                  .toString(),
+                                                              style: TextStyle(
+                                                                fontSize: 10,
                                                               ),
-                                                          child: Text(
-                                                            corrida.caudalM3Hr
-                                                                .toString(),
+                                                            ),
                                                           ),
                                                         ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                8.0,
+                                                        TableCell(
+                                                          child: Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            padding:
+                                                                const EdgeInsets.all(
+                                                                  2.0,
+                                                                ),
+                                                            child: Text(
+                                                              corrida
+                                                                  .caudalBblHr
+                                                                  .toString(),
+                                                              style: TextStyle(
+                                                                fontSize: 10,
                                                               ),
-                                                          child: Text(
-                                                            corrida.caudalBblHr
-                                                                .toString(),
+                                                            ),
                                                           ),
                                                         ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                8.0,
+                                                        TableCell(
+                                                          child: Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            padding:
+                                                                const EdgeInsets.all(
+                                                                  2.0,
+                                                                ),
+                                                            child: Text(
+                                                              corrida
+                                                                  .temperaturaC
+                                                                  .toString(),
+                                                              style: TextStyle(
+                                                                fontSize: 10,
                                                               ),
-                                                          child: Text(
-                                                            corrida.temperaturaC
-                                                                .toString(),
+                                                            ),
                                                           ),
                                                         ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                8.0,
+                                                        TableCell(
+                                                          child: Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                  2.0,
+                                                                ),
+                                                            child: Text(
+                                                              corrida
+                                                                  .presionKgCm2
+                                                                  .toString(),
+                                                              style: TextStyle(
+                                                                fontSize: 10,
                                                               ),
-                                                          child: Text(
-                                                            corrida.presionKgCm2
-                                                                .toString(),
+                                                            ),
                                                           ),
                                                         ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                8.0,
+                                                        TableCell(
+                                                          child: Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                  2.0,
+                                                                ),
+                                                            child: Text(
+                                                              corrida
+                                                                  .meterFactor
+                                                                  .toString(),
+                                                              style: TextStyle(
+                                                                fontSize: 10,
                                                               ),
-                                                          child: Text(
-                                                            corrida.meterFactor
-                                                                .toString(),
+                                                            ),
                                                           ),
                                                         ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                8.0,
+                                                        TableCell(
+                                                          child: Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                  2.0,
+                                                                ),
+                                                            child: Text(
+                                                              corrida
+                                                                  .frecuenciaHz
+                                                                  .toString(),
+                                                              style: TextStyle(
+                                                                fontSize: 10,
                                                               ),
-                                                          child: Text(
-                                                            corrida.frecuenciaHz
-                                                                .toString(),
+                                                            ),
                                                           ),
                                                         ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                8.0,
+                                                        TableCell(
+                                                          child: Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                  2.0,
+                                                                ),
+                                                            child: Text(
+                                                              corrida
+                                                                  .kFactorPulseM3
+                                                                  .toString(),
+                                                                style: TextStyle(
+                                                                  fontSize: 10,
                                                               ),
-                                                          child: Text(
-                                                            corrida
-                                                                .kFactorPulseM3
-                                                                .toString(),
+                                                            ),
                                                           ),
                                                         ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                8.0,
+                                                        TableCell(
+                                                          child: Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                  2.0,
+                                                                ),
+                                                            child: Text(
+                                                              corrida
+                                                                  .kFactorPulseBbl
+                                                                  .toString(),
+                                                              style: TextStyle(
+                                                                fontSize: 10,
                                                               ),
-                                                          child: Text(
-                                                            corrida
-                                                                .kFactorPulseBbl
-                                                                .toString(),
+                                                            ),
                                                           ),
                                                         ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.all(
-                                                                8.0,
+                                                        TableCell(
+                                                          child: Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                  2.0,
+                                                                ),
+                                                            child: Text(
+                                                              corrida
+                                                                  .repetibilidad
+                                                                  .toString(),
+                                                              style: TextStyle(
+                                                                fontSize: 10,
                                                               ),
-                                                          child: Text(
-                                                            corrida
-                                                                .repetibilidad
-                                                                .toString(),
+                                                            ),
                                                           ),
                                                         ),
                                                       ],
@@ -940,7 +1204,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                     9,
                                                     (index) => Padding(
                                                       padding: EdgeInsets.all(
-                                                        8.0,
+                                                        2.0,
                                                       ),
                                                       child: Text(''),
                                                     ),
@@ -1096,7 +1360,13 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       );
 
       bool exito = await calibracionService.registrarCalibracionEquipo(
-        _calibracionEquipo,
+        direccionSeleccionada!.nombre,
+        subdireccionSeleccionada!.nombre,
+        gerenciaSeleccionada!.nombre,
+        instalacionSeleccionada!.nombreInstalacion,
+        patinMedicionSeleccionado!.getTagPatin,
+        trenMedicionSeleccionado!.tagTren,
+        _calibracionEquipo, 
         fileBytes!,
       );
 
@@ -1158,8 +1428,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       double.tryParse(_meterFactorController.text) ?? 0,
       double.tryParse(_kFactorPulsosM3Controller.text) ?? 0,
       double.tryParse(_kFactorPulsosBblController.text) ?? 0,
-      double.tryParse(_frecuenciaController.text) ?? 0,
       double.tryParse(_repetibilidadController.text) ?? 0,
+      double.tryParse(_frecuenciaController.text) ?? 0,
       0,
     );
 
@@ -1582,12 +1852,21 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   double calcularLinealidad() {
-    if (_corridasRegistradas.isEmpty) return 0.0;
-    
-    List<double> valores =
-        _corridasRegistradas.map((c) => c.getMeterFactor).toList();
+    if (_corridasRegistradas.isEmpty) {
+      _linealidadController.text = '0.00';
+      return 0.0;
+    }
+
+    List<double> valores = _corridasRegistradas
+        .map((c) => c.getMeterFactor)
+        .toList();
     // 1. Promedio
     double promedio = valores.reduce((a, b) => a + b) / valores.length;
+
+    if(promedio == 0) {
+      _linealidadController.text = '0.00';
+      return 0.0;
+    }
 
     // 2. Calcular desviaciones absolutas respecto al promedio
     List<double> desviaciones = valores

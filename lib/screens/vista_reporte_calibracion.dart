@@ -7,13 +7,13 @@ class VistaReporteCalibracion extends StatefulWidget {
   const VistaReporteCalibracion({super.key});
 
   @override
-  State<StatefulWidget> createState() => _InfiniteScrollCatalogoState();
+  State<VistaReporteCalibracion> createState() => _VistaReporteCalibracionState();
 }
 
-class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
+class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
   final ScrollController _scrollController = ScrollController();
   List<CalibracionEquipo> calibracionesEquipos = [];
-  CalibracionService calibracionService = CalibracionServiceImpl();
+  final CalibracionService calibracionService = CalibracionServiceImpl();
   bool _isLoading = false;
   int _currentOffset = 0;
   final int _limit = 10;
@@ -21,31 +21,33 @@ class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
   @override
   void initState() {
     super.initState();
-    _fetchMoreObras();
+    _fetchMoreCalibraciones();
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
-        _fetchMoreObras();
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+        _fetchMoreCalibraciones();
       }
     });
   }
 
-  Future<void> _fetchMoreObras() async {
+  Future<void> _fetchMoreCalibraciones() async {
     if (_isLoading) return;
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
+    final nuevas = await calibracionService.obtenerCalibracionesEquipo(_currentOffset, _limit);
 
-    // Espera el resultado de obtener_catalogo
-    List<CalibracionEquipo> newObras =
-      await calibracionService.obtenerCalibracionesEquipo(_currentOffset, _limit);
-    //print(newObras.length);
     setState(() {
-      calibracionesEquipos.addAll(newObras);
+      calibracionesEquipos.addAll(nuevas);
       _currentOffset += _limit;
       _isLoading = false;
     });
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _currentOffset = 0;
+      calibracionesEquipos.clear();
+    });
+    await _fetchMoreCalibraciones();
   }
 
   @override
@@ -56,151 +58,133 @@ class _InfiniteScrollCatalogoState extends State<VistaReporteCalibracion> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.onPrimary,
-      floatingActionButton: Stack(
-        children: [
-          Positioned(
-            bottom: 16,
-            right: 16,
-            child: FloatingActionButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    duration: const Duration(seconds: 2),
-                    behavior: SnackBarBehavior.floating,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.tertiaryContainer,
-                    content: Text('Descargando reporte'),
-                  ),
-                );
-              }, // Icono del botón (puedes cambiarlo)
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              tooltip: 'Descargar',
-              child: Icon(Icons.download),
-            ),
-          ),
-          Positioned(
-            bottom: 16,
-            right: 80,
-            child: FloatingActionButton(
-              onPressed: () {
-                _abrirFormulario(context);
-              }, // Icono del botón (puedes cambiarlo)
-              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-              tooltip: 'Filtrar',
-              child: Icon(Icons.filter_list),
-            ),
-          ),
-        ],
-      ),
-      body: ListView.builder(
-        padding: EdgeInsets.all(10),
-        controller: _scrollController,
-        itemCount: calibracionesEquipos.length + 1,
-        itemBuilder: (context, index) {
-          if (index < calibracionesEquipos.length) {
+      backgroundColor: theme.colorScheme.surface,
+      floatingActionButton: _botonesAccion(context),
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: ListView.builder(
+          controller: _scrollController,
+          padding: const EdgeInsets.all(12),
+          itemCount: calibracionesEquipos.length + (_isLoading ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index >= calibracionesEquipos.length) {
+              return const Padding(
+                padding: EdgeInsets.all(20),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+
             final calibracion = calibracionesEquipos[index];
-            return ListTile(
-              textColor: Theme.of(context).colorScheme.secondary,
-              tileColor: Theme.of(context).colorScheme.onPrimary,
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(calibracion.certificadoCalibracion),
-                        Text(
-                          'Fecha calibración: ${calibracion.fechaCalibracion}',
-                        ),
-                        Text(
-                          'Próxima calibración: ${calibracion.fechaProximaCalibracion}',
-                        ),
-                        Text('Equipo: ${calibracion.tagEquipo}'),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: "Ver detalle",
-                    color: Theme.of(context).colorScheme.tertiary,
-                    icon: Icon(
-                      Icons.zoom_in,
-                    ), // Icono del botón (puedes cambiarlo)
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/detalle_calibracion',
-                        arguments: calibracion,
-                      );
-                    },
-                  ),
-                ],
+            return Card(
+              elevation: 3,
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                leading: CircleAvatar(
+                  backgroundColor: theme.colorScheme.secondaryContainer,
+                  child: Icon(Icons.build, color: theme.colorScheme.onSecondaryContainer),
+                ),
+                title: Text(
+                  calibracion.certificadoCalibracion,
+                  style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.primary),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    Text('Equipo: ${calibracion.tagEquipo}'),
+                    Text('Fecha: ${calibracion.fechaCalibracion}'),
+                    Text('Próxima: ${calibracion.fechaProximaCalibracion}'),
+                  ],
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.zoom_in),
+                  color: theme.colorScheme.tertiary,
+                  tooltip: "Ver detalle",
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/detalle_calibracion', arguments: calibracion);
+                  },
+                ),
               ),
             );
-          } else if (_isLoading) {
-            return Center(child: CircularProgressIndicator());
-          } else {
-            return SizedBox.shrink();
-          }
-        },
+          },
+        ),
       ),
+    );
+  }
+
+  Widget _botonesAccion(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FloatingActionButton(
+          heroTag: "btnDescargar",
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                duration: const Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: theme.colorScheme.primaryContainer,
+                content: const Text('Descargando reporte...'),
+              ),
+            );
+          },
+          backgroundColor: theme.colorScheme.primaryContainer,
+          child: const Icon(Icons.download),
+        ),
+        const SizedBox(height: 12),
+        FloatingActionButton(
+          heroTag: "btnFiltrar",
+          onPressed: () => _abrirFormulario(context),
+          backgroundColor: theme.colorScheme.secondaryContainer,
+          child: const Icon(Icons.filter_list),
+        ),
+      ],
     );
   }
 
   void _abrirFormulario(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
+        final theme = Theme.of(context);
         return AlertDialog(
-          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-          title: Text('Filtrar por'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          backgroundColor: theme.colorScheme.surfaceContainer,
+          title: Text('Filtrar Calibraciones', style: TextStyle(color: theme.colorScheme.primary)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
+            children: const [
+              SizedBox(height: 8),
               TextField(decoration: InputDecoration(labelText: 'TAG')),
+              SizedBox(height: 8),
               TextField(decoration: InputDecoration(labelText: 'SERIE')),
+              SizedBox(height: 8),
               TextField(decoration: InputDecoration(labelText: 'TIPO')),
-              // Agrega más campos según sea necesario
             ],
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra el formulario
-              },
-              child: Text(
-                'Cancelar',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancelar', style: TextStyle(color: theme.colorScheme.secondary)),
             ),
-            TextButton(
-              onPressed: () async {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    duration: const Duration(seconds: 2),
-                    behavior: SnackBarBehavior.floating,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.tertiaryContainer,
-                    content: Text('Filtrando'),
-                  ),
-                );
-                // Lógica para guardar los datos del formulario
-                Navigator.of(
-                  context,
-                ).pop(); // Cierra el formulario después de guardar
-              },
-              child: Text(
-                'Guardar',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Aplicando filtro...')),
+                );
+              },
+              child: const Text('Aplicar'),
             ),
           ],
         );

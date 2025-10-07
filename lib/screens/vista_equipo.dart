@@ -2,30 +2,35 @@ import 'package:calibraciones/dto/dto_equipo.dart';
 import 'package:calibraciones/services/equipo_service.dart';
 import 'package:calibraciones/services/implementation/equipo_service_impl.dart';
 import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart'; // <-- Para animaciones suaves (añádelo a pubspec.yaml)
 
 class VistaEquipo extends StatefulWidget {
   const VistaEquipo({super.key});
 
   @override
-  State<StatefulWidget> createState() => _InfiniteScrollCatalogoState();
+  State<StatefulWidget> createState() => _VistaEquipoState();
 }
 
-class _InfiniteScrollCatalogoState extends State<VistaEquipo> {
+class _VistaEquipoState extends State<VistaEquipo> {
   final ScrollController _scrollController = ScrollController();
+  final EquipoService _equipoService = EquipoServiceImpl();
+
   List<DtoEquipo> equipos = [];
-  final bool _isLoading = false;
-  EquipoService equipoService = EquipoServiceImpl();
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    equipoService.obtenerAllEquipos().then((value) {
-      setState(() {
-        equipos = value;
-      });
-    });
+    _cargarEquipos();
   }
 
+  Future<void> _cargarEquipos() async {
+    final resultado = await _equipoService.obtenerAllEquipos();
+    setState(() {
+      equipos = resultado;
+      _isLoading = false;
+    });
+  }
 
   @override
   void dispose() {
@@ -33,160 +38,198 @@ class _InfiniteScrollCatalogoState extends State<VistaEquipo> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.onPrimary,
-      floatingActionButton: Stack(
-        children: [
-          Positioned(
-            bottom: 16,
-            right: 16,
-            child: FloatingActionButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    duration: const Duration(seconds: 2),
-                    behavior: SnackBarBehavior.floating,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.tertiaryContainer,
-                    content: Text('Abriendo formulario'),
-                  ),
-                );
-              }, // Icono del botón (puedes cambiarlo)
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              tooltip: 'Agregar equipo',
-              child: Icon(Icons.add),
-            ),
-          ),
-          Positioned(
-            bottom: 16,
-            right: 80,
-            child: FloatingActionButton(
-              onPressed: () {
-                _abrirFormulario(context);
-              }, // Icono del botón (puedes cambiarlo)
-              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-              tooltip: 'Filtrar',
-              child: Icon(Icons.filter_list),
-            ),
-          ),
-        ],
-      ),
-      body: ListView.builder(
-        padding: EdgeInsets.all(10),
-        controller: _scrollController,
-        itemCount: equipos.length + 1,
-        itemBuilder: (context, index) {
-          if (index < equipos.length) {
-            final equipo = equipos[index];
-            return ListTile(
-              contentPadding: EdgeInsets.all(12),
-              textColor: Theme.of(context).colorScheme.secondary,
-              tileColor: Theme.of(context).colorScheme.onPrimary,
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(equipo.tagEquipo),
-                        Text('Tipo de sensor: ${equipo.tipoSensor}'),
-                        Text(
-                          'Marca: ${equipo.marca}',
-                        ),
-                        Text('Modelo: ${equipo.modelo}'),
-                        Text(
-                          'Estado: ${equipo.estado}',
-                        ),
-                        
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: "Ver detalle",
-                    color: Theme.of(context).colorScheme.tertiary,
-                    icon: Icon(
-                      Icons.zoom_in,
-                    ), // Icono del botón (puedes cambiarlo)
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/detalle_calibracion',
-                        arguments: equipo,
-                      );
-                    },
-                  ),
-                ],
-              ),
-            );
-          } else if (_isLoading) {
-            return Center(child: CircularProgressIndicator());
-          } else {
-            return SizedBox.shrink();
-          }
-        },
-      ),
-    );
-  }
-
-  void _abrirFormulario(BuildContext context) {
+  void _mostrarFormularioFiltro() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-          title: Text('Filtrar por'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(decoration: InputDecoration(labelText: 'TAG')),
-              TextField(decoration: InputDecoration(labelText: 'SERIE')),
-              TextField(decoration: InputDecoration(labelText: 'TIPO')),
-              // Agrega más campos según sea necesario
-            ],
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra el formulario
-              },
-              child: Text(
-                'Cancelar',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Wrap(
+              runSpacing: 12,
+              children: [
+                Text(
+                  'Filtrar equipos',
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    duration: const Duration(seconds: 2),
-                    behavior: SnackBarBehavior.floating,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.tertiaryContainer,
-                    content: Text('Filtrando'),
+                const SizedBox(height: 12),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'TAG',
+                    prefixIcon: Icon(Icons.label),
                   ),
-                );
-                // Lógica para guardar los datos del formulario
-                Navigator.of(
-                  context,
-                ).pop(); // Cierra el formulario después de guardar
-              },
-              child: Text(
-                'Guardar',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
-              ),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Serie',
+                    prefixIcon: Icon(Icons.confirmation_number),
+                  ),
+                ),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Tipo de sensor',
+                    prefixIcon: Icon(Icons.sensors),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancelar'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Aplicando filtros...'),
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                          ),
+                        );
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.filter_alt),
+                      label: const Text('Aplicar'),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
+    );
+  }
+
+  void _mostrarFormularioNuevo() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Abriendo formulario para nuevo equipo...'),
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      ),
+    );
+    // TODO: Lógica para navegar o abrir formulario
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(
+        title: const Text('Equipos de Calibración'),
+        actions: [
+          IconButton(
+            tooltip: "Filtrar equipos",
+            icon: const Icon(Icons.filter_list),
+            onPressed: _mostrarFormularioFiltro,
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _mostrarFormularioNuevo,
+        icon: const Icon(Icons.add),
+        label: const Text('Agregar'),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: _cargarEquipos,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: equipos.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No hay equipos registrados',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      )
+                    : GridView.builder(
+                        controller: _scrollController,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 1, // Cambia a 2 para modo tablet
+                              childAspectRatio: 2.8,
+                              mainAxisSpacing: 10,
+                            ),
+                        itemCount: equipos.length,
+                        itemBuilder: (context, index) {
+                          final equipo = equipos[index];
+                          return FadeInUp(
+                            duration: const Duration(milliseconds: 400),
+                            child: Card(
+                              elevation: 3,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            equipo.tagEquipo,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            'Tipo: ${equipo.tipoSensor ?? '—'}',
+                                          ),
+                                          Text('Marca: ${equipo.marca ?? '—'}'),
+                                          Text(
+                                            'Modelo: ${equipo.modelo ?? '—'}',
+                                          ),
+                                          Text(
+                                            'Estado: ${equipo.estado ?? '—'}',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    IconButton(
+                                      tooltip: "Ver detalle",
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.tertiary,
+                                      icon: const Icon(Icons.zoom_in),
+                                      onPressed: () {
+                                        Navigator.pushNamed(
+                                          context,
+                                          '/detalle_calibracion',
+                                          arguments: equipo,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ),
     );
   }
 }

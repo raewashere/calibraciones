@@ -1,16 +1,20 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:calibraciones/models/_calibracion_equipo.dart';
 import 'package:calibraciones/models/_corrida.dart';
 import 'package:calibraciones/services/calibracion_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 class CalibracionServiceImpl implements CalibracionService {
   final SupabaseClient supabase = Supabase.instance.client;
 
   @override
   Future<bool> registrarCalibracionEquipo(
+    String direccionSeleccionada,
+    String subdireccionSeleccionada,
+    String gerenciaSeleccionada,
+    String instalacionSeleccionada,
+    String patinSeleccionado,
+    String trenSeleccionado,
     CalibracionEquipo calibracionEquipo,
     Uint8List certificadoBytes,
   ) async {
@@ -46,7 +50,7 @@ class CalibracionServiceImpl implements CalibracionService {
     await supabase.storage
         .from('certificados')
         .uploadBinary(
-          '${calibracionEquipo.certificadoCalibracion}.pdf',
+          '$patinSeleccionado/$trenSeleccionado/${calibracionEquipo.tagEquipo}/${calibracionEquipo.certificadoCalibracion}.pdf',
           certificadoBytes,
           fileOptions: const FileOptions(
             cacheControl: '3600',
