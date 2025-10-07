@@ -11,468 +11,614 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+
     return Scaffold(
+      backgroundColor: colors.surface,
       appBar: AppBar(
         centerTitle: true,
+        backgroundColor: colors.primary,
         iconTheme: IconThemeData(color: colors.onPrimary),
-        actionsIconTheme: IconThemeData(color: colors.onPrimary),
         title: Row(
           children: [
             Image.asset(
-              'assets/images/pemex_logo_blanco.png', // o Image.network(...)
-              height: 50,
-              width: 50,
+              'assets/images/pemex_logo_blanco.png',
+              height: 40,
+              width: 40,
             ),
             const SizedBox(width: 8),
             Text(
               'Detalle de Calibración',
               style: TextStyle(
-                fontSize: Theme.of(context).textTheme.titleLarge?.fontSize,
-                color: Theme.of(context).colorScheme.onSecondary,
+                color: colors.onPrimary,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
         ),
-        backgroundColor: colors.primary,
       ),
-      backgroundColor: colors.onPrimary,
+
       body: SingleChildScrollView(
-        child: Container(
-          width: double.maxFinite,
-          decoration: BoxDecoration(color: colors.secondary),
-          child: Container(
-            width: double.maxFinite,
-            decoration: BoxDecoration(
-              color: colors.secondaryContainer,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    color: colors.onPrimary,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(60),
-                      topRight: Radius.circular(60),
-                      bottomLeft: Radius.circular(60),
-                      bottomRight: Radius.circular(60),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ======== INFORMACIÓN GENERAL =========
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Información de la Calibración",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colors.primary,
+                      ),
                     ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    const Divider(),
+                    const SizedBox(height: 8),
+                    _buildInfoRow("Certificado", "12345"),
+                    _buildInfoRow("Fecha de calibración", "2023-10-01"),
+                    _buildInfoRow("Laboratorio", "Laboratorio XYZ"),
+                    _buildInfoRow(
+                      "Dirección",
+                      "Logística y Salvaguardia Estratégica",
+                    ),
+                    _buildInfoRow("Subdirección", "Transporte"),
+                    _buildInfoRow(
+                      "Gerencia",
+                      "Transporte, Mantenimiento y Servicio de Ductos",
+                    ),
+                    _buildInfoRow("Instalación", "ERM Pajaritos"),
+                    const SizedBox(height: 12),
+                    Center(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Abriendo certificado...'),
+                              backgroundColor: colors.tertiaryContainer,
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.picture_as_pdf),
+                        label: const Text('Ver Certificado'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.primary,
+                          foregroundColor: colors.onPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Información de la Calibración",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colors.primary,
+                      ),
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 8),
+                    _buildInfoRow("TAG", "EQ-12345"),
+                    _buildInfoRow("Estado", "Operando"),
+                    _buildInfoRow("Marca", "Marca XYZ"),
+                    _buildInfoRow("Modelo", "Modelo ABC"),
+                    _buildInfoRow("Tipo de medición", "Dinámica"),
+                    _buildInfoRow("Tipo de equipo", "Sensor de presión"),
+                    _buildInfoRow("Computadora de flujo", "OMNI 3000"),
+                    _buildInfoRow("Incertidumbre", "±0.5%"),
+                    _buildInfoRow("Intervalo de calibración", "12 meses"),
+                    _buildInfoRow("Intervalo de verificación", "6 meses"),
+
+                    const SizedBox(height: 12),
+                    Center(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Abriendo certificado...'),
+                              backgroundColor: colors.tertiaryContainer,
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.picture_as_pdf),
+                        label: const Text('Ver Certificado'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.primary,
+                          foregroundColor: colors.onPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // ======== TABLA DE CORRIDAS =========
+            Card(
+              color: colors.onPrimary,
+              elevation: 1,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Table(
+                      border: TableBorder.symmetric(
+                        inside: const BorderSide(color: Colors.black, width: 1),
+                        outside: const BorderSide(
+                          color: Colors.black,
+                          width: 2,
+                        ),
+                      ),
                       children: [
-                        SizedBox(height: 15),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Información de la Calibración",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: colors.tertiary,
+                        TableRow(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                          children: [
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'Caudal',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Certificado de calibración: 12345",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'Caudal',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Fecha de calibración: 2023-10-01",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'Temperatura',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Laboratorio de calibración: Laboratorio XYZ",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'Presión',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Direccion: Logistica y Salvaguardia Estrategica",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'Meter',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Subdireccion: Transporte",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'Frecuencia',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Gerencia: Transporte, Mantenimiento y Servicio de Ductos",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'K Factor',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Instalación: ERM Pajaritos",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'K Factor',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'Repetibilidad',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // Aquí puedes agregar la lógica para descargar el certificado
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    duration: const Duration(seconds: 2),
-                                    behavior: SnackBarBehavior.floating,
-                                    backgroundColor: Theme.of(
+                        TableRow(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                          children: [
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'm3/hr',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'bbl/hr',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  '°C',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'kg/cm2',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'Factor',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'Hz',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'Pulsos/m3',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  'Pulsos/bbl',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            TableCell(
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(2.0),
+                                child: const Text(
+                                  '%',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        /*...(_corridasRegistradas.isNotEmpty
+                            ? _corridasRegistradas
+                                  .map(
+                                    (corrida) => TableRow(
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.tertiaryContainer,
+                                      ),
+                                      children: [
+                                        TableCell(
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            padding: const EdgeInsets.all(2.0),
+                                            child: Text(
+                                              corrida.caudalM3Hr.toString(),
+                                              style: TextStyle(fontSize: 10),
+                                            ),
+                                          ),
+                                        ),
+                                        TableCell(
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            padding: const EdgeInsets.all(2.0),
+                                            child: Text(
+                                              corrida.caudalBblHr.toString(),
+                                              style: TextStyle(fontSize: 10),
+                                            ),
+                                          ),
+                                        ),
+                                        TableCell(
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            padding: const EdgeInsets.all(2.0),
+                                            child: Text(
+                                              corrida.temperaturaC.toString(),
+                                              style: TextStyle(fontSize: 10),
+                                            ),
+                                          ),
+                                        ),
+                                        TableCell(
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            padding: EdgeInsets.all(2.0),
+                                            child: Text(
+                                              corrida.presionKgCm2.toString(),
+                                              style: TextStyle(fontSize: 10),
+                                            ),
+                                          ),
+                                        ),
+                                        TableCell(
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            padding: EdgeInsets.all(2.0),
+                                            child: Text(
+                                              corrida.meterFactor.toString(),
+                                              style: TextStyle(fontSize: 10),
+                                            ),
+                                          ),
+                                        ),
+                                        TableCell(
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            padding: EdgeInsets.all(2.0),
+                                            child: Text(
+                                              corrida.frecuenciaHz.toString(),
+                                              style: TextStyle(fontSize: 10),
+                                            ),
+                                          ),
+                                        ),
+                                        TableCell(
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            padding: EdgeInsets.all(2.0),
+                                            child: Text(
+                                              corrida.kFactorPulseM3.toString(),
+                                              style: TextStyle(fontSize: 10),
+                                            ),
+                                          ),
+                                        ),
+                                        TableCell(
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            padding: EdgeInsets.all(2.0),
+                                            child: Text(
+                                              corrida.kFactorPulseBbl
+                                                  .toString(),
+                                              style: TextStyle(fontSize: 10),
+                                            ),
+                                          ),
+                                        ),
+                                        TableCell(
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            padding: EdgeInsets.all(2.0),
+                                            child: Text(
+                                              corrida.repetibilidad.toString(),
+                                              style: TextStyle(fontSize: 10),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                  .toList()
+                            : [
+                                TableRow(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(
                                       context,
                                     ).colorScheme.tertiaryContainer,
-                                    content: Text('Abriendo certificado...'),
                                   ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.primary,
-                              ),
-                              child: Text(
-                                'Ver Certificado',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        // Aquí puedes agregar más widgets para mostrar los detalles de la calibración
+                                  children: List.generate(
+                                    9,
+                                    (index) => Padding(
+                                      padding: EdgeInsets.all(2.0),
+                                      child: Text(''),
+                                    ),
+                                  ),
+                                ),
+                              ]),
+                              */
                       ],
                     ),
-                  ),
+                  ],
                 ),
-                SizedBox(height: 20),
-                Container(
-                  decoration: BoxDecoration(
-                    color: colors.onPrimary,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(60),
-                      topRight: Radius.circular(60),
-                      bottomLeft: Radius.circular(60),
-                      bottomRight: Radius.circular(60),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // ======== OBSERVACIONES =========
+            Card(
+              color: colors.onPrimary,
+              elevation: 1,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Observaciones",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colors.primary,
+                      ),
                     ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 15),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Equipo Calibrado",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: colors.tertiary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "TAG del equipo: EQ-12345",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Estado del equipo: Operando",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Marca del equipo: Marca XYZ",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Modelo del equipo: Modelo ABC",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Tipo de medición: Dinámica",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Tipo de equipo: Sensor de presión",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Computadora de flujo: OMNI 3000",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Incertidumbre de medición: ±0.5%",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Intervalo de calibración: 12 meses",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Intervalo de verificación: 6 meses",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        // Aquí puedes agregar más widgets para mostrar los detalles de la calibración
-                      ],
+                    const Divider(),
+                    const SizedBox(height: 8),
+                    _buildInfoRow("Linealidad", "0.01%"),
+                    _buildInfoRow("Reproducibilidad", "0.02%"),
+                    const SizedBox(height: 8),
+                    Text(
+                      "No se encontraron observaciones durante la calibración.",
+                      style: TextStyle(fontSize: 16, color: colors.secondary),
                     ),
-                  ),
+                  ],
                 ),
-                SizedBox(height: 20),
-                Container(
-                  decoration: BoxDecoration(
-                    color: colors.onPrimary,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(60),
-                      topRight: Radius.circular(60),
-                      bottomLeft: Radius.circular(60),
-                      bottomRight: Radius.circular(60),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 15),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Corridas de Calibración",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: colors.tertiary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                Container(
-                  decoration: BoxDecoration(
-                    color: colors.onPrimary,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(60),
-                      topRight: Radius.circular(60),
-                      bottomLeft: Radius.circular(60),
-                      bottomRight: Radius.circular(60),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 15),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Observaciones",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: colors.tertiary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Lineablidad: 0.01%",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "Reproducibilidad: 0.02%",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "No se encontraron observaciones durante la calibración.",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: colors.secondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                // Aquí puedes agregar más widgets para mostrar los detalles de la calibración
-              ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// --- Helper para filas de información ---
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 4,
+            child: Text(
+              "$label:",
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-        ),
+          Expanded(flex: 6, child: Text(value)),
+        ],
       ),
     );
   }

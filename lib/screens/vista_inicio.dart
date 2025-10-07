@@ -49,8 +49,8 @@ class VistaInicioState extends State<VistaInicio> {
       ),
       body: vistas[seleccionActual],
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: colors.primaryContainer,
-        backgroundColor: colors.primaryContainer,
+        selectedItemColor: colors.tertiaryContainer,
+        backgroundColor: colors.tertiary,
         currentIndex: seleccionActual,
         onTap: (value) {
           setState(() {
@@ -62,27 +62,27 @@ class VistaInicioState extends State<VistaInicio> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Inicio',
-            backgroundColor: colors.onPrimary,
+            backgroundColor: colors.secondary,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.tune),
             label: 'Registra calibración',
-            backgroundColor: colors.onPrimary,
+            backgroundColor: colors.secondary,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.table_view),
             label: 'Reporte calibraciones',
-            backgroundColor: colors.onPrimary,
+            backgroundColor: colors.secondary,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.monitor_rounded),
             label: 'Equipos',
-            backgroundColor: colors.onPrimary,
+            backgroundColor: colors.secondary,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle),
             label: 'Cuenta',
-            backgroundColor: colors.onPrimary,
+            backgroundColor: colors.secondary,
           ),
         ],
       ),

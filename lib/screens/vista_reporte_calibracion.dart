@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:calibraciones/models/_calibracion_equipo.dart';
 import 'package:calibraciones/services/calibracion_service.dart';
 import 'package:calibraciones/services/implementation/calibracion_service_impl.dart';
@@ -7,7 +8,8 @@ class VistaReporteCalibracion extends StatefulWidget {
   const VistaReporteCalibracion({super.key});
 
   @override
-  State<VistaReporteCalibracion> createState() => _VistaReporteCalibracionState();
+  State<VistaReporteCalibracion> createState() =>
+      _VistaReporteCalibracionState();
 }
 
 class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
@@ -23,7 +25,8 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
     super.initState();
     _fetchMoreCalibraciones();
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
         _fetchMoreCalibraciones();
       }
     });
@@ -33,7 +36,10 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
     if (_isLoading) return;
 
     setState(() => _isLoading = true);
-    final nuevas = await calibracionService.obtenerCalibracionesEquipo(_currentOffset, _limit);
+    final nuevas = await calibracionService.obtenerCalibracionesEquipo(
+      _currentOffset,
+      _limit,
+    );
 
     setState(() {
       calibracionesEquipos.addAll(nuevas);
@@ -59,7 +65,6 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       floatingActionButton: _botonesAccion(context),
@@ -78,36 +83,54 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
             }
 
             final calibracion = calibracionesEquipos[index];
-            return Card(
-              elevation: 3,
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                leading: CircleAvatar(
-                  backgroundColor: theme.colorScheme.secondaryContainer,
-                  child: Icon(Icons.build, color: theme.colorScheme.onSecondaryContainer),
+            return FadeInUp(
+              duration: const Duration(milliseconds: 400),
+              child: Card(
+                elevation: 3,
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                title: Text(
-                  calibracion.certificadoCalibracion,
-                  style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.primary),
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 4),
-                    Text('Equipo: ${calibracion.tagEquipo}'),
-                    Text('Fecha: ${calibracion.fechaCalibracion}'),
-                    Text('Próxima: ${calibracion.fechaProximaCalibracion}'),
-                  ],
-                ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.zoom_in),
-                  color: theme.colorScheme.tertiary,
-                  tooltip: "Ver detalle",
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/detalle_calibracion', arguments: calibracion);
-                  },
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  leading: CircleAvatar(
+                    backgroundColor: theme.colorScheme.secondaryContainer,
+                    child: Icon(
+                      Icons.build,
+                      color: theme.colorScheme.onSecondaryContainer,
+                    ),
+                  ),
+                  title: Text(
+                    calibracion.certificadoCalibracion,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 4),
+                      Text('Equipo: ${calibracion.tagEquipo}'),
+                      Text('Fecha: ${calibracion.fechaCalibracion}'),
+                      Text('Próxima: ${calibracion.fechaProximaCalibracion}'),
+                    ],
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.zoom_in),
+                    color: theme.colorScheme.tertiary,
+                    tooltip: "Ver detalle",
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/detalle_calibracion',
+                        arguments: calibracion,
+                      );
+                    },
+                  ),
                 ),
               ),
             );
@@ -154,9 +177,14 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
       builder: (context) {
         final theme = Theme.of(context);
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           backgroundColor: theme.colorScheme.surfaceContainer,
-          title: Text('Filtrar Calibraciones', style: TextStyle(color: theme.colorScheme.primary)),
+          title: Text(
+            'Filtrar Calibraciones',
+            style: TextStyle(color: theme.colorScheme.primary),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: const [
@@ -171,18 +199,23 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancelar', style: TextStyle(color: theme.colorScheme.secondary)),
+              child: Text(
+                'Cancelar',
+                style: TextStyle(color: theme.colorScheme.secondary),
+              ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: theme.colorScheme.primary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               onPressed: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Aplicando filtro...')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Aplicando filtro...')));
               },
               child: const Text('Aplicar'),
             ),

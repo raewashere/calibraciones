@@ -120,18 +120,9 @@ class _VistaEquipoState extends State<VistaEquipo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        title: const Text('Equipos de Calibración'),
-        actions: [
-          IconButton(
-            tooltip: "Filtrar equipos",
-            icon: const Icon(Icons.filter_list),
-            onPressed: _mostrarFormularioFiltro,
-          ),
-        ],
-      ),
+      backgroundColor: theme.colorScheme.surface,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _mostrarFormularioNuevo,
         icon: const Icon(Icons.add),
@@ -150,14 +141,8 @@ class _VistaEquipoState extends State<VistaEquipo> {
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       )
-                    : GridView.builder(
+                    : ListView.builder(
                         controller: _scrollController,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 1, // Cambia a 2 para modo tablet
-                              childAspectRatio: 2.8,
-                              mainAxisSpacing: 10,
-                            ),
                         itemCount: equipos.length,
                         itemBuilder: (context, index) {
                           final equipo = equipos[index];
@@ -165,63 +150,52 @@ class _VistaEquipoState extends State<VistaEquipo> {
                             duration: const Duration(milliseconds: 400),
                             child: Card(
                               elevation: 3,
+                              margin: const EdgeInsets.symmetric(vertical: 8),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                   vertical: 12,
                                 ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                leading: CircleAvatar(
+                                  backgroundColor:
+                                      theme.colorScheme.secondaryContainer,
+                                  child: Icon(
+                                    Icons.monitor_rounded,
+                                    color:
+                                        theme.colorScheme.onSecondaryContainer,
+                                  ),
+                                ),
+                                title: Text(
+                                  equipo.tagEquipo,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            equipo.tagEquipo,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            'Tipo: ${equipo.tipoSensor ?? '—'}',
-                                          ),
-                                          Text('Marca: ${equipo.marca ?? '—'}'),
-                                          Text(
-                                            'Modelo: ${equipo.modelo ?? '—'}',
-                                          ),
-                                          Text(
-                                            'Estado: ${equipo.estado ?? '—'}',
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    IconButton(
-                                      tooltip: "Ver detalle",
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.tertiary,
-                                      icon: const Icon(Icons.zoom_in),
-                                      onPressed: () {
-                                        Navigator.pushNamed(
-                                          context,
-                                          '/detalle_calibracion',
-                                          arguments: equipo,
-                                        );
-                                      },
-                                    ),
+                                    const SizedBox(height: 4),
+                                    Text('Tipo: ${equipo.tipoSensor}'),
+                                    Text('Marca: ${equipo.marca}'),
+                                    Text('Modelo: ${equipo.modelo}'),
+                                    Text('Estado: ${equipo.estado}'),
                                   ],
+                                ),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.zoom_in),
+                                  color: theme.colorScheme.tertiary,
+                                  tooltip: "Ver detalle",
+                                  onPressed: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      '/detalle_calibracion',
+                                      arguments: equipo,
+                                    );
+                                  },
                                 ),
                               ),
                             ),

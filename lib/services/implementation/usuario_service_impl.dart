@@ -77,7 +77,6 @@ class UsuarioServiceImpl implements UsuarioService {
 
       return true;
     } catch (e) {
-      print('Error al registrar usuario: $e');
       return false;
     }
   }
