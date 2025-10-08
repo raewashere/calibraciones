@@ -193,7 +193,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingPulsosM3 = true);
     if (value.isNotEmpty) {
       double pm3 = double.tryParse(value) ?? 0;
-      double pbbl = pm3 * factor;
+      double pbbl = pm3 / factor;
       _kFactorPulsosBblController.text = pbbl.toStringAsFixed(2);
     } else {
       _kFactorPulsosBblController.clear();
@@ -206,7 +206,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingPulsosBbl = true);
     if (value.isNotEmpty) {
       double pbbl = double.tryParse(value) ?? 0;
-      double pm3 = pbbl / factor;
+      double pm3 = pbbl * factor;
       _kFactorPulsosM3Controller.text = pm3.toStringAsFixed(2);
     } else {
       _kFactorPulsosM3Controller.clear();
@@ -464,24 +464,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                 ),
                               ),
                               SizedBox(height: 20),
-                              Center(
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    FocusScope.of(
-                                      context,
-                                    ).requestFocus(_focusNodeLaboratorio);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.secondary,
-                                    foregroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.onSecondary,
-                                  ),
-                                  child: Text('Siguiente paso'),
-                                ),
-                              ),
                             ],
                           ),
                         ),
@@ -577,24 +559,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                 ),
                               ),
                               SizedBox(height: 20),
-                              Center(
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    FocusScope.of(
-                                      context,
-                                    ).requestFocus(_focusNodeCaudal);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.secondary,
-                                    foregroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.onSecondary,
-                                  ),
-                                  child: const Text('Siguiente paso'),
-                                ),
-                              ),
                             ],
                           ),
                         ),
