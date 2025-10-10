@@ -158,7 +158,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   bool _editingPulsosBbl = false;
   bool _editingPresion = false;
   bool _editingPresionPSI = false;
-  bool _editingPresionKPa = false;
+  final bool _editingPresionKPa = false;
 
   static const double factor = 6.28981; // m³/h a bbl/h
   static const double factorPulsos = 0.158987; // bbl → m³

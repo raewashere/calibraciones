@@ -2,6 +2,7 @@ import 'package:calibraciones/models/_usuario.dart';
 
 abstract class UsuarioService {
   Future<bool> registrarUsuario(
+    String fichaEmpleado,
     String correoElectronico,
     String nombre,
     String primerApellido,

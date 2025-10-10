@@ -11,6 +11,7 @@ class UsuarioServiceImpl implements UsuarioService {
       "https://n8n-1xb0.onrender.com/webhook/31f9de4b-5677-4e3a-aa03-31e7174c7b6a";
   @override
   Future<bool> registrarUsuario(
+    String fichaEmpleado,
     String correoElectronico,
     String nombre,
     String primerApellido,
@@ -38,6 +39,7 @@ class UsuarioServiceImpl implements UsuarioService {
             .from('usuario')
             .insert([
               {
+                'ficha_empleado': fichaEmpleado,
                 'correo_electronico': correoElectronico,
                 'nombre': nombre,
                 'primer_apellido': primerApellido,
@@ -55,6 +57,7 @@ class UsuarioServiceImpl implements UsuarioService {
         http.post(
           Uri.parse(urlN8N),
           body: jsonEncode({
+            'ficha_empleado': fichaEmpleado,
             'email_por_aprobar': correoElectronico,
             'nombre': '$nombre $primerApellido $segundoApellido',
             'telefono': telefono,

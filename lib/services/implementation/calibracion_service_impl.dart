@@ -71,6 +71,7 @@ class CalibracionServiceImpl implements CalibracionService {
       final response = await supabase
           .from('calibracion_equipo')
           .select()
+          .order( 'id_calibracion', ascending: false)
           .range(offset, offset + limit - 1);
 
       // response ya es una List<Map<String, dynamic>>

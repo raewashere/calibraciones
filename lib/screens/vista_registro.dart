@@ -20,6 +20,7 @@ class VistaRegistroState extends State<VistaRegistro> {
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _primerController = TextEditingController();
   final TextEditingController _segundoController = TextEditingController();
+  final TextEditingController _fichaController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _telefonoController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -220,6 +221,13 @@ class VistaRegistroState extends State<VistaRegistro> {
                               ),
                               _buildTextFormField(
                                 context,
+                                hintText: "Ficha empleado",
+                                validatorText:
+                                    'Favor de escribir tu ficha de empleado',
+                                controllerText: _fichaController,
+                              ),
+                              _buildTextFormField(
+                                context,
                                 hintText: "Correo electrónico",
                                 validatorText:
                                     'Favor de escribir tu correo electrónico',
@@ -284,6 +292,7 @@ class VistaRegistroState extends State<VistaRegistro> {
                                             );
                                             respuestaRegistro = await usuarioService
                                                 .registrarUsuario(
+                                                  _fichaController.text,
                                                   _emailController.text,
                                                   _nombreController.text,
                                                   _primerController.text,

@@ -44,9 +44,9 @@ class VistaBienvenida extends StatelessWidget {
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
-              onTap: () {
+              /*onTap: () {
                 Navigator.pushNamed(context, '/registro_calibracion');
-              },
+              },*/
             ),
             SizedBox(height: 16),
             ListTile(
@@ -65,9 +65,9 @@ class VistaBienvenida extends StatelessWidget {
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
-              onTap: () {
+              /*onTap: () {
                 Navigator.pushNamed(context, '/reporte_calibraciones');
-              },
+              },*/
             ),
             SizedBox(height: 16),
             ListTile(
@@ -86,9 +86,9 @@ class VistaBienvenida extends StatelessWidget {
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
-              onTap: () {
+              /*onTap: () {
                 Navigator.pushNamed(context, '/equipos');
-              }
+              }*/
             ),
             SizedBox(height: 16),
             ListTile(
@@ -107,9 +107,9 @@ class VistaBienvenida extends StatelessWidget {
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
-              onTap: () {
+              /*onTap: () {
                 Navigator.pushNamed(context, '/cuenta');
-              }
+              }*/
             ),
             SizedBox(height: 80),
           ],
