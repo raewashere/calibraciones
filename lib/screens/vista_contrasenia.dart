@@ -1,3 +1,5 @@
+import 'package:calibraciones/services/implementation/usuario_service_impl.dart';
+import 'package:calibraciones/services/usuario_service.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -15,6 +17,8 @@ class VistaContraseniaState extends State<VistaContrasenia> {
 
   InputDecoration _inputDecoration(String label) =>
       InputDecoration(labelText: label, border: const OutlineInputBorder());
+
+  UsuarioService usuarioService = UsuarioServiceImpl();
 
   @override
   Widget build(BuildContext context) {
@@ -122,6 +126,31 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                                   if (_formularioCorreo.currentState!
                                       .validate()) {
                                     try {
+                                      final usuario = await usuarioService
+                                          .obtenerUsuario(
+                                            _emailController.text,
+                                          );
+                                      if (usuario == null) {
+                                        if (!mounted) return;
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            duration: const Duration(
+                                              seconds: 2,
+                                            ),
+                                            behavior: SnackBarBehavior.floating,
+                                            backgroundColor: Theme.of(
+                                              context,
+                                            ).colorScheme.tertiaryContainer,
+                                            content: Text(
+                                              'No se encontró una cuenta ligada a ${_emailController.text}',
+                                            ),
+                                          ),
+                                        );
+                                        return;
+                                      }
+
                                       await supabase.auth.resetPasswordForEmail(
                                         _emailController.text,
                                       );
@@ -171,9 +200,7 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                                     context,
                                   ).colorScheme.onSecondary,
                                 ),
-                                child: const Text(
-                                  'Enviar PIN de recuperación',
-                                ),
+                                child: const Text('Enviar PIN de recuperación'),
                               ),
                               const SizedBox(height: 30),
                             ],

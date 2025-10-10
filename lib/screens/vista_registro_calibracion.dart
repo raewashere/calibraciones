@@ -47,9 +47,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   //Datos corridas
   final TextEditingController _caudalM3Controller = TextEditingController();
   final TextEditingController _caudalBblController = TextEditingController();
-  final TextEditingController _temperaturaController = TextEditingController();
+  final TextEditingController _temperaturaCentigradosController = TextEditingController();
+  final TextEditingController _temperaturaFahrenheitController = TextEditingController();
   final TextEditingController _presionController = TextEditingController();
   final TextEditingController _presionPSIController = TextEditingController();
+  final TextEditingController _presionKPaController = TextEditingController();
   final TextEditingController _meterFactorController = TextEditingController();
   final TextEditingController _kFactorPulsosM3Controller =
       TextEditingController();
@@ -113,8 +115,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       });
     }
   }
-
-  final FocusNode _focusNodeLaboratorio = FocusNode();
   final FocusNode _focusNodeCaudal = FocusNode();
 
   DireccionService direccionService = DireccionServiceImpl();
@@ -152,10 +152,13 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
   bool _editingM3 = false;
   bool _editingBbl = false;
+  bool _editingCelsius = false;
+  bool _editingFahrenheit = false;
   bool _editingPulsosM3 = false;
   bool _editingPulsosBbl = false;
   bool _editingPresion = false;
   bool _editingPresionPSI = false;
+  bool _editingPresionKPa = false;
 
   static const double factor = 6.28981; // m³/h a bbl/h
   static const double factorPulsos = 0.158987; // bbl → m³
@@ -218,11 +221,14 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (_editingPresionPSI) return; // evita recursividad
     setState(() => _editingPresion = true);
     if (value.isNotEmpty) {
-      double psi = double.tryParse(value) ?? 0;
-      double kgcm2 = (psi * factorPresion);
-      _presionPSIController.text = kgcm2.toStringAsFixed(2);
+      double kgcm2 = double.tryParse(value) ?? 0;
+      double psi = (kgcm2 * factorPresion) / 10000;
+      _presionPSIController.text = psi.toStringAsFixed(3);
+      double kPa = (kgcm2 / 0.101972) / 1000;
+      _presionKPaController.text = kPa.toStringAsFixed(3);
     } else {
       _presionPSIController.clear();
+      _presionKPaController.clear();
     }
     setState(() => _editingPresion = false);
   }
@@ -231,13 +237,58 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (_editingPresion) return; // evita recursividad
     setState(() => _editingPresionPSI = true);
     if (value.isNotEmpty) {
-      double kgcm2 = double.tryParse(value) ?? 0;
-      double psi = (kgcm2 / factorPresion);
-      _presionController.text = psi.toStringAsFixed(2);
+      double psi = double.tryParse(value) ?? 0;
+      double kgcm2 = (psi / factorPresion) * 10000;
+      _presionController.text = kgcm2.toStringAsFixed(3);
+      double kPa = (kgcm2 / 0.101972) / 1000;
+      _presionKPaController.text = kPa.toStringAsFixed(3);
     } else {
       _presionController.clear();
+      _presionKPaController.clear();
     }
     setState(() => _editingPresionPSI = false);
+  }
+
+  void _onPresionKPaChanged(String value) {
+    if (_editingPresionPSI) return; // evita recursividad
+    setState(() => _editingPresion = true);
+    if (value.isNotEmpty) {
+      double kPa = double.tryParse(value) ?? 0;
+      double kgcm2 = kPa * 101.972;
+      _presionController.text = kgcm2.toStringAsFixed(3);
+      double psi = (kgcm2 * factorPresion) / 10000;
+      _presionPSIController.text = psi.toStringAsFixed(3);
+    } else {
+      _presionController.clear();
+      _presionPSIController.clear();
+    }
+    setState(() => _editingPresion = false);
+  }
+
+  void _onCelsiusChanged(String value) {
+    if (_editingFahrenheit) return; // evita recursividad
+    setState(() => _editingCelsius = true);
+    if (value.isNotEmpty) {
+      double celsius = double.tryParse(value) ?? 0;
+      double fahrenheit = (celsius * 9 / 5) + 32;
+      _temperaturaFahrenheitController.text = fahrenheit.toStringAsFixed(2);
+    } else {
+      _temperaturaFahrenheitController.clear();
+    }
+    setState(() => _editingCelsius = false);
+  }
+
+  void _onFahrenheitChanged(String value) {
+    if (_editingCelsius) return; // evita recursividad
+    setState(() => _editingFahrenheit = true);
+    if (value.isNotEmpty) {
+      double fahrenheit = double.tryParse(value) ?? 0;
+      double celsius = (fahrenheit - 32) * 5 / 9;
+      _temperaturaCentigradosController.text = celsius.toStringAsFixed(2);
+    } else {
+      _temperaturaCentigradosController.clear();
+    }
+    setState(() => _editingFahrenheit = false);
   }
 
   bool validarEmail(String email) {
@@ -602,45 +653,105 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                 ),
                                 child: Column(
                                   children: <Widget>[
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "Caudal (m3/hr)",
-                                      validatorText:
-                                          'Favor de escribir el caudal',
-                                      controllerText: _caudalM3Controller,
-                                      focusNode: _focusNodeCaudal,
-                                      onChanged: _onCaudalM3Changed,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _buildTextFormField(
+                                            context,
+                                            hintText: "Caudal (m³/hr)",
+                                            validatorText:
+                                                'Favor de escribir el caudal',
+                                            controllerText: _caudalM3Controller,
+                                            focusNode: _focusNodeCaudal,
+                                            onChanged: _onCaudalM3Changed,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 12,
+                                        ), // separación entre campos
+                                        Expanded(
+                                          child: _buildTextFormField(
+                                            context,
+                                            hintText: "Caudal (bbl/hr)",
+                                            validatorText:
+                                                'Favor de escribir el caudal',
+                                            controllerText:
+                                                _caudalBblController,
+                                            onChanged: _onCaudalBblChanged,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "Caudal (bbl/hr)",
-                                      validatorText:
-                                          'Favor de escribir el caudal',
-                                      controllerText: _caudalBblController,
-                                      onChanged: _onCaudalBblChanged,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _buildTextFormField(
+                                            context,
+                                            hintText: "Temperatura (°C)",
+                                            validatorText:
+                                                'Favor de escribir la temperatura',
+                                            controllerText:
+                                                _temperaturaCentigradosController,
+                                            onChanged: _onCelsiusChanged,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 12,
+                                        ), // separación entre campos
+                                        Expanded(
+                                          child: _buildTextFormField(
+                                              context,
+                                              hintText: "Temperatura (°F)",
+                                              validatorText:
+                                                  'Favor de escribir la temperatura',
+                                              controllerText:
+                                                  _temperaturaFahrenheitController,
+                                              onChanged: _onFahrenheitChanged,
+                                            ),
+                                        ),
+                                      ],
                                     ),
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "Temperatura (°C)",
-                                      validatorText:
-                                          'Favor de escribir la temperatura',
-                                      controllerText: _temperaturaController,
-                                    ),
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "Presión (kg/cm2)",
-                                      validatorText:
-                                          'Favor de escribir la presión',
-                                      controllerText: _presionController,
-                                      onChanged: _onPresionChanged,
-                                    ),
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "Presión (PSI)",
-                                      validatorText:
-                                          'Favor de escribir la presión',
-                                      controllerText: _presionPSIController,
-                                      onChanged: _onPresionPSIChanged,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _buildTextFormField(
+                                            context,
+                                            hintText: "Presión (kg/cm2)",
+                                            validatorText:
+                                                'Favor de escribir la presión',
+                                            controllerText: _presionController,
+                                            onChanged: _onPresionChanged,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 12,
+                                        ), // separación entre campos
+                                        Expanded(
+                                          child: _buildTextFormField(
+                                            context,
+                                            hintText: "Presión (PSI)",
+                                            validatorText:
+                                                'Favor de escribir la presión',
+                                            controllerText:
+                                                _presionPSIController,
+                                            onChanged: _onPresionPSIChanged,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 12,
+                                        ), // separación entre campos
+                                        Expanded(
+                                          child: _buildTextFormField(
+                                            context,
+                                            hintText: "Presión (kPa)",
+                                            validatorText:
+                                                'Favor de escribir la presión',
+                                            controllerText:
+                                                _presionKPaController,
+                                            onChanged: _onPresionKPaChanged,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                     _buildTextFormField(
                                       context,
@@ -649,24 +760,36 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           'Favor de escribir el Meter Factor',
                                       controllerText: _meterFactorController,
                                     ),
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "K Factor (pulsos/m3)",
-                                      validatorText:
-                                          'Favor de escribir el K Factor (pulsos/m3)',
-                                      controllerText:
-                                          _kFactorPulsosM3Controller,
-                                      onChanged: _onPulsosM3Changed,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _buildTextFormField(
+                                            context,
+                                            hintText: "K Factor (pulsos/m3)",
+                                            validatorText:
+                                                'Favor de escribir el K Factor (pulsos/m3)',
+                                            controllerText:
+                                                _kFactorPulsosM3Controller,
+                                            onChanged: _onPulsosM3Changed,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 12,
+                                        ), // separación entre campos
+                                        Expanded(
+                                          child: _buildTextFormField(
+                                            context,
+                                            hintText: "K Factor (pulsos/bbl)",
+                                            validatorText:
+                                                'Favor de escribir el K Factor (pulsos/bbl)',
+                                            controllerText:
+                                                _kFactorPulsosBblController,
+                                            onChanged: _onPulsosBblChanged,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "K Factor (pulsos/bbl)",
-                                      validatorText:
-                                          'Favor de escribir el K Factor (pulsos/bbl)',
-                                      controllerText:
-                                          _kFactorPulsosBblController,
-                                      onChanged: _onPulsosBblChanged,
-                                    ),
+
                                     _buildTextFormField(
                                       context,
                                       hintText: "Frecuencia (Hz)",
@@ -836,6 +959,21 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                 ),
                                               ),
                                             ),
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'X',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
                                           ],
                                         ),
                                         TableRow(
@@ -980,6 +1118,21 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                 ),
                                               ),
                                             ),
+                                            TableCell(
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                padding: const EdgeInsets.all(
+                                                  2.0,
+                                                ),
+                                                child: const Text(
+                                                  'X',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
                                           ],
                                         ),
                                         ...(_corridasRegistradas.isNotEmpty
@@ -1111,8 +1264,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                               corrida
                                                                   .kFactorPulseM3
                                                                   .toString(),
-                                                                style: TextStyle(
-                                                                  fontSize: 10,
+                                                              style: TextStyle(
+                                                                fontSize: 10,
                                                               ),
                                                             ),
                                                           ),
@@ -1153,6 +1306,42 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                             ),
                                                           ),
                                                         ),
+                                                        TableCell(
+                                                          child: Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                  2.0,
+                                                                ),
+                                                            child: IconButton(
+                                                              icon: Icon(
+                                                                Icons.delete,
+                                                                size: 8,
+                                                              ),
+                                                              onPressed: () {
+                                                                setState(() {
+                                                                  int index =
+                                                                      _corridasRegistradas.indexWhere(
+                                                                    (c) =>
+                                                                        c.idCorrida ==
+                                                                        corrida
+                                                                            .idCorrida,
+                                                                  );
+                                                                  _corridasRegistradas
+                                                                      .removeWhere(
+                                                                        (c) =>
+                                                                        
+                                                                            c.idCorrida ==
+                                                                            corrida.idCorrida,
+                                                                      );
+                                                                  _listaCorridas.removeAt(index);
+                                                                });
+                                                                calcularLinealidad();
+                                                              },
+                                                            ),
+                                                          ),
+                                                        ),
                                                       ],
                                                     ),
                                                   )
@@ -1165,7 +1354,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                         .tertiaryContainer,
                                                   ),
                                                   children: List.generate(
-                                                    9,
+                                                    10,
                                                     (index) => Padding(
                                                       padding: EdgeInsets.all(
                                                         2.0,
@@ -1193,6 +1382,21 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                     ).colorScheme.onSecondary,
                                   ),
                                   child: const Text('Agregar corrida'),
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Center(
+                                child: ElevatedButton(
+                                  onPressed: _limpiaCorrida,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    foregroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimary,
+                                  ),
+                                  child: const Text('Limpiar corrida'),
                                 ),
                               ),
                             ],
@@ -1330,7 +1534,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         instalacionSeleccionada!.nombreInstalacion,
         patinMedicionSeleccionado!.getTagPatin,
         trenMedicionSeleccionado!.tagTren,
-        _calibracionEquipo, 
+        _calibracionEquipo,
         fileBytes!,
       );
 
@@ -1357,7 +1561,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           _observacionesController.clear();
           _caudalM3Controller.clear();
           _caudalBblController.clear();
-          _temperaturaController.clear();
+          _temperaturaCentigradosController.clear();
           _presionController.clear();
           _presionPSIController.clear();
           _meterFactorController.clear();
@@ -1386,7 +1590,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       _listaCorridas.length + 1,
       double.tryParse(_caudalM3Controller.text) ?? 0,
       double.tryParse(_caudalBblController.text) ?? 0,
-      double.tryParse(_temperaturaController.text) ?? 0,
+      double.tryParse(_temperaturaCentigradosController.text) ?? 0,
       double.tryParse(_presionController.text) ?? 0,
       double.tryParse(_presionPSIController.text) ?? 0,
       double.tryParse(_meterFactorController.text) ?? 0,
@@ -1403,7 +1607,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       // limpiar inputs al terminar
       /*_caudalM3Controller.clear();
       _caudalBblController.clear();
-      _temperaturaController.clear();
+      _temperaturaCentigradosController.clear();
       _presionController.clear();
       _presionPSIController.clear();
       _meterFactorController.clear();
@@ -1416,6 +1620,25 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     calcularLinealidad();
 
     // dar focus después de limpiar
+    FocusScope.of(context).requestFocus(_focusNodeCaudal);
+  }
+
+  void _limpiaCorrida() {
+    setState(() {
+      _caudalM3Controller.clear();
+      _caudalBblController.clear();
+      _temperaturaCentigradosController.clear();
+      _temperaturaFahrenheitController.clear();
+      _presionController.clear();
+      _presionPSIController.clear();
+      _presionKPaController.clear();
+      _meterFactorController.clear();
+      _kFactorPulsosM3Controller.clear();
+      _kFactorPulsosBblController.clear();
+      _frecuenciaController.clear();
+      _repetibilidadController.clear();
+    });
+
     FocusScope.of(context).requestFocus(_focusNodeCaudal);
   }
 
@@ -1446,11 +1669,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           return null;
         },
         onChanged: onChanged,
-        onTap: () {
-          setState(() {
-            controllerText.text = '';
-          });
-        },
       ),
     );
   }
@@ -1827,7 +2045,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     // 1. Promedio
     double promedio = valores.reduce((a, b) => a + b) / valores.length;
 
-    if(promedio == 0) {
+    if (promedio == 0) {
       _linealidadController.text = '0.00';
       return 0.0;
     }
