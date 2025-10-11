@@ -3,8 +3,10 @@ class Corrida {
   late double caudalM3Hr;
   late double caudalBblHr;
   late double temperaturaC;
+  late double temperaturaF;
   late double presionKgCm2;
   late double presionPSI;
+  late double presionKPa;
   late double meterFactor;
   late double kFactorPulseM3;
   late double kFactorPulseBbl;
@@ -17,8 +19,10 @@ class Corrida {
     this.caudalM3Hr,
     this.caudalBblHr,
     this.temperaturaC,
+    this.temperaturaF,
     this.presionKgCm2,
     this.presionPSI,
+    this.presionKPa,
     this.meterFactor,
     this.kFactorPulseM3,
     this.kFactorPulseBbl,
@@ -31,8 +35,10 @@ class Corrida {
   double get getCaudalM3Hr => caudalM3Hr;
   double get getCaudalBblHr => caudalBblHr;
   double get getTemperaturaC => temperaturaC;
+  double get getTemperaturaF => temperaturaF;
   double get getpresionKgCm2 => presionKgCm2;
   double get getpresionPSI => presionPSI;
+  double get getpresionKPa => presionKPa;
   double get getMeterFactor => meterFactor;
   double get getKFactorPulseM3 => kFactorPulseM3;
   double get getkFactorPulseBbl => kFactorPulseBbl;
@@ -56,12 +62,20 @@ class Corrida {
     temperaturaC = value;
   }
 
+  set setTemperaturaF(double value) {
+    temperaturaF = value;
+  }
+
   set setpresionKgCm2(double value) {
     presionKgCm2 = value;
   }
 
   set setpresionPSI(double value) {
     presionPSI = value;
+  }
+
+  set setpresionKPa(double value) {
+    presionKPa = value;
   }
 
   set setMeterFactor(double value) {
@@ -94,8 +108,10 @@ class Corrida {
       corridaJson['caudal_m3_hr'],
       corridaJson['caudal_bbl_hr'],
       corridaJson['temperatura_c'],
+      corridaJson['temperatura_f'],
       corridaJson['presion_kg_cm2'],
       corridaJson['presion_psi'],
+      corridaJson['presion_kpa'],
       corridaJson['meter_factor'],
       corridaJson['k_factor_pulse_m3'],
       corridaJson['k_factor_pulse_bbl'],
@@ -111,8 +127,10 @@ class Corrida {
       'caudal_m3_hr': caudalM3Hr,
       'caudal_bbl_hr': caudalBblHr,
       'temperatura_c': temperaturaC,
-      'presion_kg_m2': presionKgCm2,
-      //'presion_psi': presionPSI,
+      'temperatura_f': temperaturaF,
+      'presion_kg_cm2': presionKgCm2,
+      'presion_psi': presionPSI,
+      'presion_kpa': presionKPa,
       'meter_factor': meterFactor,
       'k_factor_pulsos_m3': kFactorPulseM3,
       'k_factor_pulsos_bbl': kFactorPulseBbl,
