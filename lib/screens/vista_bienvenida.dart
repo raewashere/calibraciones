@@ -1,118 +1,142 @@
 import 'package:flutter/material.dart';
 
 class VistaBienvenida extends StatelessWidget {
-  const VistaBienvenida({super.key});
+  final void Function(int)? onSeleccion;
+
+  const VistaBienvenida({super.key, this.onSeleccion});
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.onPrimary,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: 16),
-            ListTile(
-              textColor: Theme.of(context).colorScheme.tertiary,
-              leading: Icon(
-                Icons.pallet,
-                color: Theme.of(context).colorScheme.primary,
+      backgroundColor: colors.onPrimary,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Encabezado visual
+              Icon(
+                Icons.engineering,
+                size: 80,
+                color: colors.primary,
               ),
-              title: Text(
+              const SizedBox(height: 12),
+              Text(
                 "Bienvenido",
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
-              ),
-              subtitle: Text(
-                "Gestiona equipo de medición y registra sus calibraciones",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: colors.primary,
                 ),
               ),
-            ),
-            SizedBox(height: 16),
-            ListTile(
-              textColor: Theme.of(context).colorScheme.tertiary,
-              leading: Icon(
-                Icons.tune,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              title: Text(
-                "Registro de calibraciones",
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
-              ),
-              subtitle: Text(
-                "Registra calibraciones de los equipos de medición",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
+              const SizedBox(height: 8),
+              Text(
+                "Gestiona y consulta calibraciones de equipos de medición",
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colors.secondary,
                 ),
               ),
-              /*onTap: () {
-                Navigator.pushNamed(context, '/registro_calibracion');
-              },*/
-            ),
-            SizedBox(height: 16),
-            ListTile(
-              textColor: Theme.of(context).colorScheme.tertiary,
-              leading: Icon(
-                Icons.table_view,
-                color: Theme.of(context).colorScheme.primary,
+              const SizedBox(height: 32),
+
+              // Tarjetas de opciones
+              _buildOptionCard(
+                context,
+                icon: Icons.tune,
+                title: "Registro de calibraciones",
+                subtitle: "Registra calibraciones de los equipos de medición",
+                onTap: () => onSeleccion?.call(1),
               ),
-              title: Text(
-                "Reporte de calibraciones",
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
+              _buildOptionCard(
+                context,
+                icon: Icons.table_view,
+                title: "Reporte de calibraciones",
+                subtitle: "Accede a información de calibraciones previas",
+                onTap: () => onSeleccion?.call(2),
               ),
-              subtitle: Text(
-                "Accede a información de calibraciones previas",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
+              _buildOptionCard(
+                context,
+                icon: Icons.stacked_bar_chart,
+                title: "Equipo de medición",
+                subtitle: "Modifica información sobre los equipos",
+                onTap: () => onSeleccion?.call(3),
+              ),
+              _buildOptionCard(
+                context,
+                icon: Icons.account_circle,
+                title: "Cuenta",
+                subtitle: "Actualiza contraseña y otros datos",
+                onTap: () => onSeleccion?.call(4),
+              ),
+
+              const SizedBox(height: 20),
+              Text(
+                "PEMEX | Sistema de Calibración",
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colors.secondary,
+                  fontStyle: FontStyle.italic,
                 ),
               ),
-              /*onTap: () {
-                Navigator.pushNamed(context, '/reporte_calibraciones');
-              },*/
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOptionCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    VoidCallback? onTap,
+  }) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Ink(
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 6,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: ListTile(
+            leading: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: colors.primaryContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: colors.onPrimaryContainer, size: 26),
             ),
-            SizedBox(height: 16),
-            ListTile(
-              textColor: Theme.of(context).colorScheme.tertiary,
-              leading: Icon(
-                Icons.stacked_bar_chart,
-                color: Theme.of(context).colorScheme.primary,
+            title: Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: colors.primary,
               ),
-              title: Text(
-                "Equipo de medición",
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
-              ),
-              subtitle: Text(
-                "Modifica información sobre los equipos de medición",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              /*onTap: () {
-                Navigator.pushNamed(context, '/equipos');
-              }*/
             ),
-            SizedBox(height: 16),
-            ListTile(
-              textColor: Theme.of(context).colorScheme.tertiary,
-              leading: Icon(
-                Icons.account_circle,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              title: Text(
-                "Cuenta",
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
-              ),
-              subtitle: Text(
-                "Actualiza contraseña y otros datos",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              /*onTap: () {
-                Navigator.pushNamed(context, '/cuenta');
-              }*/
+            subtitle: Text(subtitle, style: TextStyle(color: colors.secondary)),
+            trailing: Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: colors.secondary,
+              size: 16,
             ),
-            SizedBox(height: 80),
-          ],
+          ),
         ),
       ),
     );

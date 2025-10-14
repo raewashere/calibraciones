@@ -47,8 +47,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   //Datos corridas
   final TextEditingController _caudalM3Controller = TextEditingController();
   final TextEditingController _caudalBblController = TextEditingController();
-  final TextEditingController _temperaturaCentigradosController = TextEditingController();
-  final TextEditingController _temperaturaFahrenheitController = TextEditingController();
+  final TextEditingController _temperaturaCentigradosController =
+      TextEditingController();
+  final TextEditingController _temperaturaFahrenheitController =
+      TextEditingController();
   final TextEditingController _presionController = TextEditingController();
   final TextEditingController _presionPSIController = TextEditingController();
   final TextEditingController _presionKPaController = TextEditingController();
@@ -115,6 +117,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       });
     }
   }
+
   final FocusNode _focusNodeCaudal = FocusNode();
 
   DireccionService direccionService = DireccionServiceImpl();
@@ -305,8 +308,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.onPrimary,
+      backgroundColor: theme.colorScheme.onPrimary,
       body: FutureBuilder<List<Direccion>>(
         future: _futureDirecciones,
         builder: (context, snapshot) {
@@ -324,21 +328,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
               child: SingleChildScrollView(
                 child: Container(
                   width: double.maxFinite,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
+                  decoration: BoxDecoration(color: theme.colorScheme.onPrimary),
                   child: Column(
                     children: <Widget>[
                       Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(60),
-                            topRight: Radius.circular(60),
-                            bottomLeft: Radius.circular(60),
-                            bottomRight: Radius.circular(60),
-                          ),
-                        ),
+                        decoration: _boxDecoration(context),
                         child: Padding(
                           padding: EdgeInsets.all(30),
                           child: Column(
@@ -347,14 +341,23 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                               Container(
                                 padding: EdgeInsets.all(10),
                                 child: Center(
-                                  child: Text(
-                                    "Selección equipo",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Theme.of(
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "Equipo",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.tertiary,
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      _iconoAyudaSeccion(
                                         context,
-                                      ).colorScheme.tertiary,
-                                    ),
+                                        'Seleccione la ubicación del equipo a calibrar, inicie con la dirección, subdirección, gerencia (si aplica), instalación, patín de medición, tren de medición y finalmente el equipo.',
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -521,15 +524,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                       ),
                       SizedBox(height: 20),
                       Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(60),
-                            topRight: Radius.circular(60),
-                            bottomLeft: Radius.circular(60),
-                            bottomRight: Radius.circular(60),
-                          ),
-                        ),
+                        decoration: _boxDecoration(context),
                         child: Padding(
                           padding: EdgeInsets.all(30),
                           child: Column(
@@ -538,14 +533,23 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                               Container(
                                 padding: EdgeInsets.all(10),
                                 child: Center(
-                                  child: Text(
-                                    "Datos calibración",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Theme.of(
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "Datos calibración",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.tertiary,
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      _iconoAyudaSeccion(
                                         context,
-                                      ).colorScheme.tertiary,
-                                    ),
+                                        'Eliga el laboratorio que realizó la calibración, ingrese el producto calibrado, el número y archivo del certificado, así como la fecha de calibración y la fecha de la próxima calibración.',
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -576,35 +580,60 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           'Favor de escribir el producto',
                                       controllerText: _productoController,
                                     ),
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "No. Certificado",
-                                      validatorText:
-                                          'Favor de escribir el número de certificado',
-                                      controllerText: _certificadoController,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _buildTextFormField(
+                                            context,
+                                            hintText: "No. Certificado",
+                                            validatorText:
+                                                'Favor de escribir el número de certificado',
+                                            controllerText:
+                                                _certificadoController,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 12,
+                                        ), // separación entre campos
+                                        Expanded(
+                                          child: _buildFileFormField(
+                                            context,
+                                            hintText: "Archivo certificado",
+                                            validatorText:
+                                                'Favor de seleccionar el archivo del certificado',
+                                            controllerText: _archivoController,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    _buildFileFormField(
-                                      context,
-                                      hintText: "Archivo certificado",
-                                      validatorText:
-                                          'Favor de seleccionar el archivo del certificado',
-                                      controllerText: _archivoController,
-                                    ),
-                                    _buildDateFormField(
-                                      context,
-                                      hintText: "Fecha calibración",
-                                      validatorText:
-                                          'Favor de escribir la fecha',
-                                      controllerText: _fechaController,
-                                      tipoFecha: 1,
-                                    ),
-                                    _buildDateFormField(
-                                      context,
-                                      hintText: "Fecha de próxima calibración",
-                                      validatorText:
-                                          'Favor de escribir la fecha',
-                                      controllerText: _fechaProximaController,
-                                      tipoFecha: 2,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _buildDateFormField(
+                                            context,
+                                            hintText: "Fecha calibración",
+                                            validatorText:
+                                                'Favor de escribir la fecha',
+                                            controllerText: _fechaController,
+                                            tipoFecha: 1,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 12,
+                                        ), // separación entre campos
+                                        Expanded(
+                                          child: _buildDateFormField(
+                                            context,
+                                            hintText:
+                                                "Fecha de próxima calibración",
+                                            validatorText:
+                                                'Favor de escribir la fecha',
+                                            controllerText:
+                                                _fechaProximaController,
+                                            tipoFecha: 2,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -616,15 +645,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                       ),
                       SizedBox(height: 20),
                       Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(60),
-                            topRight: Radius.circular(60),
-                            bottomLeft: Radius.circular(60),
-                            bottomRight: Radius.circular(60),
-                          ),
-                        ),
+                        decoration: _boxDecoration(context),
                         child: Padding(
                           padding: EdgeInsets.all(30),
                           child: Column(
@@ -633,14 +654,23 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                               Container(
                                 padding: EdgeInsets.all(10),
                                 child: Center(
-                                  child: Text(
-                                    "Corridas",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Theme.of(
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "Corridas",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.tertiary,
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      _iconoAyudaSeccion(
                                         context,
-                                      ).colorScheme.tertiary,
-                                    ),
+                                        'Ingrese los datos de la corrida de calibración y agreguela a la tabla, las conversiones se hacen en automático, también elimine las corridas que no sean necesarias.',
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -700,14 +730,14 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                         ), // separación entre campos
                                         Expanded(
                                           child: _buildTextFormField(
-                                              context,
-                                              hintText: "Temperatura (°F)",
-                                              validatorText:
-                                                  'Favor de escribir la temperatura',
-                                              controllerText:
-                                                  _temperaturaFahrenheitController,
-                                              onChanged: _onFahrenheitChanged,
-                                            ),
+                                            context,
+                                            hintText: "Temperatura (°F)",
+                                            validatorText:
+                                                'Favor de escribir la temperatura',
+                                            controllerText:
+                                                _temperaturaFahrenheitController,
+                                            onChanged: _onFahrenheitChanged,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -1140,7 +1170,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                   .map(
                                                     (corrida) => TableRow(
                                                       decoration: BoxDecoration(
-                                                        color: Theme.of(context)
+                                                        color: theme
                                                             .colorScheme
                                                             .tertiaryContainer,
                                                       ),
@@ -1321,21 +1351,23 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                               ),
                                                               onPressed: () {
                                                                 setState(() {
-                                                                  int index =
-                                                                      _corridasRegistradas.indexWhere(
+                                                                  int
+                                                                  index = _corridasRegistradas.indexWhere(
                                                                     (c) =>
                                                                         c.idCorrida ==
                                                                         corrida
                                                                             .idCorrida,
                                                                   );
-                                                                  _corridasRegistradas
-                                                                      .removeWhere(
-                                                                        (c) =>
-                                                                        
-                                                                            c.idCorrida ==
-                                                                            corrida.idCorrida,
+                                                                  _corridasRegistradas.removeWhere(
+                                                                    (c) =>
+                                                                        c.idCorrida ==
+                                                                        corrida
+                                                                            .idCorrida,
+                                                                  );
+                                                                  _listaCorridas
+                                                                      .removeAt(
+                                                                        index,
                                                                       );
-                                                                  _listaCorridas.removeAt(index);
                                                                 });
                                                                 calcularLinealidad();
                                                               },
@@ -1349,7 +1381,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             : [
                                                 TableRow(
                                                   decoration: BoxDecoration(
-                                                    color: Theme.of(context)
+                                                    color: theme
                                                         .colorScheme
                                                         .tertiaryContainer,
                                                   ),
@@ -1405,15 +1437,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                       ),
                       SizedBox(height: 20),
                       Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(60),
-                            topRight: Radius.circular(60),
-                            bottomLeft: Radius.circular(60),
-                            bottomRight: Radius.circular(60),
-                          ),
-                        ),
+                        decoration: _boxDecoration(context),
                         child: Padding(
                           padding: EdgeInsets.all(30),
                           child: Column(
@@ -1422,14 +1446,23 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                               Container(
                                 padding: EdgeInsets.all(10),
                                 child: Center(
-                                  child: Text(
-                                    "Extras",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Theme.of(
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "Extras",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.tertiary,
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      _iconoAyudaSeccion(
                                         context,
-                                      ).colorScheme.tertiary,
-                                    ),
+                                        'La linealidad se calcula automáticamente al agregar o eliminar corridas, solo agrega observaciones si es necesario.',
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -1442,20 +1475,32 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                 ),
                                 child: Column(
                                   children: <Widget>[
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "Linealidad (%)",
-                                      validatorText:
-                                          'Favor de escribir la linealidad',
-                                      controllerText: _linealidadController,
-                                    ),
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "Reproducibilidad (%)",
-                                      validatorText:
-                                          'Favor de escribir la reproducibilidad',
-                                      controllerText:
-                                          _reproducibilidadController,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _buildTextFormField(
+                                            context,
+                                            hintText: "Linealidad (%)",
+                                            validatorText:
+                                                'Favor de escribir la linealidad',
+                                            controllerText:
+                                                _linealidadController,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 12,
+                                        ), // separación entre campos
+                                        Expanded(
+                                          child: _buildTextFormField(
+                                            context,
+                                            hintText: "Reproducibilidad (%)",
+                                            validatorText:
+                                                'Favor de escribir la reproducibilidad',
+                                            controllerText:
+                                                _reproducibilidadController,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                     _buildTextFormField(
                                       context,
@@ -1498,12 +1543,13 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void _guardarCalibracion() async {
+    final theme = Theme.of(context);
     if (_corridasRegistradas.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
-          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+          backgroundColor: theme.colorScheme.tertiaryContainer,
           content: Text('Debe registrar al menos 4 corridas'),
         ),
       );
@@ -1543,7 +1589,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           SnackBar(
             duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+            backgroundColor: theme.colorScheme.tertiaryContainer,
             content: Text('Calibración registrada con éxito'),
           ),
         );
@@ -1577,7 +1623,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           SnackBar(
             duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: Theme.of(context).colorScheme.errorContainer,
+            backgroundColor: theme.colorScheme.errorContainer,
             content: Text('Error al registrar la calibración'),
           ),
         );
@@ -2066,5 +2112,51 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     _linealidadController.text = porcentajeLinealidad.toStringAsFixed(2);
 
     return porcentajeLinealidad;
+  }
+
+  BoxDecoration _boxDecoration(BuildContext context) {
+    return BoxDecoration(
+      color: Theme.of(context).colorScheme.onPrimary,
+      borderRadius: BorderRadius.circular(60),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1), // sombra sutil
+          spreadRadius: 1,
+          blurRadius: 8,
+          offset: Offset(0, 4), // desplazada hacia abajo
+        ),
+      ],
+      border: Border(
+        bottom: BorderSide(
+          color: Colors.grey.withOpacity(0.3), // línea suave
+          width: 1,
+        ),
+      ),
+    );
+  }
+
+  IconButton _iconoAyudaSeccion(BuildContext context, String mensaje) {
+    final theme = Theme.of(context);
+    return IconButton(
+      icon: Icon(
+        Icons.help_outline_rounded, // ícono más estilizado
+        color: theme.colorScheme.primary,
+        size: 22,
+      ),
+      tooltip: 'Ayuda',
+      onPressed: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: theme.colorScheme.tertiaryContainer,
+            content: Text(
+              mensaje,
+              style: TextStyle(color: theme.colorScheme.onTertiaryContainer),
+            ),
+          ),
+        );
+      },
+    );
   }
 }
