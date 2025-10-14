@@ -2147,7 +2147,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       onPressed: () {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            duration: const Duration(seconds: 3),
+            duration: const Duration(seconds: 5),
             behavior: SnackBarBehavior.floating,
             backgroundColor: theme.colorScheme.tertiaryContainer,
             content: Text(
