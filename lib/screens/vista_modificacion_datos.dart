@@ -3,6 +3,7 @@ import 'package:calibraciones/dto/dto_gerencia.dart';
 import 'package:calibraciones/dto/dto_instalacion.dart';
 import 'package:calibraciones/dto/dto_subdireccion_logistica.dart';
 import 'package:calibraciones/models/_usuario.dart';
+import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:calibraciones/services/direccion_service.dart';
 import 'package:calibraciones/services/implementation/direccion_service_impl.dart';
 import 'package:calibraciones/services/implementation/usuario_service_impl.dart';
@@ -17,6 +18,7 @@ class VistaModificacionDatos extends StatefulWidget {
 }
 
 class VistaModificacionDatosState extends State<VistaModificacionDatos> {
+  final Mensajes mensajes = Mensajes();
   final _formularioRegistro = GlobalKey<FormState>();
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _primerController = TextEditingController();
@@ -203,18 +205,9 @@ class VistaModificacionDatosState extends State<VistaModificacionDatos> {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
-                                              SnackBar(
-                                                duration: const Duration(
-                                                  seconds: 2,
-                                                ),
-                                                behavior:
-                                                    SnackBarBehavior.floating,
-                                                backgroundColor: Theme.of(
-                                                  context,
-                                                ).colorScheme.tertiaryContainer,
-                                                content: Text(
-                                                  'Enviando información, validar registro',
-                                                ),
+                                              mensajes.info(
+                                                context,
+                                                'Enviando información, validar registro',
                                               ),
                                             );
                                             respuestaRegistro =
@@ -231,38 +224,18 @@ class VistaModificacionDatosState extends State<VistaModificacionDatos> {
                                               ScaffoldMessenger.of(
                                                 context,
                                               ).showSnackBar(
-                                                SnackBar(
-                                                  duration: const Duration(
-                                                    seconds: 2,
-                                                  ),
-                                                  behavior:
-                                                      SnackBarBehavior.floating,
-                                                  backgroundColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .tertiaryContainer,
-                                                  content: Text(
-                                                    'Hubo un error al registrar el usuario, por favor intente de nuevo',
-                                                  ),
+                                                mensajes.error(
+                                                  context,
+                                                  'Hubo un error al registrar el usuario, por favor intente de nuevo',
                                                 ),
                                               );
                                             } else {
                                               ScaffoldMessenger.of(
                                                 context,
                                               ).showSnackBar(
-                                                SnackBar(
-                                                  duration: const Duration(
-                                                    seconds: 5,
-                                                  ),
-                                                  behavior:
-                                                      SnackBarBehavior.floating,
-                                                  backgroundColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .tertiaryContainer,
-                                                  content: Text(
-                                                    'Datos de usuario actualizados correctamente',
-                                                  ),
+                                                mensajes.info(
+                                                  context,
+                                                  'Datos de usuario actualizados correctamente',
                                                 ),
                                               );
                                               Navigator.pushReplacementNamed(
@@ -275,18 +248,9 @@ class VistaModificacionDatosState extends State<VistaModificacionDatos> {
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
-                                            SnackBar(
-                                              duration: const Duration(
-                                                seconds: 2,
-                                              ),
-                                              behavior:
-                                                  SnackBarBehavior.floating,
-                                              backgroundColor: Theme.of(
-                                                context,
-                                              ).colorScheme.tertiaryContainer,
-                                              content: Text(
-                                                'El correo introducido no es correcto',
-                                              ),
+                                            mensajes.error(
+                                              context,
+                                              'El correo introducido no es correcto',
                                             ),
                                           );
                                         }
@@ -294,17 +258,9 @@ class VistaModificacionDatosState extends State<VistaModificacionDatos> {
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(
-                                          SnackBar(
-                                            duration: const Duration(
-                                              seconds: 2,
-                                            ),
-                                            behavior: SnackBarBehavior.floating,
-                                            backgroundColor: Theme.of(
-                                              context,
-                                            ).colorScheme.tertiaryContainer,
-                                            content: Text(
-                                              'Campo de correo electrónico limitado a 30 caracteres',
-                                            ),
+                                          mensajes.error(
+                                            context,
+                                            'Campo de correo electrónico limitado a 30 caracteres',
                                           ),
                                         );
                                       }
@@ -312,43 +268,25 @@ class VistaModificacionDatosState extends State<VistaModificacionDatos> {
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
-                                        SnackBar(
-                                          duration: const Duration(seconds: 2),
-                                          behavior: SnackBarBehavior.floating,
-                                          backgroundColor: Theme.of(
-                                            context,
-                                          ).colorScheme.tertiaryContainer,
-                                          content: Text(
-                                            'Campo de segundo apellido limitado a 30 caracteres',
-                                          ),
+                                        mensajes.error(
+                                          context,
+                                          'Campo de segundo apellido limitado a 30 caracteres',
                                         ),
                                       );
                                     }
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        duration: const Duration(seconds: 2),
-                                        behavior: SnackBarBehavior.floating,
-                                        backgroundColor: Theme.of(
-                                          context,
-                                        ).colorScheme.tertiaryContainer,
-                                        content: Text(
-                                          'Campo de primer apellido limitado a 30 caracteres',
-                                        ),
+                                      mensajes.error(
+                                        context,
+                                        'Campo de primer apellido limitado a 30 caracteres',
                                       ),
                                     );
                                   }
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      duration: const Duration(seconds: 2),
-                                      behavior: SnackBarBehavior.floating,
-                                      backgroundColor: Theme.of(
-                                        context,
-                                      ).colorScheme.tertiaryContainer,
-                                      content: Text(
-                                        'Campo de nombre limitado a 30 caracteres',
-                                      ),
+                                    mensajes.error(
+                                      context,
+                                      'Campo de nombre limitado a 30 caracteres',
                                     ),
                                   );
                                 }

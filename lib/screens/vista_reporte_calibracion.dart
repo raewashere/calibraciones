@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:calibraciones/models/_calibracion_equipo.dart';
+import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:calibraciones/services/calibracion_service.dart';
 import 'package:calibraciones/services/implementation/calibracion_service_impl.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ class VistaReporteCalibracion extends StatefulWidget {
 }
 
 class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
+  final Mensajes mensajes = Mensajes();
   final ScrollController _scrollController = ScrollController();
   List<CalibracionEquipo> calibracionesEquipos = [];
   final CalibracionService calibracionService = CalibracionServiceImpl();
@@ -148,14 +150,9 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
         FloatingActionButton(
           heroTag: "btnDescargar",
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                duration: const Duration(seconds: 2),
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: theme.colorScheme.primaryContainer,
-                content: const Text('Descargando reporte...'),
-              ),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(mensajes.info(context, 'Descargando reporte...'));
           },
           backgroundColor: theme.colorScheme.primaryContainer,
           child: const Icon(Icons.download),
@@ -215,7 +212,7 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(
                   context,
-                ).showSnackBar(SnackBar(content: Text('Aplicando filtro...')));
+                ).showSnackBar(mensajes.info(context, 'Aplicando filtro...'));
               },
               child: const Text('Aplicar'),
             ),

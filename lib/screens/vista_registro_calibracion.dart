@@ -11,6 +11,7 @@ import 'package:calibraciones/models/_laboratorio_calibracion.dart';
 import 'package:calibraciones/models/_patin_medicion.dart';
 import 'package:calibraciones/models/_subdireccion.dart';
 import 'package:calibraciones/models/_tren_medicion.dart';
+import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:calibraciones/screens/components/tabla_calibracion.dart';
 import 'package:calibraciones/services/calibracion_service.dart';
 import 'package:calibraciones/services/direccion_service.dart';
@@ -29,6 +30,7 @@ class VistaRegistroCalibracion extends StatefulWidget {
 }
 
 class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
+  final Mensajes mensajes = Mensajes();
   final _formularioRegistro = GlobalKey<FormState>();
 
   DateFormat formato = DateFormat("dd/MM/yyyy");
@@ -1546,12 +1548,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     final theme = Theme.of(context);
     if (_corridasRegistradas.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: theme.colorScheme.tertiaryContainer,
-          content: Text('Debe registrar al menos 4 corridas'),
-        ),
+        mensajes.error(context, 'Debe registrar al menos 4 corridas'),
       );
       return;
     } else {
@@ -1586,12 +1583,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
       if (exito) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: theme.colorScheme.tertiaryContainer,
-            content: Text('Calibración registrada con éxito'),
-          ),
+          mensajes.info(context, 'Calibración registrada con éxito'),
         );
         //limpiar formulario
         setState(() {
@@ -1620,12 +1612,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: theme.colorScheme.errorContainer,
-            content: Text('Error al registrar la calibración'),
-          ),
+          mensajes.error(context, 'Error al registrar la calibración'),
         );
       }
     }
@@ -2145,17 +2132,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       ),
       tooltip: 'Ayuda',
       onPressed: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(seconds: 5),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: theme.colorScheme.tertiaryContainer,
-            content: Text(
-              mensaje,
-              style: TextStyle(color: theme.colorScheme.onTertiaryContainer),
-            ),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(mensajes.ayuda(context, mensaje));
       },
     );
   }

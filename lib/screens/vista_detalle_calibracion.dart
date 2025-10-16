@@ -1,3 +1,4 @@
+import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:flutter/material.dart';
 
 class VistaDetalleCalibracion extends StatefulWidget {
@@ -8,6 +9,8 @@ class VistaDetalleCalibracion extends StatefulWidget {
 }
 
 class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
+  final Mensajes mensajes = Mensajes();
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -81,10 +84,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                       child: ElevatedButton.icon(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Abriendo certificado...'),
-                              backgroundColor: colors.tertiaryContainer,
-                            ),
+                            mensajes.info(context, 'Abriendo certificado...'),
                           );
                         },
                         icon: const Icon(Icons.picture_as_pdf),
@@ -135,29 +135,6 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     _buildInfoRow("Incertidumbre", "±0.5%"),
                     _buildInfoRow("Intervalo de calibración", "12 meses"),
                     _buildInfoRow("Intervalo de verificación", "6 meses"),
-
-                    const SizedBox(height: 12),
-                    Center(
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Abriendo certificado...'),
-                              backgroundColor: colors.tertiaryContainer,
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.picture_as_pdf),
-                        label: const Text('Ver Certificado'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.primary,
-                          foregroundColor: colors.onPrimary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),

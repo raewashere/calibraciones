@@ -1,3 +1,4 @@
+import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:calibraciones/services/implementation/usuario_service_impl.dart';
 import 'package:calibraciones/services/usuario_service.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ class VistaContrasenia extends StatefulWidget {
 }
 
 class VistaContraseniaState extends State<VistaContrasenia> {
+  final Mensajes mensajes = Mensajes();
   final SupabaseClient supabase = Supabase.instance.client;
   final _formularioCorreo = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
@@ -135,17 +137,9 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(
-                                          SnackBar(
-                                            duration: const Duration(
-                                              seconds: 2,
-                                            ),
-                                            behavior: SnackBarBehavior.floating,
-                                            backgroundColor: Theme.of(
-                                              context,
-                                            ).colorScheme.tertiaryContainer,
-                                            content: Text(
-                                              'No se encontró una cuenta ligada a ${_emailController.text}',
-                                            ),
+                                          mensajes.error(
+                                            context,
+                                            'No se encontró una cuenta ligada a ${_emailController.text}',
                                           ),
                                         );
                                         return;
@@ -158,15 +152,9 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
-                                        SnackBar(
-                                          duration: const Duration(seconds: 2),
-                                          behavior: SnackBarBehavior.floating,
-                                          backgroundColor: Theme.of(
-                                            context,
-                                          ).colorScheme.tertiaryContainer,
-                                          content: Text(
-                                            'Se ha enviado un enlace de recuperación a ${_emailController.text}',
-                                          ),
+                                        mensajes.info(
+                                          context,
+                                          'Se ha enviado un enlace de recuperación a ${_emailController.text}',
                                         ),
                                       );
 
@@ -180,13 +168,9 @@ class VistaContraseniaState extends State<VistaContrasenia> {
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
-                                        SnackBar(
-                                          duration: const Duration(seconds: 3),
-                                          behavior: SnackBarBehavior.floating,
-                                          backgroundColor: Theme.of(
-                                            context,
-                                          ).colorScheme.error,
-                                          content: Text('Error: ${e.message}'),
+                                        mensajes.info(
+                                          context,
+                                          'Error: ${e.message}',
                                         ),
                                       );
                                     }

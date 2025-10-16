@@ -1,4 +1,5 @@
 import 'package:calibraciones/models/_usuario.dart';
+import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:calibraciones/services/implementation/usuario_service_impl.dart';
 import 'package:calibraciones/services/usuario_service.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ class VistaLogin extends StatefulWidget {
 }
 
 class VistaLoginState extends State<VistaLogin> {
+  final Mensajes mensajes = Mensajes();
   final SupabaseClient supabase = Supabase.instance.client;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -45,11 +47,9 @@ class VistaLoginState extends State<VistaLogin> {
       );
       if (usuario?.getVerificacionAdmin == false) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-            content: Text('Tu cuenta está en revisión por un administrador'),
+          mensajes.info(
+            context,
+            'Tu cuenta está en revisión por un administrador',
           ),
         );
         return;
@@ -66,24 +66,14 @@ class VistaLoginState extends State<VistaLogin> {
       //Navigator.pushReplacementNamed(context, '/inicio');
 
       if (user != null && user.emailConfirmedAt != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Bienvenido de nuevo'),
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(mensajes.info(context, 'Bienvenido'));
 
         Navigator.pushReplacementNamed(context, '/inicio');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-            content: Text('Por favor verifica tu correo electrónico'),
-          ),
+          mensajes.info(context, 'Por favor verifica tu correo electrónico'),
         );
       }
 
@@ -107,14 +97,9 @@ class VistaLoginState extends State<VistaLogin> {
         }
       }
       // Mostrar un SnackBar con el mensaje de error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-          content: Text(mensajeError),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(mensajes.error(context, mensajeError));
     }
   }
 
@@ -257,6 +242,26 @@ class VistaLoginState extends State<VistaLogin> {
                                 ).colorScheme.onSecondary,
                               ),
                               child: const Text('Registrarse'),
+                            ),
+                            const SizedBox(height: 30),
+                            ElevatedButton(
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  mensajes.info(
+                                    context,
+                                    'Bienvenido de nuevo calvito',
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.secondary,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onSecondary,
+                              ),
+                              child: const Text('AJIJOOOOOO'),
                             ),
                           ],
                         ),

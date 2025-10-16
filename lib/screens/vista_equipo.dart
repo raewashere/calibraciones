@@ -1,4 +1,5 @@
 import 'package:calibraciones/dto/dto_equipo.dart';
+import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:calibraciones/services/equipo_service.dart';
 import 'package:calibraciones/services/implementation/equipo_service_impl.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ class VistaEquipo extends StatefulWidget {
 }
 
 class _VistaEquipoState extends State<VistaEquipo> {
+  final Mensajes mensajes = Mensajes();
   final ScrollController _scrollController = ScrollController();
   final EquipoService _equipoService = EquipoServiceImpl();
 
@@ -86,12 +88,7 @@ class _VistaEquipoState extends State<VistaEquipo> {
                     ElevatedButton.icon(
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text('Aplicando filtros...'),
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer,
-                          ),
+                          mensajes.info(context, 'Aplicando filtros...'),
                         );
                         Navigator.pop(context);
                       },
@@ -110,10 +107,7 @@ class _VistaEquipoState extends State<VistaEquipo> {
 
   void _mostrarFormularioNuevo() {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Abriendo formulario para nuevo equipo...'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      ),
+      mensajes.info(context, 'Abriendo formulario para nuevo equipo...'),
     );
     // TODO: Lógica para navegar o abrir formulario
   }

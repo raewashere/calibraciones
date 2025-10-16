@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +15,7 @@ class VistaRecuperacionContrasenia extends StatefulWidget {
 
 class _VistaRecuperacionContraseniaState
     extends State<VistaRecuperacionContrasenia> {
+  final Mensajes mensajes = Mensajes();
   final _formKey = GlobalKey<FormState>();
   final _tokenController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -45,7 +47,7 @@ class _VistaRecuperacionContraseniaState
     });
   }
 
-    Future<void> _reenviarPin() async {
+  Future<void> _reenviarPin() async {
     setState(() => _isLoading = true);
 
     await supabase.auth.resetPasswordForEmail(email);
@@ -53,14 +55,9 @@ class _VistaRecuperacionContraseniaState
     if (!mounted) return;
     setState(() => _isLoading = false);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-        content: const Text("Reenviando nuevo PIN"),
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(mensajes.info(context, 'Reenviando nuevo PIN'));
 
     // reiniciar cooldown después de usar el botón
     _iniciarCooldown();
@@ -76,7 +73,7 @@ class _VistaRecuperacionContraseniaState
     if (_tokenController.text.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('El token no puede estar vacío')));
+      ).showSnackBar(mensajes.error(context, 'El token no puede estar vacío'));
       return;
     }
 
@@ -97,12 +94,7 @@ class _VistaRecuperacionContraseniaState
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-          content: Text('Contraseña actualizada con éxito'),
-        ),
+        mensajes.info(context, 'Contraseña actualizada con éxito'),
       );
       Navigator.pushReplacementNamed(context, '/login');
       // Show success message
@@ -112,24 +104,15 @@ class _VistaRecuperacionContraseniaState
           _reenviarPin();
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              duration: const Duration(seconds: 2),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-              content: Text(
-                "La contraseña nueva no puede ser la misma que la anterior",
-              ),
+            mensajes.error(
+              context,
+              'La contraseña nueva no puede ser la misma que la anterior',
             ),
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              duration: const Duration(seconds: 2),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Theme.of(context).colorScheme.error,
-              content: Text("Error: ${e.message}"),
-            ),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(mensajes.error(context, 'Error: ${e.message}'));
         }
       }
     } finally {
@@ -285,31 +268,30 @@ class _VistaRecuperacionContraseniaState
 
                       //MOSTRAR 60 SEGUNDOS DESPUES
                       _showButton
-            ? ElevatedButton(
-                        onPressed: () async {
-                          _reenviarPin();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              duration: const Duration(seconds: 2),
-                              behavior: SnackBarBehavior.floating,
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.tertiaryContainer,
-                              content: Text("Reenviando nuevo PIN"),
-                            ),
-                          );
-                        },
-                        child: _isLoading
-                            ? CircularProgressIndicator()
-                            : Text(
-                                'Reenviar PIN de recuperación',
-                                style: TextStyle(
-                                  color: Theme.of(
+                          ? ElevatedButton(
+                              onPressed: () async {
+                                _reenviarPin();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  mensajes.info(
                                     context,
-                                  ).colorScheme.onSecondary,
-                                ),
-                              ),
-                      ): const Text("Espere 60 segundos para reenviar el PIN"),
+                                    'Reenviando nuevo PIN',
+                                  ),
+                                );
+                              },
+                              child: _isLoading
+                                  ? CircularProgressIndicator()
+                                  : Text(
+                                      'Reenviar PIN de recuperación',
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSecondary,
+                                      ),
+                                    ),
+                            )
+                          : const Text(
+                              "Espere 60 segundos para reenviar el PIN",
+                            ),
                     ],
                   ),
                 ),

@@ -1,5 +1,6 @@
 import 'package:calibraciones/dto/dto_instalacion.dart';
 import 'package:calibraciones/models/_usuario.dart';
+import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:calibraciones/services/implementation/instalacion_service_impl.dart';
 import 'package:calibraciones/services/implementation/usuario_service_impl.dart';
 import 'package:calibraciones/services/instalacion_service.dart';
@@ -16,6 +17,7 @@ class VistaCuenta extends StatefulWidget {
 }
 
 class VistaCuentaState extends State<VistaCuenta> {
+  final Mensajes mensajes = Mensajes();
   final SupabaseClient supabase = Supabase.instance.client;
   final User? usuarioActual = Supabase.instance.client.auth.currentUser;
   final UsuarioService controlador = UsuarioServiceImpl();
@@ -53,14 +55,9 @@ class VistaCuentaState extends State<VistaCuenta> {
     try {
       supabase.auth.signOut();
       Navigator.pushReplacementNamed(context, '/login');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-          content: Text("Saliendo de la aplicacion"),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(mensajes.info(context, "Saliendo de la aplicacion"));
     } on AuthException catch (e) {
       String mensajeError;
 
@@ -76,14 +73,9 @@ class VistaCuentaState extends State<VistaCuenta> {
             'Error al iniciar sesión. Por favor, inténtelo de nuevo.';
       }
       // Mostrar un SnackBar con el mensaje de error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-          content: Text(mensajeError),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(mensajes.error(context, mensajeError));
     }
   }
 
@@ -92,13 +84,9 @@ class VistaCuentaState extends State<VistaCuenta> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-          content: Text(
-            'PIN de recuperación enviado a ${usuarioActual!.email!}',
-          ),
+        mensajes.info(
+          context,
+          'PIN de recuperación enviado a ${usuarioActual!.email!}',
         ),
       );
       Navigator.pushNamed(
