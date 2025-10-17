@@ -227,9 +227,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingPresion = true);
     if (value.isNotEmpty) {
       double kgcm2 = double.tryParse(value) ?? 0;
-      double psi = (kgcm2 * factorPresion) * 100;
+      double psi = (kgcm2 * factorPresion);
       _presionPSIController.text = _formatoMiles(psi);
-      double kPa = (kgcm2 / 0.101972) / 1000;
+      double kPa = kgcm2 * 98.0665;
       _presionKPaController.text = _formatoMiles(kPa);
     } else {
       _presionPSIController.clear();
@@ -243,9 +243,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingPresionPSI = true);
     if (value.isNotEmpty) {
       double psi = double.tryParse(value) ?? 0;
-      double kgcm2 = (psi / factorPresion) * 10000;
+      double kgcm2 = psi * 0.0703070;
       _presionController.text = _formatoMiles(kgcm2);
-      double kPa = (kgcm2 / 0.101972) / 1000;
+      double kPa = kgcm2 * 98.0665;
       _presionKPaController.text = _formatoMiles(kPa);
     } else {
       _presionController.clear();
@@ -259,9 +259,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingPresion = true);
     if (value.isNotEmpty) {
       double kPa = double.tryParse(value) ?? 0;
-      double kgcm2 = kPa * 101.972;
+      double kgcm2 = kPa * 0.0101972;
       _presionController.text = _formatoMiles(kgcm2);
-      double psi = (kgcm2 * factorPresion) / 10000;
+      double psi = (kgcm2 * factorPresion);
       _presionPSIController.text = _formatoMiles(psi);
     } else {
       _presionController.clear();
