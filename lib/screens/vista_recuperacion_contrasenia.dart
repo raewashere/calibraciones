@@ -183,7 +183,7 @@ class _VistaRecuperacionContraseniaState
                         "Escribe el token que recibiste por correo y tu nueva contraseña",
                         style: TextStyle(
                           color: colorScheme.onPrimary,
-                          fontSize: 13,
+                          fontSize: 16,
                         ),
                         textAlign: TextAlign.center,
                       ),

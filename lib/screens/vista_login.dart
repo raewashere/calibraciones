@@ -105,171 +105,150 @@ class VistaLoginState extends State<VistaLogin> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      body: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary),
+      backgroundColor: theme.colorScheme.primary,
+      body: SafeArea(
         child: SingleChildScrollView(
-          // Envuelve en SingleChildScrollView
           child: Column(
-            children: <Widget>[
-              SizedBox(height: 5),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 40),
+              
               Padding(
-                padding: EdgeInsets.all(50),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 10,
+                ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Center(
-                      child: Image.asset(
-                        'assets/images/pemex_logo_blanco.png',
-                        scale: 1.5,
-                      ),
+                  children: [
+                    Image.asset(
+                      'assets/images/pemex_logo_blanco.png',
+                      width: 120,
+                      height: 120,
                     ),
-                    Center(
-                      child: Text(
-                        "Calibraciones",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontSize: 36,
+                    const SizedBox(height: 20),
+                    Text(
+                      "Calibraciones",
+                      style: TextStyle(
+                        color: theme.colorScheme.onPrimary,
+                        fontSize: 34,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Registro y gestión de calibraciones de equipos de medición",
+                      style: TextStyle(
+                        color: theme.colorScheme.onPrimary.withOpacity(0.85),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.all(30),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.onPrimary,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      offset: const Offset(0, 6),
+                      blurRadius: 10,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 10),
+
+                    TextField(
+                      controller: _emailController,
+                      style: TextStyle(color: theme.colorScheme.primary),
+                      decoration: _inputDecoration("Correo electrónico"),
+                    ),
+                    const SizedBox(height: 20),
+
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: _obscureText,
+                      style: TextStyle(color: theme.colorScheme.primary),
+                      decoration: _inputDecorationPassword("Contraseña"),
+                    ),
+
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/contrasenia');
+                        },
+                        child: Text(
+                          "¿Olvidaste tu contraseña?",
+                          style: TextStyle(
+                            color: theme.colorScheme.secondary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Center(
-                      child: Text(
-                        "Registro de calibraciones equipos de medición",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontSize: 12,
+
+                    const SizedBox(height: 30),
+
+                    ElevatedButton(
+                      onPressed: _signIn,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.colorScheme.secondary,
+                        foregroundColor: theme.colorScheme.onSecondary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        textStyle: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      child: const Text('Iniciar sesión'),
+                    ),
+                    const SizedBox(height: 20),
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/registro');
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: theme.colorScheme.secondary),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        textStyle: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      child: Text(
+                        'Registrarse',
+                        style: TextStyle(color: theme.colorScheme.secondary),
                       ),
                     ),
                   ],
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(60),
-                    topRight: Radius.circular(60),
-                    bottomLeft: Radius.circular(60),
-                    bottomRight: Radius.circular(60),
-                  ),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(30),
-                  child: Column(
-                    children: <Widget>[
-                      SizedBox(height: 40),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Column(
-                          children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              child: TextField(
-                                controller: _emailController,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                decoration: _inputDecoration(
-                                  "Correo electrónico",
-                                ),
-                              ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              child: TextField(
-                                controller: _passwordController,
-                                obscureText: _obscureText,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                decoration: _inputDecorationPassword(
-                                  "Contraseña",
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 40),
-                      TextButton(
-                        child: Text(
-                          "¿Olvidaste tu contraseña?",
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/contrasenia');
-                        },
-                      ),
-                      SizedBox(height: 40),
-                      Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            ElevatedButton(
-                              onPressed: _signIn,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.secondary,
-                                foregroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.onSecondary,
-                              ),
-                              child: const Text('Iniciar sesion'),
-                            ),
-                            const SizedBox(height: 30),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/registro');
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.secondary,
-                                foregroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.onSecondary,
-                              ),
-                              child: const Text('Registrarse'),
-                            ),
-                            const SizedBox(height: 30),
-                            ElevatedButton(
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  mensajes.info(
-                                    context,
-                                    'Bienvenido de nuevo calvito',
-                                  ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.secondary,
-                                foregroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.onSecondary,
-                              ),
-                              child: const Text('AJIJOOOOOO'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+
+              const SizedBox(height: 60),
             ],
           ),
         ),

@@ -95,7 +95,6 @@ class VistaRegistroState extends State<VistaRegistro> {
       body: Form(
         key: _formularioRegistro,
         child: SingleChildScrollView(
-          // Envuelve en SingleChildScrollView
           child: Container(
             width: double.infinity,
             decoration: BoxDecoration(
@@ -119,7 +118,7 @@ class VistaRegistroState extends State<VistaRegistro> {
                           "Llena el formulario para hacer uso de la aplicación",
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary,
-                            fontSize: 12,
+                            fontSize: 16,
                           ),
                         ),
                       ),
@@ -206,6 +205,13 @@ class VistaRegistroState extends State<VistaRegistro> {
                                 validatorText:
                                     'Favor de escribir tu(s) nombre(s)',
                                 controllerText: _nombreController,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty)
+                                    return 'Este campo es obligatorio';
+                                  if (value.length > 50)
+                                    return 'Máximo 50 caracteres';
+                                  return null;
+                                },
                               ),
                               _buildTextFormField(
                                 context,
@@ -213,6 +219,13 @@ class VistaRegistroState extends State<VistaRegistro> {
                                 validatorText:
                                     'Favor de escribir tu primer apellido',
                                 controllerText: _primerController,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty)
+                                    return 'Este campo es obligatorio';
+                                  if (value.length > 30)
+                                    return 'Máximo 30 caracteres';
+                                  return null;
+                                },
                               ),
                               _buildTextFormField(
                                 context,
@@ -220,6 +233,13 @@ class VistaRegistroState extends State<VistaRegistro> {
                                 validatorText:
                                     'Favor de escribir tu segundo apellido',
                                 controllerText: _segundoController,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty)
+                                    return 'Este campo es obligatorio';
+                                  if (value.length > 30)
+                                    return 'Máximo 30 caracteres';
+                                  return null;
+                                },
                               ),
                               _buildTextFormField(
                                 context,
@@ -227,6 +247,13 @@ class VistaRegistroState extends State<VistaRegistro> {
                                 validatorText:
                                     'Favor de escribir tu ficha de empleado',
                                 controllerText: _fichaController,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty)
+                                    return 'Este campo es obligatorio';
+                                  if (value.length > 10)
+                                    return 'Máximo 10 caracteres';
+                                  return null;
+                                },
                               ),
                               _buildTextFormField(
                                 context,
@@ -234,12 +261,28 @@ class VistaRegistroState extends State<VistaRegistro> {
                                 validatorText:
                                     'Favor de escribir tu correo electrónico',
                                 controllerText: _emailController,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty)
+                                    return 'El campo no puede estar vacío';
+                                  if (value.length > 30)
+                                    return 'Máximo 30 caracteres';
+                                  if (!_esEmailValido(value))
+                                    return 'Correo inválido';
+                                  return null;
+                                },
                               ),
                               _buildTextFormField(
                                 context,
                                 hintText: "Teléfono",
                                 validatorText: 'Favor de escribir tu teléfono',
                                 controllerText: _telefonoController,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty)
+                                    return 'Este campo es obligatorio';
+                                  if (value.length > 10)
+                                    return 'Máximo 10 caracteres';
+                                  return null;
+                                },
                               ),
                               _buildTextFormFieldPassword(
                                 context,
@@ -263,127 +306,54 @@ class VistaRegistroState extends State<VistaRegistro> {
                         Center(
                           child: ElevatedButton(
                             onPressed: () async {
-                              if (_formularioRegistro.currentState!
-                                  .validate()) {
-                                if (_nombreController.text.length <= 50) {
-                                  if (_primerController.text.length <= 30) {
-                                    if (_segundoController.text.length <= 30) {
-                                      if (_emailController.text.length <= 30) {
-                                        if (validarEmail(
-                                          _emailController.text,
-                                        )) {
-                                          if (_passwordController.text ==
-                                              _passwordValidatorController
-                                                  .text) {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              mensajes.info(
-                                                context,
-                                                'Enviando información, validar registro',
-                                              ),
-                                            );
-                                            respuestaRegistro = await usuarioService
-                                                .registrarUsuario(
-                                                  _fichaController.text,
-                                                  _emailController.text,
-                                                  _nombreController.text,
-                                                  _primerController.text,
-                                                  _segundoController.text,
-                                                  _telefonoController.text,
-                                                  _passwordController.text,
-                                                  direccionSeleccionada!
-                                                      .getNombreDireccion(),
-                                                  subdireccionSeleccionada!
-                                                      .getNombreSubdireccion(),
-                                                  gerenciaSeleccionada!
-                                                      .getNombreGerencia(),
-                                                  instalacionSeleccionada!
-                                                      .getIdInstalacion(),
-                                                  instalacionSeleccionada!
-                                                      .getNombreInstalacion(),
-                                                );
+                              if (!_validarFormulario(context)) return;
 
-                                            if (!respuestaRegistro) {
-                                              if (!mounted) return;
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                mensajes.error(
-                                                  context,
-                                                  'Hubo un error al registrar el usuario, por favor intente de nuevo',
-                                                ),
-                                              );
-                                            } else {
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                mensajes.info(
-                                                  context,
-                                                  'Usuario registrado correctamente, por favor verifica tu correo electrónico, y espera validación del administrador',
-                                                ),
-                                              );
-                                              Navigator.pushReplacementNamed(
-                                                context,
-                                                '/login',
-                                              );
-                                            }
-                                          } else {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              mensajes.error(
-                                                context,
-                                                'Verificar que las contraseñas son iguales',
-                                              ),
-                                            );
-                                          }
-                                        } else {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            mensajes.error(
-                                              context,
-                                              'El correo introducido no es correcto',
-                                            ),
-                                          );
-                                        }
-                                      } else {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          mensajes.error(
-                                            context,
-                                            'Campo de correo electrónico limitado a 30 caracteres',
-                                          ),
-                                        );
-                                      }
-                                    } else {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        mensajes.error(
-                                          context,
-                                          'Campo de segundo apellido limitado a 30 caracteres',
-                                        ),
-                                      );
-                                    }
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      mensajes.error(
-                                        context,
-                                        'Campo de primer apellido limitado a 30 caracteres',
-                                      ),
-                                    );
-                                  }
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    mensajes.error(
-                                      context,
-                                      'Campo de nombre limitado a 30 caracteres',
-                                    ),
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                mensajes.info(
+                                  context,
+                                  'Enviando información, por favor espera...',
+                                ),
+                              );
+
+                              final respuesta = await usuarioService
+                                  .registrarUsuario(
+                                    _fichaController.text,
+                                    _emailController.text,
+                                    _nombreController.text,
+                                    _primerController.text,
+                                    _segundoController.text,
+                                    _telefonoController.text,
+                                    _passwordController.text,
+                                    direccionSeleccionada!.getNombreDireccion(),
+                                    subdireccionSeleccionada!
+                                        .getNombreSubdireccion(),
+                                    gerenciaSeleccionada!.getNombreGerencia(),
+                                    instalacionSeleccionada!.getIdInstalacion(),
+                                    instalacionSeleccionada!
+                                        .getNombreInstalacion(),
                                   );
-                                }
+
+                              if (!mounted) return;
+
+                              if (!respuesta) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  mensajes.error(
+                                    context,
+                                    'Error al registrar el usuario. Intente nuevamente.',
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  mensajes.info(
+                                    context,
+                                    'Usuario registrado correctamente. Revisa tu correo.',
+                                  ),
+                                );
+
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  '/login',
+                                );
                               }
                             },
                             style: ElevatedButton.styleFrom(
@@ -393,6 +363,17 @@ class VistaRegistroState extends State<VistaRegistro> {
                               foregroundColor: Theme.of(
                                 context,
                               ).colorScheme.onSecondary,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 14,
+                                horizontal: 30,
+                              ),
+                              textStyle: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                             child: const Text('Registrarse'),
                           ),
@@ -415,6 +396,7 @@ class VistaRegistroState extends State<VistaRegistro> {
     required String validatorText,
     required TextEditingController controllerText,
     bool obscureText = false,
+    String? Function(String?)? validator,
   }) {
     return Container(
       padding: EdgeInsets.all(5),
@@ -567,5 +549,30 @@ class VistaRegistroState extends State<VistaRegistro> {
         return null;
       },
     );
+  }
+
+  bool _esEmailValido(String email) {
+    final regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return regex.hasMatch(email);
+  }
+
+  bool _validarFormulario(BuildContext context) {
+    if (!_formularioRegistro.currentState!.validate()) return false;
+
+    if (_passwordController.text != _passwordValidatorController.text) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(mensajes.error(context, 'Las contraseñas no coinciden'));
+      return false;
+    }
+
+    if (!_esEmailValido(_emailController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        mensajes.error(context, 'El correo electrónico no es válido'),
+      );
+      return false;
+    }
+
+    return true;
   }
 }

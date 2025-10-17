@@ -1,5 +1,7 @@
+import 'package:calibraciones/screens/components/grafica_corridas.dart';
 import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class VistaDetalleCalibracion extends StatefulWidget {
   const VistaDetalleCalibracion({super.key});
@@ -10,6 +12,7 @@ class VistaDetalleCalibracion extends StatefulWidget {
 
 class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   final Mensajes mensajes = Mensajes();
+  final GraficaCorridas graficaCorridas = const GraficaCorridas();
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +89,9 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             mensajes.info(context, 'Abriendo certificado...'),
                           );
+                          abrirPdf(
+                            'https://zkviewvpmswfgpiwpoez.supabase.co/storage/v1/object/public/certificados/PT-144/PT-144-TR-1/DT-144-1/CET-100.pdf',
+                          );
                         },
                         icon: const Icon(Icons.picture_as_pdf),
                         label: const Text('Ver Certificado'),
@@ -116,7 +122,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Información de la Calibración",
+                      "Información de equipo",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -135,6 +141,32 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     _buildInfoRow("Incertidumbre", "±0.5%"),
                     _buildInfoRow("Intervalo de calibración", "12 meses"),
                     _buildInfoRow("Intervalo de verificación", "6 meses"),
+                  ],
+                ),
+              ),
+            ),
+
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Gráfica de corridas",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colors.primary,
+                      ),
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 8),
+                    graficaCorridas.graficar(context),
                   ],
                 ),
               ),
@@ -598,5 +630,14 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
         ],
       ),
     );
+  }
+
+  void abrirPdf(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'No se pudo abrir $url';
+    }
   }
 }

@@ -176,7 +176,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double m3 = double.tryParse(value) ?? 0;
       double bbl = m3 * factor;
-      _caudalBblController.text = bbl.toStringAsFixed(2);
+      _caudalBblController.text = _formatoMiles(bbl);
     } else {
       _caudalBblController.clear();
     }
@@ -189,7 +189,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double bbl = double.tryParse(value) ?? 0;
       double m3 = bbl / factor;
-      _caudalM3Controller.text = m3.toStringAsFixed(2);
+      _caudalM3Controller.text = _formatoMiles(m3);
     } else {
       _caudalM3Controller.clear();
     }
@@ -202,7 +202,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double pm3 = double.tryParse(value) ?? 0;
       double pbbl = pm3 / factor;
-      _kFactorPulsosBblController.text = pbbl.toStringAsFixed(2);
+      _kFactorPulsosBblController.text = _formatoMiles(pbbl);
     } else {
       _kFactorPulsosBblController.clear();
     }
@@ -215,7 +215,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double pbbl = double.tryParse(value) ?? 0;
       double pm3 = pbbl * factor;
-      _kFactorPulsosM3Controller.text = pm3.toStringAsFixed(2);
+      _kFactorPulsosM3Controller.text = _formatoMiles(pm3);
     } else {
       _kFactorPulsosM3Controller.clear();
     }
@@ -227,10 +227,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingPresion = true);
     if (value.isNotEmpty) {
       double kgcm2 = double.tryParse(value) ?? 0;
-      double psi = (kgcm2 * factorPresion) / 10000;
-      _presionPSIController.text = psi.toStringAsFixed(3);
+      double psi = (kgcm2 * factorPresion) * 100;
+      _presionPSIController.text = _formatoMiles(psi);
       double kPa = (kgcm2 / 0.101972) / 1000;
-      _presionKPaController.text = kPa.toStringAsFixed(3);
+      _presionKPaController.text = _formatoMiles(kPa);
     } else {
       _presionPSIController.clear();
       _presionKPaController.clear();
@@ -244,9 +244,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double psi = double.tryParse(value) ?? 0;
       double kgcm2 = (psi / factorPresion) * 10000;
-      _presionController.text = kgcm2.toStringAsFixed(3);
+      _presionController.text = _formatoMiles(kgcm2);
       double kPa = (kgcm2 / 0.101972) / 1000;
-      _presionKPaController.text = kPa.toStringAsFixed(3);
+      _presionKPaController.text = _formatoMiles(kPa);
     } else {
       _presionController.clear();
       _presionKPaController.clear();
@@ -260,9 +260,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double kPa = double.tryParse(value) ?? 0;
       double kgcm2 = kPa * 101.972;
-      _presionController.text = kgcm2.toStringAsFixed(3);
+      _presionController.text = _formatoMiles(kgcm2);
       double psi = (kgcm2 * factorPresion) / 10000;
-      _presionPSIController.text = psi.toStringAsFixed(3);
+      _presionPSIController.text = _formatoMiles(psi);
     } else {
       _presionController.clear();
       _presionPSIController.clear();
@@ -276,7 +276,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double celsius = double.tryParse(value) ?? 0;
       double fahrenheit = (celsius * 9 / 5) + 32;
-      _temperaturaFahrenheitController.text = fahrenheit.toStringAsFixed(2);
+      _temperaturaFahrenheitController.text = _formatoMiles(fahrenheit);
     } else {
       _temperaturaFahrenheitController.clear();
     }
@@ -289,7 +289,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double fahrenheit = double.tryParse(value) ?? 0;
       double celsius = (fahrenheit - 32) * 5 / 9;
-      _temperaturaCentigradosController.text = celsius.toStringAsFixed(2);
+      _temperaturaCentigradosController.text = _formatoMiles(celsius);
     } else {
       _temperaturaCentigradosController.clear();
     }
@@ -1186,8 +1186,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              corrida.caudalM3Hr
-                                                                  .toString(),
+                                                              _formatoMiles(corrida.caudalM3Hr),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1203,9 +1202,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              corrida
-                                                                  .caudalBblHr
-                                                                  .toString(),
+                                                              _formatoMiles(corrida.caudalBblHr),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1221,9 +1218,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              corrida
-                                                                  .temperaturaC
-                                                                  .toString(),
+                                                              _formatoMiles(corrida.temperaturaC),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1239,9 +1234,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              corrida
-                                                                  .presionKgCm2
-                                                                  .toString(),
+                                                              _formatoMiles(corrida.presionKgCm2),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1257,9 +1250,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              corrida
-                                                                  .meterFactor
-                                                                  .toString(),
+                                                              _formatoMiles(corrida.meterFactor),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1275,9 +1266,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              corrida
-                                                                  .frecuenciaHz
-                                                                  .toString(),
+                                                              _formatoMiles(corrida.frecuenciaHz),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1293,9 +1282,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              corrida
-                                                                  .kFactorPulseM3
-                                                                  .toString(),
+                                                              _formatoMiles(corrida.kFactorPulseM3),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1311,9 +1298,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              corrida
-                                                                  .kFactorPulseBbl
-                                                                  .toString(),
+                                                              _formatoMiles(corrida.kFactorPulseBbl),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1329,9 +1314,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              corrida
-                                                                  .repetibilidad
-                                                                  .toString(),
+                                                              _formatoMiles(corrida.repetibilidad),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1349,28 +1332,90 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                             child: IconButton(
                                                               icon: Icon(
                                                                 Icons.delete,
-                                                                size: 8,
+                                                                size: 14,
                                                               ),
                                                               onPressed: () {
-                                                                setState(() {
-                                                                  int
-                                                                  index = _corridasRegistradas.indexWhere(
-                                                                    (c) =>
-                                                                        c.idCorrida ==
-                                                                        corrida
-                                                                            .idCorrida,
-                                                                  );
-                                                                  _corridasRegistradas.removeWhere(
-                                                                    (c) =>
-                                                                        c.idCorrida ==
-                                                                        corrida
-                                                                            .idCorrida,
-                                                                  );
-                                                                  _listaCorridas
-                                                                      .removeAt(
-                                                                        index,
-                                                                      );
-                                                                });
+                                                                showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (
+                                                                        BuildContext
+                                                                        context,
+                                                                      ) {
+                                                                        // This is an alert dialog that asks for confirmation to delete something.
+                                                                        return AlertDialog(
+                                                                          title: Text(
+                                                                            "¿Quieres quitar esta corrida?",
+                                                                          ),
+                                                                          content: SingleChildScrollView(
+                                                                            child: ListBody(
+                                                                              children:
+                                                                                  <
+                                                                                    Widget
+                                                                                  >[
+                                                                                    Text(
+                                                                                      'Quitarás la corrida de la tabla y del cálculo',
+                                                                                    ),
+                                                                                  ],
+                                                                            ),
+                                                                          ),
+                                                                          actions: [
+                                                                            ElevatedButton(
+                                                                              onPressed: () {
+                                                                                Navigator.of(
+                                                                                  context,
+                                                                                ).pop(
+                                                                                  false,
+                                                                                ); // Return false if cancelled
+                                                                              },
+                                                                              child: Text(
+                                                                                "Cancelar",
+                                                                              ),
+                                                                            ),
+                                                                            ElevatedButton(
+                                                                              onPressed: () async {
+                                                                                // Call a function that deletes the data when confirmed.
+                                                                                final result = setState(
+                                                                                  () {
+                                                                                    int index = _corridasRegistradas.indexWhere(
+                                                                                      (
+                                                                                        c,
+                                                                                      ) =>
+                                                                                          c.idCorrida ==
+                                                                                          corrida.idCorrida,
+                                                                                    );
+                                                                                    _corridasRegistradas.removeWhere(
+                                                                                      (
+                                                                                        c,
+                                                                                      ) =>
+                                                                                          c.idCorrida ==
+                                                                                          corrida.idCorrida,
+                                                                                    );
+                                                                                    _listaCorridas.removeAt(
+                                                                                      index,
+                                                                                    );
+                                                                                  },
+                                                                                );
+
+                                                                                Navigator.of(
+                                                                                  context,
+                                                                                ).pop(
+                                                                                  true,
+                                                                                );
+                                                                              },
+                                                                              child: Text(
+                                                                                "Quitar",
+                                                                                style: TextStyle(
+                                                                                  color: Colors.white,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        );
+                                                                      },
+                                                                );
+
                                                                 calcularLinealidad();
                                                               },
                                                             ),
@@ -1621,18 +1666,25 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   void _agregarCorrida() {
     _corridaActual = Corrida(
       _listaCorridas.length + 1,
-      double.tryParse(_caudalM3Controller.text) ?? 0,
-      double.tryParse(_caudalBblController.text) ?? 0,
-      double.tryParse(_temperaturaCentigradosController.text) ?? 0,
-      double.tryParse(_temperaturaFahrenheitController.text) ?? 0,
-      double.tryParse(_presionController.text) ?? 0,
-      double.tryParse(_presionPSIController.text) ?? 0,
-      double.tryParse(_presionKPaController.text) ?? 0,
-      double.tryParse(_meterFactorController.text) ?? 0,
-      double.tryParse(_kFactorPulsosM3Controller.text) ?? 0,
-      double.tryParse(_kFactorPulsosBblController.text) ?? 0,
-      double.tryParse(_repetibilidadController.text) ?? 0,
-      double.tryParse(_frecuenciaController.text) ?? 0,
+      double.tryParse(_caudalM3Controller.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_caudalBblController.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(
+            _temperaturaCentigradosController.text.replaceAll(',', ''),
+          ) ??
+          0,
+      double.tryParse(
+            _temperaturaFahrenheitController.text.replaceAll(',', ''),
+          ) ??
+          0,
+      double.tryParse(_presionController.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_presionPSIController.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_presionKPaController.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_meterFactorController.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_kFactorPulsosM3Controller.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_kFactorPulsosBblController.text.replaceAll(',', '')) ??
+          0,
+      double.tryParse(_repetibilidadController.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_frecuenciaController.text.replaceAll(',', '')) ?? 0,
       0,
     );
 
@@ -2096,7 +2148,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     // 4. Porcentaje de linealidad
     double porcentajeLinealidad = (maxDesviacion / promedio) * 100;
 
-    _linealidadController.text = porcentajeLinealidad.toStringAsFixed(2);
+    _linealidadController.text = _formatoMiles(porcentajeLinealidad);
 
     return porcentajeLinealidad;
   }
@@ -2137,5 +2189,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         ).showSnackBar(mensajes.ayuda(context, mensaje));
       },
     );
+  }
+
+  String _formatoMiles(double value) {
+    final formateador = NumberFormat("####,###,##0.00000", "en");
+    return formateador.format(value); // Format as integer to avoid decimals.
   }
 }
