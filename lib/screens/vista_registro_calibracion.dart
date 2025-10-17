@@ -1,26 +1,13 @@
 import 'dart:io' show File; // Esto solo se usa en móviles/escritorio
 import 'dart:html' as html;
 import 'dart:typed_data';
-import 'package:calibraciones/models/_calibracion_equipo.dart';
-import 'package:calibraciones/models/_corrida.dart';
-import 'package:calibraciones/models/_direccion.dart';
-import 'package:calibraciones/models/_equipo.dart';
-import 'package:calibraciones/models/_gerencia.dart';
-import 'package:calibraciones/models/_instalacion.dart';
-import 'package:calibraciones/models/_laboratorio_calibracion.dart';
-import 'package:calibraciones/models/_patin_medicion.dart';
-import 'package:calibraciones/models/_subdireccion.dart';
-import 'package:calibraciones/models/_tren_medicion.dart';
+import 'package:calibraciones/common/barrel/models.dart';
 import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:calibraciones/screens/components/tabla_calibracion.dart';
-import 'package:calibraciones/services/calibracion_service.dart';
-import 'package:calibraciones/services/direccion_service.dart';
-import 'package:calibraciones/services/implementation/calibracion_service_impl.dart';
-import 'package:calibraciones/services/implementation/direccion_service_impl.dart';
-import 'package:calibraciones/services/implementation/laboratorio_calibracion_service_impl.dart';
-import 'package:calibraciones/services/laboratorio_calibracion_service.dart';
+import 'package:calibraciones/common/barrel/services.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:calibraciones/common/utils/conversiones.dart';
 
 class VistaRegistroCalibracion extends StatefulWidget {
   const VistaRegistroCalibracion({super.key});
@@ -30,6 +17,7 @@ class VistaRegistroCalibracion extends StatefulWidget {
 }
 
 class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
+  final Conversiones convertidor = Conversiones();
   final Mensajes mensajes = Mensajes();
   final _formularioRegistro = GlobalKey<FormState>();
 
@@ -175,8 +163,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingM3 = true);
     if (value.isNotEmpty) {
       double m3 = double.tryParse(value) ?? 0;
-      double bbl = m3 * factor;
-      _caudalBblController.text = _formatoMiles(bbl);
+      _caudalBblController.text = convertidor.formatoMiles(
+        Conversiones.caudalM3ToBbl(m3),
+      );
     } else {
       _caudalBblController.clear();
     }
@@ -188,8 +177,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingBbl = true);
     if (value.isNotEmpty) {
       double bbl = double.tryParse(value) ?? 0;
-      double m3 = bbl / factor;
-      _caudalM3Controller.text = _formatoMiles(m3);
+      _caudalM3Controller.text = convertidor.formatoMiles(
+        Conversiones.caudalBblToM3(bbl),
+      );
     } else {
       _caudalM3Controller.clear();
     }
@@ -201,8 +191,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingPulsosM3 = true);
     if (value.isNotEmpty) {
       double pm3 = double.tryParse(value) ?? 0;
-      double pbbl = pm3 / factor;
-      _kFactorPulsosBblController.text = _formatoMiles(pbbl);
+      _kFactorPulsosBblController.text = convertidor.formatoMiles(
+        Conversiones.m3ToBbl(pm3),
+      );
     } else {
       _kFactorPulsosBblController.clear();
     }
@@ -214,8 +205,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingPulsosBbl = true);
     if (value.isNotEmpty) {
       double pbbl = double.tryParse(value) ?? 0;
-      double pm3 = pbbl * factor;
-      _kFactorPulsosM3Controller.text = _formatoMiles(pm3);
+      _kFactorPulsosM3Controller.text = convertidor.formatoMiles(
+        Conversiones.bblToM3(pbbl),
+      );
     } else {
       _kFactorPulsosM3Controller.clear();
     }
@@ -227,10 +219,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingPresion = true);
     if (value.isNotEmpty) {
       double kgcm2 = double.tryParse(value) ?? 0;
-      double psi = (kgcm2 * factorPresion);
-      _presionPSIController.text = _formatoMiles(psi);
-      double kPa = kgcm2 * 98.0665;
-      _presionKPaController.text = _formatoMiles(kPa);
+      _presionPSIController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToPsi(kgcm2),
+      );
+      _presionKPaController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToKPa(kgcm2),
+      );
     } else {
       _presionPSIController.clear();
       _presionKPaController.clear();
@@ -243,10 +237,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingPresionPSI = true);
     if (value.isNotEmpty) {
       double psi = double.tryParse(value) ?? 0;
-      double kgcm2 = psi * 0.0703070;
-      _presionController.text = _formatoMiles(kgcm2);
-      double kPa = kgcm2 * 98.0665;
-      _presionKPaController.text = _formatoMiles(kPa);
+      _presionController.text = convertidor.formatoMiles(
+        Conversiones.psiToKgCm2(psi),
+      );
+      _presionKPaController.text = convertidor.formatoMiles(
+        Conversiones.psiToKPa(psi),
+      );
     } else {
       _presionController.clear();
       _presionKPaController.clear();
@@ -259,10 +255,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingPresion = true);
     if (value.isNotEmpty) {
       double kPa = double.tryParse(value) ?? 0;
-      double kgcm2 = kPa * 0.0101972;
-      _presionController.text = _formatoMiles(kgcm2);
-      double psi = (kgcm2 * factorPresion);
-      _presionPSIController.text = _formatoMiles(psi);
+      _presionController.text = convertidor.formatoMiles(
+        Conversiones.kPaToKgCm2(kPa),
+      );
+      _presionPSIController.text = convertidor.formatoMiles(
+        Conversiones.kPaToPsi(kPa),
+      );
     } else {
       _presionController.clear();
       _presionPSIController.clear();
@@ -275,8 +273,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingCelsius = true);
     if (value.isNotEmpty) {
       double celsius = double.tryParse(value) ?? 0;
-      double fahrenheit = (celsius * 9 / 5) + 32;
-      _temperaturaFahrenheitController.text = _formatoMiles(fahrenheit);
+      _temperaturaFahrenheitController.text = convertidor.formatoMiles(
+        Conversiones.celsiusToFahrenheit(celsius),
+      );
     } else {
       _temperaturaFahrenheitController.clear();
     }
@@ -288,8 +287,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingFahrenheit = true);
     if (value.isNotEmpty) {
       double fahrenheit = double.tryParse(value) ?? 0;
-      double celsius = (fahrenheit - 32) * 5 / 9;
-      _temperaturaCentigradosController.text = _formatoMiles(celsius);
+      _temperaturaCentigradosController.text = convertidor.formatoMiles(
+        Conversiones.fahrenheitToCelsius(fahrenheit),
+      );
     } else {
       _temperaturaCentigradosController.clear();
     }
@@ -1186,7 +1186,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              _formatoMiles(corrida.caudalM3Hr),
+                                                              convertidor
+                                                                  .formatoMiles(
+                                                                    corrida
+                                                                        .caudalM3Hr,
+                                                                  ),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1202,7 +1206,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              _formatoMiles(corrida.caudalBblHr),
+                                                              convertidor
+                                                                  .formatoMiles(
+                                                                    corrida
+                                                                        .caudalBblHr,
+                                                                  ),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1218,7 +1226,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              _formatoMiles(corrida.temperaturaC),
+                                                              convertidor
+                                                                  .formatoMiles(
+                                                                    corrida
+                                                                        .temperaturaC,
+                                                                  ),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1234,7 +1246,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              _formatoMiles(corrida.presionKgCm2),
+                                                              convertidor
+                                                                  .formatoMiles(
+                                                                    corrida
+                                                                        .presionKgCm2,
+                                                                  ),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1250,7 +1266,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              _formatoMiles(corrida.meterFactor),
+                                                              convertidor
+                                                                  .formatoMiles(
+                                                                    corrida
+                                                                        .meterFactor,
+                                                                  ),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1266,7 +1286,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              _formatoMiles(corrida.frecuenciaHz),
+                                                              convertidor
+                                                                  .formatoMiles(
+                                                                    corrida
+                                                                        .frecuenciaHz,
+                                                                  ),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1282,7 +1306,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              _formatoMiles(corrida.kFactorPulseM3),
+                                                              convertidor
+                                                                  .formatoMiles(
+                                                                    corrida
+                                                                        .kFactorPulseM3,
+                                                                  ),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1298,7 +1326,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              _formatoMiles(corrida.kFactorPulseBbl),
+                                                              convertidor
+                                                                  .formatoMiles(
+                                                                    corrida
+                                                                        .kFactorPulseBbl,
+                                                                  ),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -1314,7 +1346,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                   2.0,
                                                                 ),
                                                             child: Text(
-                                                              _formatoMiles(corrida.repetibilidad),
+                                                              convertidor
+                                                                  .formatoMiles(
+                                                                    corrida
+                                                                        .repetibilidad,
+                                                                  ),
                                                               style: TextStyle(
                                                                 fontSize: 10,
                                                               ),
@@ -2148,7 +2184,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     // 4. Porcentaje de linealidad
     double porcentajeLinealidad = (maxDesviacion / promedio) * 100;
 
-    _linealidadController.text = _formatoMiles(porcentajeLinealidad);
+    _linealidadController.text = convertidor.formatoMiles(porcentajeLinealidad);
 
     return porcentajeLinealidad;
   }
@@ -2189,10 +2225,5 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         ).showSnackBar(mensajes.ayuda(context, mensaje));
       },
     );
-  }
-
-  String _formatoMiles(double value) {
-    final formateador = NumberFormat("####,###,##0.00000", "en");
-    return formateador.format(value); // Format as integer to avoid decimals.
   }
 }
