@@ -206,10 +206,12 @@ class VistaRegistroState extends State<VistaRegistro> {
                                     'Favor de escribir tu(s) nombre(s)',
                                 controllerText: _nombreController,
                                 validator: (value) {
-                                  if (value == null || value.isEmpty)
+                                  if (value == null || value.isEmpty) {
                                     return 'Este campo es obligatorio';
-                                  if (value.length > 50)
+                                  }
+                                  if (value.length > 50) {
                                     return 'Máximo 50 caracteres';
+                                  }
                                   return null;
                                 },
                               ),
@@ -220,10 +222,12 @@ class VistaRegistroState extends State<VistaRegistro> {
                                     'Favor de escribir tu primer apellido',
                                 controllerText: _primerController,
                                 validator: (value) {
-                                  if (value == null || value.isEmpty)
+                                  if (value == null || value.isEmpty) {
                                     return 'Este campo es obligatorio';
-                                  if (value.length > 30)
+                                  }
+                                  if (value.length > 30) {
                                     return 'Máximo 30 caracteres';
+                                  }
                                   return null;
                                 },
                               ),
@@ -234,10 +238,12 @@ class VistaRegistroState extends State<VistaRegistro> {
                                     'Favor de escribir tu segundo apellido',
                                 controllerText: _segundoController,
                                 validator: (value) {
-                                  if (value == null || value.isEmpty)
+                                  if (value == null || value.isEmpty) {
                                     return 'Este campo es obligatorio';
-                                  if (value.length > 30)
+                                  }
+                                  if (value.length > 30) {
                                     return 'Máximo 30 caracteres';
+                                  }
                                   return null;
                                 },
                               ),
@@ -248,10 +254,12 @@ class VistaRegistroState extends State<VistaRegistro> {
                                     'Favor de escribir tu ficha de empleado',
                                 controllerText: _fichaController,
                                 validator: (value) {
-                                  if (value == null || value.isEmpty)
+                                  if (value == null || value.isEmpty) {
                                     return 'Este campo es obligatorio';
-                                  if (value.length > 10)
+                                  }
+                                  if (value.length > 10) {
                                     return 'Máximo 10 caracteres';
+                                  }
                                   return null;
                                 },
                               ),
@@ -262,12 +270,15 @@ class VistaRegistroState extends State<VistaRegistro> {
                                     'Favor de escribir tu correo electrónico',
                                 controllerText: _emailController,
                                 validator: (value) {
-                                  if (value == null || value.isEmpty)
+                                  if (value == null || value.isEmpty) {
                                     return 'El campo no puede estar vacío';
-                                  if (value.length > 30)
+                                  }
+                                  if (value.length > 30) {
                                     return 'Máximo 30 caracteres';
-                                  if (!_esEmailValido(value))
+                                  }
+                                  if (!_esEmailValido(value)) {
                                     return 'Correo inválido';
+                                  }
                                   return null;
                                 },
                               ),
@@ -277,10 +288,12 @@ class VistaRegistroState extends State<VistaRegistro> {
                                 validatorText: 'Favor de escribir tu teléfono',
                                 controllerText: _telefonoController,
                                 validator: (value) {
-                                  if (value == null || value.isEmpty)
+                                  if (value == null || value.isEmpty) {
                                     return 'Este campo es obligatorio';
-                                  if (value.length > 10)
+                                  }
+                                  if (value.length > 10) {
                                     return 'Máximo 10 caracteres';
+                                  }
                                   return null;
                                 },
                               ),
@@ -449,7 +462,7 @@ class VistaRegistroState extends State<VistaRegistro> {
     return DropdownButtonFormField<DtoDireccion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
-      value: value,
+      initialValue: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
       items: items.map((DtoDireccion item) {
         return DropdownMenuItem<DtoDireccion>(
@@ -477,7 +490,7 @@ class VistaRegistroState extends State<VistaRegistro> {
     return DropdownButtonFormField<DtoSubdireccionLogistica>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
-      value: value,
+      initialValue: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
       items: items.map((DtoSubdireccionLogistica item) {
         return DropdownMenuItem<DtoSubdireccionLogistica>(
@@ -505,7 +518,7 @@ class VistaRegistroState extends State<VistaRegistro> {
     return DropdownButtonFormField<DtoGerencia>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
-      value: value,
+      initialValue: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
       items: items.map((DtoGerencia item) {
         return DropdownMenuItem<DtoGerencia>(
@@ -533,7 +546,7 @@ class VistaRegistroState extends State<VistaRegistro> {
     return DropdownButtonFormField<DtoInstalacion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
-      value: value,
+      initialValue: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
       items: items.map((DtoInstalacion item) {
         return DropdownMenuItem<DtoInstalacion>(

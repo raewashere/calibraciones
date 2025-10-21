@@ -2,97 +2,118 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class GraficaCorridas extends StatelessWidget {
-  const GraficaCorridas({super.key});
+  final List<FlSpot> spots; // Los puntos (Flujo, K Factor)
+  final double maxX;
+  final double minX;
+  final double maxY;
+  final double minY; // Añadir minY para un mejor control del K Factor
+
+  const GraficaCorridas({
+    super.key,
+    required this.spots,
+    required this.maxX,
+    required this.minX,
+    required this.maxY,
+    required this.minY, // Ahora es requerido
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-    );
-  }
-
-  Widget graficar(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return SizedBox(
       height: 300,
       child: LineChart(
-          LineChartData(
-            backgroundColor: Theme.of(context).colorScheme.onPrimary,
-            gridData: FlGridData(
-              show: true,
-              drawVerticalLine: false,
-              getDrawingHorizontalLine: (value) =>
-                  FlLine(color: Colors.grey.withOpacity(0.2), strokeWidth: 1),
-            ),
-            titlesData: FlTitlesData(
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 32,
-                  getTitlesWidget: (value, meta) {
-                    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'];
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        meses[value.toInt() % meses.length],
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    );
-                  },
-                  interval: 1,
-                ),
-              ),
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  interval: 2,
-                  getTitlesWidget: (value, meta) => Text(
-                    value.toInt().toString(),
-                    style: const TextStyle(fontSize: 10),
+        LineChartData(
+          // ... (Configuración general de la gráfica)
+          titlesData: FlTitlesData(
+            // Títulos del Eje X (Flujo)
+            bottomTitles: AxisTitles(
+              // Aumentamos el espacio reservado para el título del eje
+              axisNameSize: 35,
+              axisNameWidget: const Padding(
+                padding: EdgeInsets.only(top: 8.0), // Reducido ligeramente
+                child: Text(
+                  'Flujo',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
                   ),
-                  reservedSize: 30,
                 ),
               ),
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            ),
-            borderData: FlBorderData(
-              show: true,
-              border: Border.all(color: Colors.grey.withOpacity(0.3)),
-            ),
-            lineBarsData: [
-              LineChartBarData(
-                isCurved: true,
-                color: Theme.of(context).colorScheme.secondary,
-                barWidth: 3,
-                isStrokeCapRound: true,
-                belowBarData: BarAreaData(
-                  show: true,
-                  color: Theme.of(context)
-                      .colorScheme
-                      .secondary
-                      .withOpacity(0.2),
-                ),
-                dotData: FlDotData(show: true),
-                spots: const [
-                  FlSpot(0, 3),
-                  FlSpot(1, 2.5),
-                  FlSpot(2, 5),
-                  FlSpot(3, 3.1),
-                  FlSpot(4, 4),
-                  FlSpot(5, 4.8),
-                ],
+              sideTitles: SideTitles(
+                showTitles: true,
+                // Aumentamos el espacio reservado para las etiquetas numéricas
+                reservedSize: 40,
+                getTitlesWidget: (value, meta) {
+                  final text = value.toStringAsFixed(0);
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      text,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  );
+                },
+                interval: 200,
               ),
-            ],
-            minX: 0,
-            maxX: 5,
-            minY: 0,
-            maxY: 6,
+            ),
+
+            // Títulos del Eje Y (K Factor)
+            // EJE Y (K Factor)
+            leftTitles: AxisTitles(
+              // Aumentamos el espacio reservado para el título del eje
+              axisNameSize: 35,
+              axisNameWidget: const Padding(
+                padding: EdgeInsets.only(right: 12.0),
+                child: Text(
+                  'K Factor',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              sideTitles: SideTitles(
+                showTitles: true,
+                // Aumentamos el espacio reservado para las etiquetas con decimales
+                reservedSize: 50,
+                getTitlesWidget: (value, meta) => Text(
+                  value.toStringAsFixed(4),
+                  style: const TextStyle(fontSize: 10),
+                ),
+                interval: 0.0002,
+              ),
+            ),
+
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
-          duration: const Duration(milliseconds: 800),
-          curve: Curves.easeOutQuart,
+
+          // ... (Configuración de BorderData, etc.)
+          lineBarsData: [
+            LineChartBarData(
+              // ... (Estilos de la línea)
+              color: colors.secondaryContainer,
+              dotData: FlDotData(show: true),
+              belowBarData: BarAreaData(show: false),
+              spots: spots, // Usa la lista de puntos dinámica
+            ),
+          ],
+
+          // LÍMITES DE LA GRÁFICA
+          minX: minX, // El valor X del primer punto
+          maxX: maxX, // El valor X máximo
+          minY: minY, // El valor Y mínimo (K Factor)
+          maxY: maxY, // El valor Y máximo
         ),
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeOutQuart,
+      ),
     );
   }
 }

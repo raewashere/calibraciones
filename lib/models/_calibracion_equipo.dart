@@ -8,7 +8,7 @@ class CalibracionEquipo {
   late double linealidad;
   late double reproducibilidad;
   late String observaciones;
-  //late String documentoCertificado;
+  late String rutaCertificado;
   late List<Corrida> corridas;
   //Referencias a otros objetos
   late String tagEquipo;
@@ -23,7 +23,7 @@ class CalibracionEquipo {
     this.linealidad,
     this.reproducibilidad,
     this.observaciones,
-    //this.documentoCertificado,
+    this.rutaCertificado,
     this.corridas,
     this.tagEquipo,
     this.idLaboratorioCalibracion,
@@ -39,7 +39,7 @@ class CalibracionEquipo {
     this.linealidad,
     this.reproducibilidad,
     this.observaciones,
-    //this.documentoCertificado,
+    this.rutaCertificado,
     this.tagEquipo,
     this.idLaboratorioCalibracion,
     this.idUsuario,
@@ -84,9 +84,9 @@ class CalibracionEquipo {
     observaciones = value;
   }
 
-  /*set setDocumentoCertificado(String value) {
-    documentoCertificado = value;
-  }*/
+  set setRutaCertificado(String value) {
+    rutaCertificado = value;
+  }
 
   set setCorridas(List<Corrida> value) {
     corridas = value;
@@ -115,7 +115,7 @@ class CalibracionEquipo {
       calibracionJson['linealidad'],
       calibracionJson['reproducibilidad'],
       calibracionJson['observaciones'],
-      //calibracionJson['documento_certificado'],
+      calibracionJson['ruta_certificado'],
       /*(calibracionJson['lista_corridas'] as List)
           .map((corridaJson) => Corrida.fromJson(corridaJson))
           .toList(),*/
@@ -134,7 +134,7 @@ class CalibracionEquipo {
       'linealidad': linealidad,
       'reproducibilidad': reproducibilidad,
       'observaciones': observaciones,
-      //'documento_certificado': documentoCertificado,
+      'ruta_certificado': rutaCertificado,
       //'corrida': corridas.map((corrida) => corrida.toJson()).toList(),
       'tag_equipo': tagEquipo,
       'id_laboratorio_calibracion':

@@ -31,6 +31,8 @@ class CalibracionServiceImpl implements CalibracionService {
     int idUsuario = responseUsuario['id_usuario'];
     calibracionEquipo.setIdUsuario = idUsuario;
 
+    calibracionEquipo.setRutaCertificado = '$patinSeleccionado/$trenSeleccionado/${calibracionEquipo.tagEquipo}/${calibracionEquipo.certificadoCalibracion}.pdf';
+
     final response = await supabase
         .from('calibracion_equipo')
         .insert(calibracionEquipo.toJson())
@@ -42,9 +44,7 @@ class CalibracionServiceImpl implements CalibracionService {
     List<Corrida> corridas = calibracionEquipo.getCorridas();
     for (var corrida in corridas) {
       corrida.setIdCalibracion = idCalibracionEquipo;
-      final responseCorridas = await supabase
-          .from('corrida')
-          .insert(corrida.toJson());
+      await supabase.from('corrida').insert(corrida.toJson());
     }
 
     await supabase.storage
@@ -71,7 +71,7 @@ class CalibracionServiceImpl implements CalibracionService {
       final response = await supabase
           .from('calibracion_equipo')
           .select()
-          .order( 'id_calibracion', ascending: false)
+          .order('id_calibracion', ascending: false)
           .range(offset, offset + limit - 1);
 
       // response ya es una List<Map<String, dynamic>>

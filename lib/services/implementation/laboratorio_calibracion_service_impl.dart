@@ -19,4 +19,20 @@ class LaboratorioCalibracionServiceImpl extends LaboratorioCalibracionService {
       throw Exception('Error en la conexión: $e');
     }
   }
+
+  @override
+  Future<LaboratorioCalibracion> obtenerLaboratorioPorId(int idLaboratorio)
+  async {
+    try {
+      final response = await supabase
+          .from('laboratorio_calibracion')
+          .select()
+          .eq('id_laboratorio_calibracion', idLaboratorio)
+          .single();
+
+      return LaboratorioCalibracion.fromJsonFactory(response);
+    } catch (e) {
+      throw Exception('Error al obtener el laboratorio: $e');
+    }
+  }
 }

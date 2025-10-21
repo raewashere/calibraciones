@@ -1,7 +1,13 @@
-import 'package:calibraciones/screens/components/grafica_corridas.dart';
-import 'package:calibraciones/screens/components/mensajes.dart';
+import 'package:calibraciones/common/barrel/services.dart';
+import 'package:calibraciones/common/barrel/models.dart';
+import 'package:calibraciones/common/components/components.dart';
+import 'package:calibraciones/common/utils/conversiones.dart';
+import 'package:fl_chart/fl_chart.dart';
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
+import 'dart:typed_data';
 
 class VistaDetalleCalibracion extends StatefulWidget {
   const VistaDetalleCalibracion({super.key});
@@ -11,8 +17,65 @@ class VistaDetalleCalibracion extends StatefulWidget {
 }
 
 class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
+  final Conversiones convertidor = Conversiones();
+  final TablaCalibracion tablaCalibracion = TablaCalibracion();
   final Mensajes mensajes = Mensajes();
-  final GraficaCorridas graficaCorridas = const GraficaCorridas();
+  DateFormat formato = DateFormat("dd/MM/yyyy");
+  late CalibracionEquipo calibracionEquipo;
+  //late LaboratorioCalibracion laboratorioCalibracion;
+
+  static const List<FlSpot> datosFlujoKFactor = [
+    FlSpot(1127.50, 0.9451),
+    FlSpot(1276.08, 0.9450),
+    FlSpot(1376.45, 0.9448),
+    FlSpot(1468.40, 0.9449),
+    FlSpot(1616.42, 0.9442),
+    FlSpot(1744.61, 0.9445),
+  ];
+
+  // 2. Determinar los límites de los ejes
+
+  // Eje X (Flujo): Mínimo es 1127.50, Máximo es 1744.61
+  static const double flujoMin = 1000.0; // Un poco antes del primer punto
+  static const double flujoMax = 1800.0; // Un poco después del último punto
+
+  // Eje Y (K Factor): Mínimo es 0.9442, Máximo es 0.9451
+  static const double kFactorMin =
+      0.9440; // Un valor bajo para que se vea la curva
+  static const double kFactorMax = 0.9455; // Un valor alto
+
+  final GraficaCorridas graficaCorridas = const GraficaCorridas(
+    spots: datosFlujoKFactor,
+    maxX: flujoMax,
+    minX: flujoMin,
+    maxY: kFactorMax,
+    minY: kFactorMin,
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)!.settings.arguments;
+
+    //calibracionEquipo = args as CalibracionEquipo;
+    calibracionEquipo = CalibracionEquipo(1, 'certificadoCalibracion', DateTime.now(), DateTime.now(), 5.0, 5.0, 'observaciones', 'rutaCertificado', [], 'tagEquipo', 1, 1);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Cargar información adicional si es necesario
+    //_cargarLaboratorioCalibracion();
+  }
+
+  /*Future<void> _cargarLaboratorioCalibracion() async {
+    try {
+      laboratorioCalibracion = await LaboratorioCalibracionServiceImpl()
+          .obtenerLaboratorioPorId(calibracionEquipo.idLaboratorioCalibracion);
+    } catch (e) {
+      // Manejar errores
+    }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -69,9 +132,18 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     ),
                     const Divider(),
                     const SizedBox(height: 8),
-                    _buildInfoRow("Certificado", "12345"),
-                    _buildInfoRow("Fecha de calibración", "2023-10-01"),
-                    _buildInfoRow("Laboratorio", "Laboratorio XYZ"),
+                    _buildInfoRow(
+                      "Certificado",
+                      calibracionEquipo.certificadoCalibracion,
+                    ),
+                    _buildInfoRow(
+                      "Fecha de calibración",
+                      formato.format(calibracionEquipo.fechaCalibracion),
+                    ),
+                    _buildInfoRow(
+                      "Laboratorio",
+                      calibracionEquipo.idLaboratorioCalibracion.toString(),
+                    ),
                     _buildInfoRow(
                       "Dirección",
                       "Logística y Salvaguardia Estratégica",
@@ -90,7 +162,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                             mensajes.info(context, 'Abriendo certificado...'),
                           );
                           abrirPdf(
-                            'https://zkviewvpmswfgpiwpoez.supabase.co/storage/v1/object/public/certificados/PT-144/PT-144-TR-1/DT-144-1/CET-100.pdf',
+                            'https://zkviewvpmswfgpiwpoez.supabase.co/storage/v1/object/public/${calibracionEquipo.rutaCertificado}',
                           );
                         },
                         icon: const Icon(Icons.picture_as_pdf),
@@ -131,7 +203,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     ),
                     const Divider(),
                     const SizedBox(height: 8),
-                    _buildInfoRow("TAG", "EQ-12345"),
+                    _buildInfoRow("TAG", calibracionEquipo.tagEquipo),
                     _buildInfoRow("Estado", "Operando"),
                     _buildInfoRow("Marca", "Marca XYZ"),
                     _buildInfoRow("Modelo", "Modelo ABC"),
@@ -165,8 +237,8 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                       ),
                     ),
                     const Divider(),
-                    const SizedBox(height: 8),
-                    graficaCorridas.graficar(context),
+                    const SizedBox(height: 12),
+                    graficaCorridas,
                   ],
                 ),
               ),
@@ -196,255 +268,50 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                       ),
                       children: [
                         TableRow(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.tertiary,
-                          ),
+                          decoration: BoxDecoration(color: colors.tertiary),
                           children: [
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'Caudal',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
+                            tablaCalibracion.cabeceraTabla(context, 'Caudal'),
+                            tablaCalibracion.cabeceraTabla(context, 'Caudal'),
+                            tablaCalibracion.cabeceraTabla(
+                              context,
+                              'Temperatura',
                             ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'Caudal',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
+                            tablaCalibracion.cabeceraTabla(context, 'Presión'),
+                            tablaCalibracion.cabeceraTabla(context, 'Meter'),
+                            tablaCalibracion.cabeceraTabla(
+                              context,
+                              'Frecuencia',
                             ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'Temperatura',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'Presión',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'Meter',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'Frecuencia',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'K Factor',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'K Factor',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'Repetibilidad',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
+                            tablaCalibracion.cabeceraTabla(context, 'K Factor'),
+                            tablaCalibracion.cabeceraTabla(context, 'K Factor'),
+                            tablaCalibracion.cabeceraTabla(
+                              context,
+                              'Repetibilidad',
                             ),
                           ],
                         ),
                         TableRow(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.tertiary,
-                          ),
+                          decoration: BoxDecoration(color: colors.tertiary),
                           children: [
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'm3/hr',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
+                            tablaCalibracion.cabeceraTabla(context, 'm³/hr'),
+                            tablaCalibracion.cabeceraTabla(context, 'bbl/hr'),
+                            tablaCalibracion.cabeceraTabla(context, '°C'),
+                            tablaCalibracion.cabeceraTabla(context, 'Kg/m2'),
+                            tablaCalibracion.cabeceraTabla(context, 'Factor'),
+                            tablaCalibracion.cabeceraTabla(context, 'Hz'),
+                            tablaCalibracion.cabeceraTabla(
+                              context,
+                              'Pulsos/m³',
                             ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'bbl/hr',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
+                            tablaCalibracion.cabeceraTabla(
+                              context,
+                              'Pulsos/bbl',
                             ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  '°C',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'kg/cm2',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'Factor',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'Hz',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'Pulsos/m3',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  'Pulsos/bbl',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(2.0),
-                                child: const Text(
-                                  '%',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ),
+                            tablaCalibracion.cabeceraTabla(context, '%'),
                           ],
                         ),
-                        /*...(_corridasRegistradas.isNotEmpty
-                            ? _corridasRegistradas
+                        /*...(calibracionEquipo.corridas.isNotEmpty
+                            ? calibracionEquipo.corridas
                                   .map(
                                     (corrida) => TableRow(
                                       decoration: BoxDecoration(
@@ -453,95 +320,58 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                                         ).colorScheme.tertiaryContainer,
                                       ),
                                       children: [
-                                        TableCell(
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            padding: const EdgeInsets.all(2.0),
-                                            child: Text(
-                                              corrida.caudalM3Hr.toString(),
-                                              style: TextStyle(fontSize: 10),
-                                            ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.caudalM3Hr,
                                           ),
                                         ),
-                                        TableCell(
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            padding: const EdgeInsets.all(2.0),
-                                            child: Text(
-                                              corrida.caudalBblHr.toString(),
-                                              style: TextStyle(fontSize: 10),
-                                            ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.caudalBblHr,
                                           ),
                                         ),
-                                        TableCell(
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            padding: const EdgeInsets.all(2.0),
-                                            child: Text(
-                                              corrida.temperaturaC.toString(),
-                                              style: TextStyle(fontSize: 10),
-                                            ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.temperaturaC,
                                           ),
                                         ),
-                                        TableCell(
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            padding: EdgeInsets.all(2.0),
-                                            child: Text(
-                                              corrida.presionKgCm2.toString(),
-                                              style: TextStyle(fontSize: 10),
-                                            ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.presionKgCm2,
                                           ),
                                         ),
-                                        TableCell(
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            padding: EdgeInsets.all(2.0),
-                                            child: Text(
-                                              corrida.meterFactor.toString(),
-                                              style: TextStyle(fontSize: 10),
-                                            ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.meterFactor,
                                           ),
                                         ),
-                                        TableCell(
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            padding: EdgeInsets.all(2.0),
-                                            child: Text(
-                                              corrida.frecuenciaHz.toString(),
-                                              style: TextStyle(fontSize: 10),
-                                            ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.frecuenciaHz,
                                           ),
                                         ),
-                                        TableCell(
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            padding: EdgeInsets.all(2.0),
-                                            child: Text(
-                                              corrida.kFactorPulseM3.toString(),
-                                              style: TextStyle(fontSize: 10),
-                                            ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.kFactorPulseM3,
                                           ),
                                         ),
-                                        TableCell(
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            padding: EdgeInsets.all(2.0),
-                                            child: Text(
-                                              corrida.kFactorPulseBbl
-                                                  .toString(),
-                                              style: TextStyle(fontSize: 10),
-                                            ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.kFactorPulseBbl,
                                           ),
                                         ),
-                                        TableCell(
-                                          child: Container(
-                                            alignment: Alignment.center,
-                                            padding: EdgeInsets.all(2.0),
-                                            child: Text(
-                                              corrida.repetibilidad.toString(),
-                                              style: TextStyle(fontSize: 10),
-                                            ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.repetibilidad,
                                           ),
                                         ),
                                       ],
@@ -563,8 +393,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                                     ),
                                   ),
                                 ),
-                              ]),
-                              */
+                              ]),*/
                       ],
                     ),
                   ],

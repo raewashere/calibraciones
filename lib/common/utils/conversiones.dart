@@ -1,5 +1,7 @@
 // lib/utils/conversion_utils.dart¨
+import 'package:calibraciones/models/_corrida.dart';
 import 'package:intl/intl.dart';
+
 class Conversiones {
   static const double m3ToBblFactor = 6.28981;
   static const double bblToM3Factor = 1 / m3ToBblFactor;
@@ -28,7 +30,34 @@ class Conversiones {
 
   //Formato de miles
   String formatoMiles(double value) {
-    final formateador = NumberFormat("####,###,##0.00000", "en");
+    final formateador = NumberFormat("####,###,##0.00", "en");
     return formateador.format(value); // Format as integer to avoid decimals.
+  }
+
+  String calcularLinealidad(List<Corrida> corridas) {
+    if (corridas.isEmpty) {
+      return '0.0';
+    }
+
+    List<double> valores = corridas.map((c) => c.getMeterFactor).toList();
+    // 1. Promedio
+    double promedio = valores.reduce((a, b) => a + b) / valores.length;
+
+    if (promedio == 0) {
+      return '0.0';
+    }
+
+    // 2. Calcular desviaciones absolutas respecto al promedio
+    List<double> desviaciones = valores
+        .map((v) => (v - promedio).abs())
+        .toList();
+
+    // 3. Obtener la máxima desviación
+    double maxDesviacion = desviaciones.reduce((a, b) => a > b ? a : b);
+
+    // 4. Porcentaje de linealidad
+    double porcentajeLinealidad = (maxDesviacion / promedio) * 100;
+
+    return formatoMiles(porcentajeLinealidad);
   }
 }

@@ -2,8 +2,7 @@ import 'dart:io' show File; // Esto solo se usa en móviles/escritorio
 import 'dart:html' as html;
 import 'dart:typed_data';
 import 'package:calibraciones/common/barrel/models.dart';
-import 'package:calibraciones/screens/components/mensajes.dart';
-import 'package:calibraciones/screens/components/tabla_calibracion.dart';
+import 'package:calibraciones/common/components/components.dart';
 import 'package:calibraciones/common/barrel/services.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -17,6 +16,8 @@ class VistaRegistroCalibracion extends StatefulWidget {
 }
 
 class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
+  final CajaFormulario cajaFormulario = CajaFormulario();
+  final TablaCalibracion tablaCalibracion = TablaCalibracion();
   final Conversiones convertidor = Conversiones();
   final Mensajes mensajes = Mensajes();
   final _formularioRegistro = GlobalKey<FormState>();
@@ -58,7 +59,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final TextEditingController _observacionesController =
       TextEditingController();
 
-  final List<Widget> _listaCorridas = [];
+  final List _listaCorridas = [];
   late Corrida _corridaActual;
   late final List<Corrida> _corridasRegistradas = [];
 
@@ -151,7 +152,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   bool _editingPulsosBbl = false;
   bool _editingPresion = false;
   bool _editingPresionPSI = false;
-  final bool _editingPresionKPa = false;
+  bool _editingPresionKPa = false;
 
   static const double factor = 6.28981; // m³/h a bbl/h
   static const double factorPulsos = 0.158987; // bbl → m³
@@ -215,7 +216,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void _onPresionChanged(String value) {
-    if (_editingPresionPSI) return; // evita recursividad
+    if (_editingPresionPSI && _editingPresionKPa) return; // evita recursividad
     setState(() => _editingPresion = true);
     if (value.isNotEmpty) {
       double kgcm2 = double.tryParse(value) ?? 0;
@@ -233,7 +234,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void _onPresionPSIChanged(String value) {
-    if (_editingPresion) return; // evita recursividad
+    if (_editingPresion && _editingPresionKPa) return; // evita recursividad
     setState(() => _editingPresionPSI = true);
     if (value.isNotEmpty) {
       double psi = double.tryParse(value) ?? 0;
@@ -251,8 +252,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void _onPresionKPaChanged(String value) {
-    if (_editingPresionPSI) return; // evita recursividad
-    setState(() => _editingPresion = true);
+    if (_editingPresionPSI && _editingPresion) return; // evita recursividad
+    setState(() => _editingPresionKPa = true);
     if (value.isNotEmpty) {
       double kPa = double.tryParse(value) ?? 0;
       _presionController.text = convertidor.formatoMiles(
@@ -334,7 +335,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                   child: Column(
                     children: <Widget>[
                       Container(
-                        decoration: _boxDecoration(context),
+                        decoration: cajaFormulario.boxDecoration(context),
                         child: Padding(
                           padding: EdgeInsets.all(30),
                           child: Column(
@@ -526,7 +527,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                       ),
                       SizedBox(height: 20),
                       Container(
-                        decoration: _boxDecoration(context),
+                        decoration: cajaFormulario.boxDecoration(context),
                         child: Padding(
                           padding: EdgeInsets.all(30),
                           child: Column(
@@ -647,7 +648,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                       ),
                       SizedBox(height: 20),
                       Container(
-                        decoration: _boxDecoration(context),
+                        decoration: cajaFormulario.boxDecoration(context),
                         child: Padding(
                           padding: EdgeInsets.all(30),
                           child: Column(
@@ -851,319 +852,95 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       children: [
                                         TableRow(
                                           decoration: BoxDecoration(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.tertiary,
+                                            color: theme.colorScheme.tertiary,
                                           ),
                                           children: [
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'Caudal',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'Caudal',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'Caudal',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'Caudal',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'Temperatura',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'Temperatura',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'Presión',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'Presión',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'Meter',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'Meter',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'Frecuencia',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'Frecuencia',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'K Factor',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'K Factor',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'K Factor',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'K Factor',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'Repetibilidad',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'Repetibilidad',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'X',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'Borrar',
                                             ),
                                           ],
                                         ),
                                         TableRow(
                                           decoration: BoxDecoration(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.tertiary,
+                                            color: theme.colorScheme.tertiary,
                                           ),
                                           children: [
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'm3/hr',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'm³/hr',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'bbl/hr',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'bbl/hr',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  '°C',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              '°C',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'kg/cm2',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'Kg/m2',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'Factor',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'Factor',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'Hz',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'Hz',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'Pulsos/m3',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'Pulsos/m³',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'Pulsos/bbl',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              'Pulsos/bbl',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  '%',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              '%',
                                             ),
-                                            TableCell(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                padding: const EdgeInsets.all(
-                                                  2.0,
-                                                ),
-                                                child: const Text(
-                                                  'X',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              '',
                                             ),
                                           ],
                                         ),
@@ -1177,286 +954,162 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                             .tertiaryContainer,
                                                       ),
                                                       children: [
-                                                        TableCell(
-                                                          child: Container(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            padding:
-                                                                const EdgeInsets.all(
-                                                                  2.0,
-                                                                ),
-                                                            child: Text(
-                                                              convertidor
-                                                                  .formatoMiles(
-                                                                    corrida
-                                                                        .caudalM3Hr,
-                                                                  ),
-                                                              style: TextStyle(
-                                                                fontSize: 10,
+                                                        tablaCalibracion.celdaTabla(
+                                                          context,
+                                                          convertidor
+                                                              .formatoMiles(
+                                                                corrida
+                                                                    .caudalM3Hr,
                                                               ),
-                                                            ),
+                                                        ),
+                                                        tablaCalibracion.celdaTabla(
+                                                          context,
+                                                          convertidor
+                                                              .formatoMiles(
+                                                                corrida
+                                                                    .caudalBblHr,
+                                                              ),
+                                                        ),
+                                                        tablaCalibracion.celdaTabla(
+                                                          context,
+                                                          convertidor
+                                                              .formatoMiles(
+                                                                corrida
+                                                                    .temperaturaC,
+                                                              ),
+                                                        ),
+                                                        tablaCalibracion.celdaTabla(
+                                                          context,
+                                                          convertidor
+                                                              .formatoMiles(
+                                                                corrida
+                                                                    .presionKgCm2,
+                                                              ),
+                                                        ),
+                                                        tablaCalibracion.celdaTabla(
+                                                          context,
+                                                          convertidor
+                                                              .formatoMiles(
+                                                                corrida
+                                                                    .meterFactor,
+                                                              ),
+                                                        ),
+                                                        tablaCalibracion.celdaTabla(
+                                                          context,
+                                                          convertidor
+                                                              .formatoMiles(
+                                                                corrida
+                                                                    .frecuenciaHz,
+                                                              ),
+                                                        ),
+                                                        tablaCalibracion.celdaTabla(
+                                                          context,
+                                                          convertidor.formatoMiles(
+                                                            corrida
+                                                                .kFactorPulseM3,
                                                           ),
                                                         ),
-                                                        TableCell(
-                                                          child: Container(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            padding:
-                                                                const EdgeInsets.all(
-                                                                  2.0,
-                                                                ),
-                                                            child: Text(
-                                                              convertidor
-                                                                  .formatoMiles(
-                                                                    corrida
-                                                                        .caudalBblHr,
-                                                                  ),
-                                                              style: TextStyle(
-                                                                fontSize: 10,
-                                                              ),
-                                                            ),
+                                                        tablaCalibracion.celdaTabla(
+                                                          context,
+                                                          convertidor.formatoMiles(
+                                                            corrida
+                                                                .kFactorPulseBbl,
                                                           ),
                                                         ),
-                                                        TableCell(
-                                                          child: Container(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            padding:
-                                                                const EdgeInsets.all(
-                                                                  2.0,
-                                                                ),
-                                                            child: Text(
-                                                              convertidor
-                                                                  .formatoMiles(
-                                                                    corrida
-                                                                        .temperaturaC,
-                                                                  ),
-                                                              style: TextStyle(
-                                                                fontSize: 10,
-                                                              ),
-                                                            ),
+                                                        tablaCalibracion.celdaTabla(
+                                                          context,
+                                                          convertidor.formatoMiles(
+                                                            corrida
+                                                                .repetibilidad,
                                                           ),
                                                         ),
-                                                        TableCell(
-                                                          child: Container(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            padding:
-                                                                EdgeInsets.all(
-                                                                  2.0,
-                                                                ),
-                                                            child: Text(
-                                                              convertidor
-                                                                  .formatoMiles(
-                                                                    corrida
-                                                                        .presionKgCm2,
-                                                                  ),
-                                                              style: TextStyle(
-                                                                fontSize: 10,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        TableCell(
-                                                          child: Container(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            padding:
-                                                                EdgeInsets.all(
-                                                                  2.0,
-                                                                ),
-                                                            child: Text(
-                                                              convertidor
-                                                                  .formatoMiles(
-                                                                    corrida
-                                                                        .meterFactor,
-                                                                  ),
-                                                              style: TextStyle(
-                                                                fontSize: 10,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        TableCell(
-                                                          child: Container(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            padding:
-                                                                EdgeInsets.all(
-                                                                  2.0,
-                                                                ),
-                                                            child: Text(
-                                                              convertidor
-                                                                  .formatoMiles(
-                                                                    corrida
-                                                                        .frecuenciaHz,
-                                                                  ),
-                                                              style: TextStyle(
-                                                                fontSize: 10,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        TableCell(
-                                                          child: Container(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            padding:
-                                                                EdgeInsets.all(
-                                                                  2.0,
-                                                                ),
-                                                            child: Text(
-                                                              convertidor
-                                                                  .formatoMiles(
-                                                                    corrida
-                                                                        .kFactorPulseM3,
-                                                                  ),
-                                                              style: TextStyle(
-                                                                fontSize: 10,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        TableCell(
-                                                          child: Container(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            padding:
-                                                                EdgeInsets.all(
-                                                                  2.0,
-                                                                ),
-                                                            child: Text(
-                                                              convertidor
-                                                                  .formatoMiles(
-                                                                    corrida
-                                                                        .kFactorPulseBbl,
-                                                                  ),
-                                                              style: TextStyle(
-                                                                fontSize: 10,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        TableCell(
-                                                          child: Container(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            padding:
-                                                                EdgeInsets.all(
-                                                                  2.0,
-                                                                ),
-                                                            child: Text(
-                                                              convertidor
-                                                                  .formatoMiles(
-                                                                    corrida
-                                                                        .repetibilidad,
-                                                                  ),
-                                                              style: TextStyle(
-                                                                fontSize: 10,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        TableCell(
-                                                          child: Container(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            padding:
-                                                                EdgeInsets.all(
-                                                                  2.0,
-                                                                ),
-                                                            child: IconButton(
-                                                              icon: Icon(
-                                                                Icons.delete,
-                                                                size: 14,
-                                                              ),
-                                                              onPressed: () {
-                                                                showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (
-                                                                        BuildContext
-                                                                        context,
-                                                                      ) {
-                                                                        // This is an alert dialog that asks for confirmation to delete something.
-                                                                        return AlertDialog(
-                                                                          title: Text(
-                                                                            "¿Quieres quitar esta corrida?",
-                                                                          ),
-                                                                          content: SingleChildScrollView(
-                                                                            child: ListBody(
-                                                                              children:
-                                                                                  <
-                                                                                    Widget
-                                                                                  >[
-                                                                                    Text(
-                                                                                      'Quitarás la corrida de la tabla y del cálculo',
-                                                                                    ),
-                                                                                  ],
-                                                                            ),
-                                                                          ),
-                                                                          actions: [
-                                                                            ElevatedButton(
-                                                                              onPressed: () {
-                                                                                Navigator.of(
-                                                                                  context,
-                                                                                ).pop(
-                                                                                  false,
-                                                                                ); // Return false if cancelled
-                                                                              },
-                                                                              child: Text(
-                                                                                "Cancelar",
+                                                        tablaCalibracion.borraFilaTabla(context, () {
+                                                          showDialog(
+                                                            context: context,
+                                                            builder:
+                                                                (
+                                                                  BuildContext
+                                                                  context,
+                                                                ) {
+                                                                  // This is an alert dialog that asks for confirmation to delete something.
+                                                                  return AlertDialog(
+                                                                    title: Text(
+                                                                      "¿Quieres quitar esta corrida?",
+                                                                    ),
+                                                                    content: SingleChildScrollView(
+                                                                      child: ListBody(
+                                                                        children:
+                                                                            <
+                                                                              Widget
+                                                                            >[
+                                                                              Text(
+                                                                                'Quitarás la corrida de la tabla y del cálculo',
                                                                               ),
-                                                                            ),
-                                                                            ElevatedButton(
-                                                                              onPressed: () async {
-                                                                                // Call a function that deletes the data when confirmed.
-                                                                                final result = setState(
-                                                                                  () {
-                                                                                    int index = _corridasRegistradas.indexWhere(
-                                                                                      (
-                                                                                        c,
-                                                                                      ) =>
-                                                                                          c.idCorrida ==
-                                                                                          corrida.idCorrida,
-                                                                                    );
-                                                                                    _corridasRegistradas.removeWhere(
-                                                                                      (
-                                                                                        c,
-                                                                                      ) =>
-                                                                                          c.idCorrida ==
-                                                                                          corrida.idCorrida,
-                                                                                    );
-                                                                                    _listaCorridas.removeAt(
-                                                                                      index,
-                                                                                    );
-                                                                                  },
-                                                                                );
+                                                                            ],
+                                                                      ),
+                                                                    ),
+                                                                    actions: [
+                                                                      ElevatedButton(
+                                                                        onPressed: () {
+                                                                          Navigator.of(
+                                                                            context,
+                                                                          ).pop(
+                                                                            false,
+                                                                          ); // Return false if cancelled
+                                                                        },
+                                                                        child: Text(
+                                                                          "Cancelar",
+                                                                        ),
+                                                                      ),
+                                                                      ElevatedButton(
+                                                                        onPressed: () async {
+                                                                          // Call a function that deletes the data when confirmed.
+                                                                          setState(() {
+                                                                            int
+                                                                            index = _corridasRegistradas.indexWhere(
+                                                                              (
+                                                                                c,
+                                                                              ) =>
+                                                                                  c.idCorrida ==
+                                                                                  corrida.idCorrida,
+                                                                            );
+                                                                            _corridasRegistradas.removeWhere(
+                                                                              (
+                                                                                c,
+                                                                              ) =>
+                                                                                  c.idCorrida ==
+                                                                                  corrida.idCorrida,
+                                                                            );
+                                                                            _listaCorridas.removeAt(
+                                                                              index,
+                                                                            );
+                                                                          });
 
-                                                                                Navigator.of(
-                                                                                  context,
-                                                                                ).pop(
-                                                                                  true,
-                                                                                );
-                                                                              },
-                                                                              child: Text(
-                                                                                "Quitar",
-                                                                                style: TextStyle(
-                                                                                  color: Colors.white,
-                                                                                ),
-                                                                              ),
-                                                                            ),
-                                                                          ],
-                                                                        );
-                                                                      },
-                                                                );
+                                                                          Navigator.of(
+                                                                            context,
+                                                                          ).pop(
+                                                                            true,
+                                                                          );
+                                                                        },
+                                                                        child: Text(
+                                                                          "Quitar",
+                                                                          style: TextStyle(
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                                },
+                                                          );
 
-                                                                calcularLinealidad();
-                                                              },
-                                                            ),
-                                                          ),
-                                                        ),
+                                                          _linealidadController
+                                                              .text = convertidor
+                                                              .calcularLinealidad(
+                                                                _corridasRegistradas,
+                                                              );
+                                                        }),
                                                       ],
                                                     ),
                                                   )
@@ -1520,7 +1173,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                       ),
                       SizedBox(height: 20),
                       Container(
-                        decoration: _boxDecoration(context),
+                        decoration: cajaFormulario.boxDecoration(context),
                         child: Padding(
                           padding: EdgeInsets.all(30),
                           child: Column(
@@ -1626,7 +1279,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void _guardarCalibracion() async {
-    final theme = Theme.of(context);
     if (_corridasRegistradas.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         mensajes.error(context, 'Debe registrar al menos 4 corridas'),
@@ -1645,6 +1297,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         double.tryParse(_linealidadController.text) ?? 0,
         double.tryParse(_reproducibilidadController.text) ?? 0,
         _observacionesController.text,
+        '', // ruta certificado
         _corridasRegistradas,
         equipoSeleccionado!.getTagEquipo,
         laboratorioSeleccionado!.getIdLaboratorioCalibracion,
@@ -1725,7 +1378,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     );
 
     setState(() {
-      _listaCorridas.add(TablaCalibracion(corrida: _corridaActual));
+      _listaCorridas.add(_corridaActual);
       _corridasRegistradas.add(_corridaActual);
       // limpiar inputs al terminar
       /*_caudalM3Controller.clear();
@@ -1740,7 +1393,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       _repetibilidadController.clear();*/
     });
 
-    calcularLinealidad();
+    _linealidadController.text = convertidor.calcularLinealidad(
+      _corridasRegistradas,
+    );
 
     // dar focus después de limpiar
     FocusScope.of(context).requestFocus(_focusNodeCaudal);
@@ -1851,7 +1506,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           return DropdownButtonFormField<Direccion>(
             isExpanded: true,
             decoration: _inputDecoration(hintText),
-            value: value,
+            initialValue: value,
             dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
             items: direcciones.map((Direccion item) {
               return DropdownMenuItem<Direccion>(
@@ -1882,7 +1537,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     return DropdownButtonFormField<Subdireccion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
-      value: value,
+      initialValue: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
       items: items.map((Subdireccion item) {
         return DropdownMenuItem<Subdireccion>(
@@ -1910,7 +1565,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     return DropdownButtonFormField<Gerencia>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
-      value: value,
+      initialValue: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
       items: items.map((Gerencia item) {
         return DropdownMenuItem<Gerencia>(
@@ -1938,7 +1593,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     return DropdownButtonFormField<Instalacion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
-      value: value,
+      initialValue: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
       items: items.map((Instalacion item) {
         return DropdownMenuItem<Instalacion>(
@@ -1966,7 +1621,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     return DropdownButtonFormField<PatinMedicion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
-      value: value,
+      initialValue: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
       items: items.map((PatinMedicion item) {
         return DropdownMenuItem<PatinMedicion>(
@@ -1994,7 +1649,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     return DropdownButtonFormField<TrenMedicion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
-      value: value,
+      initialValue: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
       items: items.map((TrenMedicion item) {
         return DropdownMenuItem<TrenMedicion>(
@@ -2022,7 +1677,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     return DropdownButtonFormField<Equipo>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
-      value: value,
+      initialValue: value,
       dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
       items: items.map((Equipo item) {
         return DropdownMenuItem<Equipo>(
@@ -2060,7 +1715,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           return DropdownButtonFormField<LaboratorioCalibracion>(
             isExpanded: true,
             decoration: _inputDecoration(hintText),
-            value: value,
+            initialValue: value,
             dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
             items: direcciones.map((LaboratorioCalibracion item) {
               return DropdownMenuItem<LaboratorioCalibracion>(
@@ -2094,7 +1749,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       reader.onLoadEnd.listen((e) {
         _archivoController.text = file.name;
         fileBytes = reader.result as Uint8List;
-        //print("Archivo: ${file.name}, bytes: ${fileBytes.length}");
       });
     });
   }
@@ -2152,60 +1806,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           }
           return null;
         },
-      ),
-    );
-  }
-
-  double calcularLinealidad() {
-    if (_corridasRegistradas.isEmpty) {
-      _linealidadController.text = '0.00';
-      return 0.0;
-    }
-
-    List<double> valores = _corridasRegistradas
-        .map((c) => c.getMeterFactor)
-        .toList();
-    // 1. Promedio
-    double promedio = valores.reduce((a, b) => a + b) / valores.length;
-
-    if (promedio == 0) {
-      _linealidadController.text = '0.00';
-      return 0.0;
-    }
-
-    // 2. Calcular desviaciones absolutas respecto al promedio
-    List<double> desviaciones = valores
-        .map((v) => (v - promedio).abs())
-        .toList();
-
-    // 3. Obtener la máxima desviación
-    double maxDesviacion = desviaciones.reduce((a, b) => a > b ? a : b);
-
-    // 4. Porcentaje de linealidad
-    double porcentajeLinealidad = (maxDesviacion / promedio) * 100;
-
-    _linealidadController.text = convertidor.formatoMiles(porcentajeLinealidad);
-
-    return porcentajeLinealidad;
-  }
-
-  BoxDecoration _boxDecoration(BuildContext context) {
-    return BoxDecoration(
-      color: Theme.of(context).colorScheme.onPrimary,
-      borderRadius: BorderRadius.circular(60),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.1), // sombra sutil
-          spreadRadius: 1,
-          blurRadius: 8,
-          offset: Offset(0, 4), // desplazada hacia abajo
-        ),
-      ],
-      border: Border(
-        bottom: BorderSide(
-          color: Colors.grey.withOpacity(0.3), // línea suave
-          width: 1,
-        ),
       ),
     );
   }
