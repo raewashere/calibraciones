@@ -3,7 +3,6 @@ import 'package:calibraciones/common/barrel/models.dart';
 import 'package:calibraciones/common/components/components.dart';
 import 'package:calibraciones/common/utils/conversiones.dart';
 import 'package:fl_chart/fl_chart.dart';
-
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
@@ -22,7 +21,9 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   final Mensajes mensajes = Mensajes();
   DateFormat formato = DateFormat("dd/MM/yyyy");
   late CalibracionEquipo calibracionEquipo;
-  //late LaboratorioCalibracion laboratorioCalibracion;
+  late Future<LaboratorioCalibracion> _laboratorioFuture;
+  final LaboratorioCalibracionService laboratorioService =
+      LaboratorioCalibracionServiceImpl();
 
   static const List<FlSpot> datosFlujoKFactor = [
     FlSpot(1127.50, 0.9451),
@@ -53,29 +54,20 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   );
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final args = ModalRoute.of(context)!.settings.arguments;
-
-    //calibracionEquipo = args as CalibracionEquipo;
-    calibracionEquipo = CalibracionEquipo(1, 'certificadoCalibracion', DateTime.now(), DateTime.now(), 5.0, 5.0, 'observaciones', 'rutaCertificado', [], 'tagEquipo', 1, 1);
-  }
-
-  @override
   void initState() {
     super.initState();
-    // Cargar información adicional si es necesario
-    //_cargarLaboratorioCalibracion();
+    Future.microtask(() {
+      final args = ModalRoute.of(context)!.settings.arguments;
+      if (args != null) {
+        setState(() {
+          calibracionEquipo = args as CalibracionEquipo;
+          _laboratorioFuture = laboratorioService.obtenerLaboratorioPorId(
+            calibracionEquipo.idLaboratorioCalibracion,
+          );
+        });
+      }
+    });
   }
-
-  /*Future<void> _cargarLaboratorioCalibracion() async {
-    try {
-      laboratorioCalibracion = await LaboratorioCalibracionServiceImpl()
-          .obtenerLaboratorioPorId(calibracionEquipo.idLaboratorioCalibracion);
-    } catch (e) {
-      // Manejar errores
-    }
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +134,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     ),
                     _buildInfoRow(
                       "Laboratorio",
-                      calibracionEquipo.idLaboratorioCalibracion.toString(),
+                      _laboratorioFuture.then((lab) => lab.nombre).toString(),
                     ),
                     _buildInfoRow(
                       "Dirección",
@@ -310,7 +302,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                             tablaCalibracion.cabeceraTabla(context, '%'),
                           ],
                         ),
-                        /*...(calibracionEquipo.corridas.isNotEmpty
+                        ...(calibracionEquipo.corridas.isNotEmpty
                             ? calibracionEquipo.corridas
                                   .map(
                                     (corrida) => TableRow(
@@ -323,55 +315,55 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.caudalM3Hr,
+                                            corrida.caudalM3Hr,2
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.caudalBblHr,
+                                            corrida.caudalBblHr,2
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.temperaturaC,
+                                            corrida.temperaturaC,2
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.presionKgCm2,
+                                            corrida.presionKgCm2,2
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.meterFactor,
+                                            corrida.meterFactor,5
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.frecuenciaHz,
+                                            corrida.frecuenciaHz,2
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.kFactorPulseM3,
+                                            corrida.kFactorPulseM3,3
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.kFactorPulseBbl,
+                                            corrida.kFactorPulseBbl,3
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.repetibilidad,
+                                            corrida.repetibilidad,3
                                           ),
                                         ),
                                       ],
@@ -393,7 +385,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                                     ),
                                   ),
                                 ),
-                              ]),*/
+                              ]),
                       ],
                     ),
                   ],

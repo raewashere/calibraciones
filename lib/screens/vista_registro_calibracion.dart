@@ -70,7 +70,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   File? fileCertificado;
   late Uint8List? fileBytes;
 
-  Future<void> _seleccionarFecha(BuildContext context, int tipoFecha) async {
+  Future<void> _seleccionarFecha(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -98,13 +98,17 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     );
     if (picked != null) {
       setState(() {
-        if (tipoFecha == 1) {
-          _fechaController.text = formato.format(picked);
-          selectedFecha = picked;
-        } else {
-          _fechaProximaController.text = formato.format(picked);
-          selectedFechaProxima = picked;
-        }
+        _fechaController.text = formato.format(picked);
+        selectedFecha = picked;
+        _fechaProximaController.text = formato.format(
+          picked.add(
+            Duration(
+              days: equipoSeleccionado != null
+                  ? equipoSeleccionado!.intervaloCalibracion
+                  : 0,
+            ),
+          ),
+        );
       });
     }
   }
@@ -165,7 +169,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double m3 = double.tryParse(value) ?? 0;
       _caudalBblController.text = convertidor.formatoMiles(
-        Conversiones.caudalM3ToBbl(m3),
+        Conversiones.caudalM3ToBbl(m3),2
       );
     } else {
       _caudalBblController.clear();
@@ -179,7 +183,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double bbl = double.tryParse(value) ?? 0;
       _caudalM3Controller.text = convertidor.formatoMiles(
-        Conversiones.caudalBblToM3(bbl),
+        Conversiones.caudalBblToM3(bbl),2
       );
     } else {
       _caudalM3Controller.clear();
@@ -193,7 +197,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double pm3 = double.tryParse(value) ?? 0;
       _kFactorPulsosBblController.text = convertidor.formatoMiles(
-        Conversiones.m3ToBbl(pm3),
+        Conversiones.m3ToBbl(pm3),3
       );
     } else {
       _kFactorPulsosBblController.clear();
@@ -207,7 +211,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double pbbl = double.tryParse(value) ?? 0;
       _kFactorPulsosM3Controller.text = convertidor.formatoMiles(
-        Conversiones.bblToM3(pbbl),
+        Conversiones.bblToM3(pbbl),3
       );
     } else {
       _kFactorPulsosM3Controller.clear();
@@ -221,10 +225,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double kgcm2 = double.tryParse(value) ?? 0;
       _presionPSIController.text = convertidor.formatoMiles(
-        Conversiones.kgCm2ToPsi(kgcm2),
+        Conversiones.kgCm2ToPsi(kgcm2),2
       );
       _presionKPaController.text = convertidor.formatoMiles(
-        Conversiones.kgCm2ToKPa(kgcm2),
+        Conversiones.kgCm2ToKPa(kgcm2),2
       );
     } else {
       _presionPSIController.clear();
@@ -239,10 +243,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double psi = double.tryParse(value) ?? 0;
       _presionController.text = convertidor.formatoMiles(
-        Conversiones.psiToKgCm2(psi),
+        Conversiones.psiToKgCm2(psi),2
       );
       _presionKPaController.text = convertidor.formatoMiles(
-        Conversiones.psiToKPa(psi),
+        Conversiones.psiToKPa(psi),2
       );
     } else {
       _presionController.clear();
@@ -257,10 +261,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double kPa = double.tryParse(value) ?? 0;
       _presionController.text = convertidor.formatoMiles(
-        Conversiones.kPaToKgCm2(kPa),
+        Conversiones.kPaToKgCm2(kPa),2
       );
       _presionPSIController.text = convertidor.formatoMiles(
-        Conversiones.kPaToPsi(kPa),
+        Conversiones.kPaToPsi(kPa),2
       );
     } else {
       _presionController.clear();
@@ -275,7 +279,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double celsius = double.tryParse(value) ?? 0;
       _temperaturaFahrenheitController.text = convertidor.formatoMiles(
-        Conversiones.celsiusToFahrenheit(celsius),
+        Conversiones.celsiusToFahrenheit(celsius),2
       );
     } else {
       _temperaturaFahrenheitController.clear();
@@ -289,7 +293,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double fahrenheit = double.tryParse(value) ?? 0;
       _temperaturaCentigradosController.text = convertidor.formatoMiles(
-        Conversiones.fahrenheitToCelsius(fahrenheit),
+        Conversiones.fahrenheitToCelsius(fahrenheit),2
       );
     } else {
       _temperaturaCentigradosController.clear();
@@ -550,7 +554,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       SizedBox(width: 10),
                                       _iconoAyudaSeccion(
                                         context,
-                                        'Eliga el laboratorio que realizó la calibración, ingrese el producto calibrado, el número y archivo del certificado, así como la fecha de calibración y la fecha de la próxima calibración.',
+                                        'Elige el laboratorio que realizó la calibración, ingrese el producto calibrado, el número y archivo del certificado, así como la fecha de calibración y la fecha de la próxima calibración.',
                                       ),
                                     ],
                                   ),
@@ -959,7 +963,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                           convertidor
                                                               .formatoMiles(
                                                                 corrida
-                                                                    .caudalM3Hr,
+                                                                    .caudalM3Hr,2
                                                               ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
@@ -967,7 +971,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                           convertidor
                                                               .formatoMiles(
                                                                 corrida
-                                                                    .caudalBblHr,
+                                                                    .caudalBblHr,2
                                                               ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
@@ -975,7 +979,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                           convertidor
                                                               .formatoMiles(
                                                                 corrida
-                                                                    .temperaturaC,
+                                                                    .temperaturaC,2
                                                               ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
@@ -983,7 +987,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                           convertidor
                                                               .formatoMiles(
                                                                 corrida
-                                                                    .presionKgCm2,
+                                                                    .presionKgCm2,2
                                                               ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
@@ -991,7 +995,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                           convertidor
                                                               .formatoMiles(
                                                                 corrida
-                                                                    .meterFactor,
+                                                                    .meterFactor,5
                                                               ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
@@ -999,28 +1003,28 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                           convertidor
                                                               .formatoMiles(
                                                                 corrida
-                                                                    .frecuenciaHz,
+                                                                    .frecuenciaHz,2
                                                               ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
                                                           context,
                                                           convertidor.formatoMiles(
                                                             corrida
-                                                                .kFactorPulseM3,
+                                                                .kFactorPulseM3,3
                                                           ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
                                                           context,
                                                           convertidor.formatoMiles(
                                                             corrida
-                                                                .kFactorPulseBbl,
+                                                                .kFactorPulseBbl,3
                                                           ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
                                                           context,
                                                           convertidor.formatoMiles(
                                                             corrida
-                                                                .repetibilidad,
+                                                                .repetibilidad,3
                                                           ),
                                                         ),
                                                         tablaCalibracion.borraFilaTabla(context, () {
@@ -1475,7 +1479,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
           border: const OutlineInputBorder(),
         ),
-        onTap: () => _seleccionarFecha(context, tipoFecha),
+        onTap: () => tipoFecha == 1 ? _seleccionarFecha(context) : null,
         validator: (value) {
           if (value == null || value.isEmpty) {
             return validatorText;

@@ -29,9 +29,9 @@ class Conversiones {
   static double bblToM3(double bbl) => (bbl * m3ToBblFactor);
 
   //Formato de miles
-  String formatoMiles(double value) {
-    final formateador = NumberFormat("####,###,##0.00", "en");
-    return formateador.format(value); // Format as integer to avoid decimals.
+  String formatoMiles(double value, int decimales) {
+    final formateador = NumberFormat("####,###,##0.${'0' * decimales}", "en");
+    return formateador.format(value);
   }
 
   String calcularLinealidad(List<Corrida> corridas) {
@@ -58,6 +58,6 @@ class Conversiones {
     // 4. Porcentaje de linealidad
     double porcentajeLinealidad = (maxDesviacion / promedio) * 100;
 
-    return formatoMiles(porcentajeLinealidad);
+    return formatoMiles(porcentajeLinealidad,3);
   }
 }
