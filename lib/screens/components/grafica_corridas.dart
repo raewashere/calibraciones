@@ -33,7 +33,7 @@ class GraficaCorridas extends StatelessWidget {
               axisNameWidget: const Padding(
                 padding: EdgeInsets.only(top: 8.0), // Reducido ligeramente
                 child: Text(
-                  'Flujo',
+                  'Flujo (m³/hr)',
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
@@ -44,7 +44,7 @@ class GraficaCorridas extends StatelessWidget {
               sideTitles: SideTitles(
                 showTitles: true,
                 // Aumentamos el espacio reservado para las etiquetas numéricas
-                reservedSize: 40,
+                reservedSize: 50,
                 getTitlesWidget: (value, meta) {
                   final text = value.toStringAsFixed(0);
                   return Padding(
@@ -58,7 +58,7 @@ class GraficaCorridas extends StatelessWidget {
                     ),
                   );
                 },
-                interval: 200,
+                interval: 100,
               ),
             ),
 
@@ -70,7 +70,7 @@ class GraficaCorridas extends StatelessWidget {
               axisNameWidget: const Padding(
                 padding: EdgeInsets.only(right: 12.0),
                 child: Text(
-                  'K Factor',
+                  'K Factor (Pulsos/m³)',
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
@@ -86,7 +86,7 @@ class GraficaCorridas extends StatelessWidget {
                   value.toStringAsFixed(4),
                   style: const TextStyle(fontSize: 10),
                 ),
-                interval: 0.0002,
+                interval: 0.0001,
               ),
             ),
 

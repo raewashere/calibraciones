@@ -6,7 +6,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
-import 'dart:typed_data';
 
 class VistaDetalleCalibracion extends StatefulWidget {
   const VistaDetalleCalibracion({super.key});
@@ -315,55 +314,64 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.caudalM3Hr,2
+                                            corrida.caudalM3Hr,
+                                            2,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.caudalBblHr,2
+                                            corrida.caudalBblHr,
+                                            2,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.temperaturaC,2
+                                            corrida.temperaturaC,
+                                            2,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.presionKgCm2,2
+                                            corrida.presionKgCm2,
+                                            2,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.meterFactor,5
+                                            corrida.meterFactor,
+                                            5,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.frecuenciaHz,2
+                                            corrida.frecuenciaHz,
+                                            2,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.kFactorPulseM3,3
+                                            corrida.kFactorPulseM3,
+                                            3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.kFactorPulseBbl,3
+                                            corrida.kFactorPulseBbl,
+                                            3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.repetibilidad,3
+                                            corrida.repetibilidad,
+                                            3,
                                           ),
                                         ),
                                       ],

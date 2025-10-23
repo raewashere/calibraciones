@@ -169,7 +169,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double m3 = double.tryParse(value) ?? 0;
       _caudalBblController.text = convertidor.formatoMiles(
-        Conversiones.caudalM3ToBbl(m3),2
+        Conversiones.caudalM3ToBbl(m3),
+        2,
       );
     } else {
       _caudalBblController.clear();
@@ -183,7 +184,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double bbl = double.tryParse(value) ?? 0;
       _caudalM3Controller.text = convertidor.formatoMiles(
-        Conversiones.caudalBblToM3(bbl),2
+        Conversiones.caudalBblToM3(bbl),
+        2,
       );
     } else {
       _caudalM3Controller.clear();
@@ -197,7 +199,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double pm3 = double.tryParse(value) ?? 0;
       _kFactorPulsosBblController.text = convertidor.formatoMiles(
-        Conversiones.m3ToBbl(pm3),3
+        Conversiones.m3ToBbl(pm3),
+        3,
       );
     } else {
       _kFactorPulsosBblController.clear();
@@ -211,7 +214,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double pbbl = double.tryParse(value) ?? 0;
       _kFactorPulsosM3Controller.text = convertidor.formatoMiles(
-        Conversiones.bblToM3(pbbl),3
+        Conversiones.bblToM3(pbbl),
+        3,
       );
     } else {
       _kFactorPulsosM3Controller.clear();
@@ -225,10 +229,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double kgcm2 = double.tryParse(value) ?? 0;
       _presionPSIController.text = convertidor.formatoMiles(
-        Conversiones.kgCm2ToPsi(kgcm2),2
+        Conversiones.kgCm2ToPsi(kgcm2),
+        2,
       );
       _presionKPaController.text = convertidor.formatoMiles(
-        Conversiones.kgCm2ToKPa(kgcm2),2
+        Conversiones.kgCm2ToKPa(kgcm2),
+        2,
       );
     } else {
       _presionPSIController.clear();
@@ -243,10 +249,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double psi = double.tryParse(value) ?? 0;
       _presionController.text = convertidor.formatoMiles(
-        Conversiones.psiToKgCm2(psi),2
+        Conversiones.psiToKgCm2(psi),
+        2,
       );
       _presionKPaController.text = convertidor.formatoMiles(
-        Conversiones.psiToKPa(psi),2
+        Conversiones.psiToKPa(psi),
+        2,
       );
     } else {
       _presionController.clear();
@@ -261,10 +269,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double kPa = double.tryParse(value) ?? 0;
       _presionController.text = convertidor.formatoMiles(
-        Conversiones.kPaToKgCm2(kPa),2
+        Conversiones.kPaToKgCm2(kPa),
+        2,
       );
       _presionPSIController.text = convertidor.formatoMiles(
-        Conversiones.kPaToPsi(kPa),2
+        Conversiones.kPaToPsi(kPa),
+        2,
       );
     } else {
       _presionController.clear();
@@ -279,7 +289,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double celsius = double.tryParse(value) ?? 0;
       _temperaturaFahrenheitController.text = convertidor.formatoMiles(
-        Conversiones.celsiusToFahrenheit(celsius),2
+        Conversiones.celsiusToFahrenheit(celsius),
+        2,
       );
     } else {
       _temperaturaFahrenheitController.clear();
@@ -293,7 +304,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     if (value.isNotEmpty) {
       double fahrenheit = double.tryParse(value) ?? 0;
       _temperaturaCentigradosController.text = convertidor.formatoMiles(
-        Conversiones.fahrenheitToCelsius(fahrenheit),2
+        Conversiones.fahrenheitToCelsius(fahrenheit),
+        2,
       );
     } else {
       _temperaturaCentigradosController.clear();
@@ -586,6 +598,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       validatorText:
                                           'Favor de escribir el producto',
                                       controllerText: _productoController,
+                                      decimales: 0,
                                     ),
                                     Row(
                                       children: [
@@ -597,6 +610,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                 'Favor de escribir el número de certificado',
                                             controllerText:
                                                 _certificadoController,
+                                            decimales: 0,
                                           ),
                                         ),
                                         const SizedBox(
@@ -701,6 +715,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             controllerText: _caudalM3Controller,
                                             focusNode: _focusNodeCaudal,
                                             onChanged: _onCaudalM3Changed,
+                                            decimales: 2,
                                           ),
                                         ),
                                         const SizedBox(
@@ -715,6 +730,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             controllerText:
                                                 _caudalBblController,
                                             onChanged: _onCaudalBblChanged,
+                                            decimales: 2,
                                           ),
                                         ),
                                       ],
@@ -730,6 +746,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             controllerText:
                                                 _temperaturaCentigradosController,
                                             onChanged: _onCelsiusChanged,
+                                            decimales: 2,
                                           ),
                                         ),
                                         const SizedBox(
@@ -744,6 +761,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             controllerText:
                                                 _temperaturaFahrenheitController,
                                             onChanged: _onFahrenheitChanged,
+                                            decimales: 2,
                                           ),
                                         ),
                                       ],
@@ -758,6 +776,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                 'Favor de escribir la presión',
                                             controllerText: _presionController,
                                             onChanged: _onPresionChanged,
+                                            decimales: 2,
                                           ),
                                         ),
                                         const SizedBox(
@@ -772,6 +791,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             controllerText:
                                                 _presionPSIController,
                                             onChanged: _onPresionPSIChanged,
+                                            decimales: 2,
                                           ),
                                         ),
                                         const SizedBox(
@@ -786,6 +806,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             controllerText:
                                                 _presionKPaController,
                                             onChanged: _onPresionKPaChanged,
+                                            decimales: 2,
                                           ),
                                         ),
                                       ],
@@ -796,6 +817,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       validatorText:
                                           'Favor de escribir el Meter Factor',
                                       controllerText: _meterFactorController,
+                                      decimales: 5,
                                     ),
                                     Row(
                                       children: [
@@ -808,6 +830,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             controllerText:
                                                 _kFactorPulsosM3Controller,
                                             onChanged: _onPulsosM3Changed,
+                                            decimales: 3,
                                           ),
                                         ),
                                         const SizedBox(
@@ -822,6 +845,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             controllerText:
                                                 _kFactorPulsosBblController,
                                             onChanged: _onPulsosBblChanged,
+                                            decimales: 3,
                                           ),
                                         ),
                                       ],
@@ -833,6 +857,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       validatorText:
                                           'Favor de escribir la frecuencia',
                                       controllerText: _frecuenciaController,
+                                      decimales: 2,
                                     ),
                                     _buildTextFormField(
                                       context,
@@ -840,6 +865,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       validatorText:
                                           'Favor de escribir la repetibilidad',
                                       controllerText: _repetibilidadController,
+                                      decimales: 3,
                                     ),
                                     SizedBox(height: 20),
                                     Table(
@@ -963,7 +989,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                           convertidor
                                                               .formatoMiles(
                                                                 corrida
-                                                                    .caudalM3Hr,2
+                                                                    .caudalM3Hr,
+                                                                2,
                                                               ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
@@ -971,7 +998,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                           convertidor
                                                               .formatoMiles(
                                                                 corrida
-                                                                    .caudalBblHr,2
+                                                                    .caudalBblHr,
+                                                                2,
                                                               ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
@@ -979,7 +1007,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                           convertidor
                                                               .formatoMiles(
                                                                 corrida
-                                                                    .temperaturaC,2
+                                                                    .temperaturaC,
+                                                                2,
                                                               ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
@@ -987,7 +1016,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                           convertidor
                                                               .formatoMiles(
                                                                 corrida
-                                                                    .presionKgCm2,2
+                                                                    .presionKgCm2,
+                                                                2,
                                                               ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
@@ -995,7 +1025,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                           convertidor
                                                               .formatoMiles(
                                                                 corrida
-                                                                    .meterFactor,5
+                                                                    .meterFactor,
+                                                                5,
                                                               ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
@@ -1003,28 +1034,32 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                           convertidor
                                                               .formatoMiles(
                                                                 corrida
-                                                                    .frecuenciaHz,2
+                                                                    .frecuenciaHz,
+                                                                2,
                                                               ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
                                                           context,
                                                           convertidor.formatoMiles(
                                                             corrida
-                                                                .kFactorPulseM3,3
+                                                                .kFactorPulseM3,
+                                                            3,
                                                           ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
                                                           context,
                                                           convertidor.formatoMiles(
                                                             corrida
-                                                                .kFactorPulseBbl,3
+                                                                .kFactorPulseBbl,
+                                                            3,
                                                           ),
                                                         ),
                                                         tablaCalibracion.celdaTabla(
                                                           context,
                                                           convertidor.formatoMiles(
                                                             corrida
-                                                                .repetibilidad,3
+                                                                .repetibilidad,
+                                                            3,
                                                           ),
                                                         ),
                                                         tablaCalibracion.borraFilaTabla(context, () {
@@ -1225,6 +1260,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                 'Favor de escribir la linealidad',
                                             controllerText:
                                                 _linealidadController,
+                                            decimales: 3,
                                           ),
                                         ),
                                         const SizedBox(
@@ -1238,6 +1274,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                 'Favor de escribir la reproducibilidad',
                                             controllerText:
                                                 _reproducibilidadController,
+                                            decimales: 3,
                                           ),
                                         ),
                                       ],
@@ -1248,6 +1285,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       validatorText:
                                           'Favor de escribir las observaciones',
                                       controllerText: _observacionesController,
+                                      decimales: 0,
                                     ),
                                   ],
                                 ),
@@ -1357,6 +1395,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void _agregarCorrida() {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(mensajes.info(context, 'Se  agregó una corrida'));
     _corridaActual = Corrida(
       _listaCorridas.length + 1,
       double.tryParse(_caudalM3Controller.text.replaceAll(',', '')) ?? 0,
@@ -1435,22 +1476,46 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     bool obscureText = false,
     FocusNode? focusNode,
     ValueChanged<String>? onChanged,
+    required int decimales,
   }) {
     return Container(
       padding: EdgeInsets.all(5),
-      child: TextFormField(
-        focusNode: focusNode,
-        controller: controllerText,
-        obscureText: obscureText,
-        style: TextStyle(color: Theme.of(context).colorScheme.primary),
-        decoration: _inputDecoration(hintText),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return validatorText;
+      child: Focus(
+        onFocusChange: (hasFocus) {
+          if (!hasFocus && decimales > 0) {
+            String textoFormateado = convertidor.formatoMiles(
+              double.tryParse(controllerText.text) ?? 0,
+              decimales,
+            );
+            controllerText.text = textoFormateado;
           }
-          return null;
         },
-        onChanged: onChanged,
+        child: TextFormField(
+          focusNode: focusNode,
+          controller: controllerText,
+          obscureText: obscureText,
+          style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          decoration: _inputDecoration(hintText),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return validatorText;
+            }
+            return null;
+          },
+          onChanged: onChanged,
+          /*onEditingComplete: () {
+            FocusScope.of(context).unfocus();
+            if (decimales > 0) {
+              String textoFormateado = convertidor.formatoMiles(
+                double.tryParse(controllerText.text) ?? 0,
+                decimales,
+              );
+              setState(() {
+                controllerText.text = textoFormateado;
+              });
+            }
+          },*/
+        ),
       ),
     );
   }
