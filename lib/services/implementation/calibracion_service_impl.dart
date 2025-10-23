@@ -74,12 +74,11 @@ class CalibracionServiceImpl implements CalibracionService {
           .order('id_calibracion', ascending: false)
           .range(offset, offset + limit - 1);
 
-      // response ya es una List<Map<String, dynamic>>
-      return (response as List)
-          .map(
-            (item) => CalibracionEquipo.fromJson(item as Map<String, dynamic>),
-          )
-          .toList();
+      return await Future.wait(response.map<Future<CalibracionEquipo>>(
+        (calibracionJson) async {
+          return await CalibracionEquipo.fromJsonAsync(calibracionJson);
+        },
+      ).toList());
     } catch (e) {
       throw Exception('Error al obtener calibraciones: $e');
     }

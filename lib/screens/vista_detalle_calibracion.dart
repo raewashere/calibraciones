@@ -71,7 +71,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-
+    print('Número de corridas: ${calibracionEquipo.corridas.length}');
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
@@ -153,7 +153,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                             mensajes.info(context, 'Abriendo certificado...'),
                           );
                           abrirPdf(
-                            'https://zkviewvpmswfgpiwpoez.supabase.co/storage/v1/object/public/${calibracionEquipo.rutaCertificado}',
+                            'https://zkviewvpmswfgpiwpoez.supabase.co/storage/v1/object/public/certificados/${calibracionEquipo.rutaCertificado}',
                           );
                         },
                         icon: const Icon(Icons.picture_as_pdf),

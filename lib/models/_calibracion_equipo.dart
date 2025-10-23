@@ -1,4 +1,6 @@
 import 'package:calibraciones/models/_corrida.dart';
+import 'package:calibraciones/services/corridas_service.dart';
+import 'package:calibraciones/services/implementation/corrida_service_impl.dart';
 
 class CalibracionEquipo {
   late int idCalibracionEquipo;
@@ -108,17 +110,44 @@ class CalibracionEquipo {
     return CalibracionEquipo.sinCorridas(
       calibracionJson['id_calibracion'],
       calibracionJson['certificado_calibracion'],
-
-      //Cover
       DateTime.parse(calibracionJson['fecha_calibracion']),
       DateTime.parse(calibracionJson['fecha_proxima_calibracion']),
       calibracionJson['linealidad'],
       calibracionJson['reproducibilidad'],
       calibracionJson['observaciones'],
       calibracionJson['ruta_certificado'],
-      /*(calibracionJson['lista_corridas'] as List)
-          .map((corridaJson) => Corrida.fromJson(corridaJson))
-          .toList(),*/
+      calibracionJson['tag_equipo'],
+      calibracionJson['id_laboratorio_calibracion'],
+      calibracionJson['id_usuario'],
+    );
+  }
+
+  static Future<CalibracionEquipo> fromJsonAsync(
+    Map<String, dynamic> calibracionJson,
+  ) async {
+    List<Corrida> corridas = [];
+    CorridasService corridaService = CorridasServiceImpl();
+
+    try {
+      // 1. AWAIT: Esperamos a que la consulta termine y obtenga las corridas.
+      corridas = await corridaService.obtenerCorridaPorCalibracion(
+        calibracionJson['id_calibracion'],
+      );
+    } catch (error) {
+      // Manejo de errores (por ejemplo, registrar el error y devolver una lista vacía)
+      print('Error al obtener corridas: $error');
+      corridas = []; // Asegura que se devuelve una lista vacía en caso de error
+    }
+    return CalibracionEquipo(
+      calibracionJson['id_calibracion'],
+      calibracionJson['certificado_calibracion'],
+      DateTime.parse(calibracionJson['fecha_calibracion']),
+      DateTime.parse(calibracionJson['fecha_proxima_calibracion']),
+      calibracionJson['linealidad'],
+      calibracionJson['reproducibilidad'],
+      calibracionJson['observaciones'],
+      calibracionJson['ruta_certificado'],
+      corridas,
       calibracionJson['tag_equipo'],
       calibracionJson['id_laboratorio_calibracion'],
       calibracionJson['id_usuario'],
