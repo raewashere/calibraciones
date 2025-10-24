@@ -113,11 +113,11 @@ class Corrida {
       corridaJson['presion_psi'],
       corridaJson['presion_kpa'],
       corridaJson['meter_factor'],
-      corridaJson['k_factor_pulse_m3'],
-      corridaJson['k_factor_pulse_bbl'],
+      corridaJson['k_factor_pulsos_m3'],
+      corridaJson['k_factor_pulsos_bbl'],
       corridaJson['repetibilidad'],
       corridaJson['frecuencia'],
-      corridaJson['idCalibracion']
+      corridaJson['id_calibracion'],
     );
   }
 

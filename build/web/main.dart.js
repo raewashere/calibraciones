@@ -50646,7 +50646,7 @@ case 2:return A.E(o.at(-1),r)}})
 return A.G($async$Ef,r)}}
 A.afE.prototype={
 $1(a){var s=J.ao(a)
-return new A.hl(s.i(a,"id_corrida"),s.i(a,"caudal_m3_hr"),s.i(a,"caudal_bbl_hr"),s.i(a,"temperatura_c"),s.i(a,"temperatura_f"),s.i(a,"presion_kg_cm2"),s.i(a,"presion_psi"),s.i(a,"presion_kpa"),s.i(a,"meter_factor"),s.i(a,"k_factor_pulse_m3"),s.i(a,"k_factor_pulse_bbl"),s.i(a,"repetibilidad"),s.i(a,"frecuencia"),s.i(a,"idCalibracion"))},
+return new A.hl(s.i(a,"id_corrida"),s.i(a,"caudal_m3_hr"),s.i(a,"caudal_bbl_hr"),s.i(a,"temperatura_c"),s.i(a,"temperatura_f"),s.i(a,"presion_kg_cm2"),s.i(a,"presion_psi"),s.i(a,"presion_kpa"),s.i(a,"meter_factor"),s.i(a,"k_factor_pulsos_m3"),s.i(a,"k_factor_pulsos_bbl"),s.i(a,"repetibilidad"),s.i(a,"frecuencia"),s.i(a,"id_calibracion"))},
 $S:320}
 A.C4.prototype={
 oP(){var s=0,r=A.H(t._C),q,p=2,o=[],n=this,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1
