@@ -86,7 +86,7 @@ class GraficaCorridas extends StatelessWidget {
                   value.toStringAsFixed(4),
                   style: const TextStyle(fontSize: 10),
                 ),
-                interval: 0.0001,
+                interval: 0.00500,
               ),
             ),
 

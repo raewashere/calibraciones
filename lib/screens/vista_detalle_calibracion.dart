@@ -23,49 +23,74 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   late Future<LaboratorioCalibracion> _laboratorioFuture;
   final LaboratorioCalibracionService laboratorioService =
       LaboratorioCalibracionServiceImpl();
+  late GraficaCorridas graficaCorridas;
+  bool _isDataInitialized = false;
 
-  static const List<FlSpot> datosFlujoKFactor = [
-    FlSpot(1127.50, 0.9451),
-    FlSpot(1276.08, 0.9450),
-    FlSpot(1376.45, 0.9448),
-    FlSpot(1468.40, 0.9449),
-    FlSpot(1616.42, 0.9442),
-    FlSpot(1744.61, 0.9445),
-  ];
-
-  // 2. Determinar los límites de los ejes
-
-  // Eje X (Flujo): Mínimo es 1127.50, Máximo es 1744.61
-  static const double flujoMin = 1000.0; // Un poco antes del primer punto
-  static const double flujoMax = 1800.0; // Un poco después del último punto
-
-  // Eje Y (K Factor): Mínimo es 0.9442, Máximo es 0.9451
-  static const double kFactorMin =
-      0.9440; // Un valor bajo para que se vea la curva
-  static const double kFactorMax = 0.9455; // Un valor alto
-
-  final GraficaCorridas graficaCorridas = const GraficaCorridas(
-    spots: datosFlujoKFactor,
-    maxX: flujoMax,
-    minX: flujoMin,
-    maxY: kFactorMax,
-    minY: kFactorMin,
-  );
+  List<FlSpot> spots = [];
+  double minX = 0;
+  double maxX = 2000;
+  double minY = 0;
+  double maxY = 1;
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
+    // Inicializaciones que NO dependen de context se quedan aquí.
+    // Los servicios y formatos ya son final o inicializados inmediatamente.
+  }
+
+  // 💡 USAMOS didChangeDependencies
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // 💡 IMPORTANTE: Nos aseguramos de inicializar los datos UNA SOLA VEZ
+    // (ya que didChangeDependencies puede ser llamado varias veces).
+    if (!_isDataInitialized) {
       final args = ModalRoute.of(context)!.settings.arguments;
       if (args != null) {
-        setState(() {
-          calibracionEquipo = args as CalibracionEquipo;
-          _laboratorioFuture = laboratorioService.obtenerLaboratorioPorId(
-            calibracionEquipo.idLaboratorioCalibracion,
-          );
-        });
+        // Asignación directa: No necesitamos setState() porque esto se ejecuta ANTES del primer build
+        calibracionEquipo = args as CalibracionEquipo;
+        corridasAPuntos();
+        graficaCorridas = GraficaCorridas(
+          spots: spots,
+          maxX: maxX,
+          minX: minX,
+          maxY: maxY,
+          minY: minY,
+        );
+
+        _laboratorioFuture = laboratorioService.obtenerLaboratorioPorId(
+          calibracionEquipo.idLaboratorioCalibracion,
+        );
+
+        _isDataInitialized = true; // Marcamos como inicializado
       }
-    });
+    }
+  }
+    void corridasAPuntos() {
+    spots = calibracionEquipo.corridas
+        .map((corrida) => FlSpot(corrida.caudalM3Hr, corrida.kFactorPulseM3))
+        .toList();
+
+    // 💡 Implementar manejo de lista vacía
+    if (spots.isEmpty) {
+      minX = 0;
+      maxX = 2000;
+      minY = 0;
+      maxY = 1;
+      return; // Salir de la función
+    }
+
+    // Lógica de límites solo si hay datos
+    minX = spots.map((spot) => spot.x).reduce((a, b) => a < b ? a : b);
+    minX = minX - (minX * 0.15); // Un 15% menos para margen
+    maxX = spots.map((spot) => spot.x).reduce((a, b) => a > b ? a : b);
+    maxX = maxX + (maxX * 0.15); // Un 15% más para margen
+    minY = spots.map((spot) => spot.y).reduce((a, b) => a < b ? a : b);
+    minY = minY - (minY * 0.15); // Un 15% menos para margen
+    maxY = spots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
+    maxY = maxY + (maxY * 0.15); // Un 15% más para margen
   }
 
   @override
