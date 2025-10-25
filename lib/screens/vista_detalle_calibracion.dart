@@ -1,7 +1,11 @@
+import 'dart:math';
+
 import 'package:calibraciones/common/barrel/services.dart';
 import 'package:calibraciones/common/barrel/models.dart';
 import 'package:calibraciones/common/components/components.dart';
 import 'package:calibraciones/common/utils/conversiones.dart';
+import 'package:calibraciones/services/equipo_service.dart';
+import 'package:calibraciones/services/implementation/equipo_service_impl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,17 +24,25 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   final Mensajes mensajes = Mensajes();
   DateFormat formato = DateFormat("dd/MM/yyyy");
   late CalibracionEquipo calibracionEquipo;
-  late Future<LaboratorioCalibracion> _laboratorioFuture;
+  late LaboratorioCalibracion laboratorio;
   final LaboratorioCalibracionService laboratorioService =
       LaboratorioCalibracionServiceImpl();
+  String nombreLaboratorio = '';
   late GraficaCorridas graficaCorridas;
   bool _isDataInitialized = false;
+  late Equipo equipo;
+  final EquipoService equipoService = EquipoServiceImpl();
 
-  List<FlSpot> spots = [];
-  double minX = 0;
-  double maxX = 2000;
-  double minY = 0;
-  double maxY = 1;
+  List<FlSpot> spotsKFactor = [];
+  List<FlSpot> spotsMeterFactor = [];
+  double kFactorMinX = 0;
+  double kFactorMaxX = 2000;
+  double kFactorMinY = 0;
+  double kFactorMaxY = 1;
+  double meterFactorMinX = 0;
+  double meterFactorMaxX = 2000;
+  double meterFactorMinY = 0;
+  double meterFactorMaxY = 1;
 
   @override
   void initState() {
@@ -53,50 +65,96 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
         calibracionEquipo = args as CalibracionEquipo;
         corridasAPuntos();
         graficaCorridas = GraficaCorridas(
-          spots: spots,
-          maxX: maxX,
-          minX: minX,
-          maxY: maxY,
-          minY: minY,
+          spotsKFactor: spotsKFactor,
+          spotsMeterFactor: spotsMeterFactor,
+          kFactorMaxX: kFactorMaxX,
+          kFactorMinX: kFactorMinX,
+          kFactorMaxY: kFactorMaxY,
+          kFactorMinY: kFactorMinY,
+          meterFactorMaxX: meterFactorMaxX,
+          meterFactorMinX: meterFactorMinX,
+          meterFactorMaxY: meterFactorMaxY,
+          meterFactorMinY: meterFactorMinY,
         );
 
-        _laboratorioFuture = laboratorioService.obtenerLaboratorioPorId(
-          calibracionEquipo.idLaboratorioCalibracion,
-        );
+        buscarLaboratorio();
+        buscarEquipo();
 
         _isDataInitialized = true; // Marcamos como inicializado
       }
     }
   }
-    void corridasAPuntos() {
-    spots = calibracionEquipo.corridas
+
+  Future<void> buscarEquipo() async {
+    final resultado = await equipoService.obtenerEquipoPorId(
+      calibracionEquipo.tagEquipo,
+    );
+    setState(() {
+      equipo = resultado;
+    });
+  }
+
+  Future<void> buscarLaboratorio() async {
+    final resultado = await laboratorioService.obtenerLaboratorioPorId(
+      calibracionEquipo.idLaboratorioCalibracion,
+    );
+    setState(() {
+      laboratorio = resultado;
+    });
+  }
+
+  void corridasAPuntos() {
+    spotsKFactor = calibracionEquipo.corridas
         .map((corrida) => FlSpot(corrida.caudalM3Hr, corrida.kFactorPulseM3))
         .toList();
 
+    spotsMeterFactor = calibracionEquipo.corridas
+        .map((corrida) => FlSpot(corrida.caudalM3Hr, corrida.meterFactor))
+        .toList();
+
     // 💡 Implementar manejo de lista vacía
-    if (spots.isEmpty) {
-      minX = 0;
-      maxX = 2000;
-      minY = 0;
-      maxY = 1;
+    if (spotsKFactor.isEmpty) {
+      kFactorMinX = 0;
+      kFactorMaxX = 2000;
+      kFactorMinY = 0;
+      kFactorMaxY = 1;
       return; // Salir de la función
     }
 
     // Lógica de límites solo si hay datos
-    minX = spots.map((spot) => spot.x).reduce((a, b) => a < b ? a : b);
-    minX = minX - (minX * 0.15); // Un 15% menos para margen
-    maxX = spots.map((spot) => spot.x).reduce((a, b) => a > b ? a : b);
-    maxX = maxX + (maxX * 0.15); // Un 15% más para margen
-    minY = spots.map((spot) => spot.y).reduce((a, b) => a < b ? a : b);
-    minY = minY - (minY * 0.15); // Un 15% menos para margen
-    maxY = spots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
-    maxY = maxY + (maxY * 0.15); // Un 15% más para margen
+    kFactorMinX = spotsKFactor
+        .map((spot) => spot.x)
+        .reduce((a, b) => a < b ? a : b);
+    kFactorMinX = kFactorMinX - (kFactorMinX * 0.1); // Un 10% menos para margen
+    kFactorMaxX = spotsKFactor
+        .map((spot) => spot.x)
+        .reduce((a, b) => a > b ? a : b);
+    kFactorMaxX = kFactorMaxX + (kFactorMaxX * 0.1); // Un 10% más para margen
+    kFactorMinY = spotsKFactor
+        .map((spot) => spot.y)
+        .reduce((a, b) => a < b ? a : b);
+    kFactorMinY = kFactorMinY - 1.5; // Un 15% menos para margen
+    kFactorMaxY = spotsKFactor
+        .map((spot) => spot.y)
+        .reduce((a, b) => a > b ? a : b);
+    kFactorMaxY = kFactorMaxY + 1.5; // Un 15% más para margen
+
+    meterFactorMinX = kFactorMinX;
+    meterFactorMaxX = kFactorMaxX;
+
+    meterFactorMinY = spotsMeterFactor
+        .map((spot) => spot.y)
+        .reduce((a, b) => a < b ? a : b);
+    meterFactorMinY = meterFactorMinY - 0.001;
+    meterFactorMaxY = spotsMeterFactor
+        .map((spot) => spot.y)
+        .reduce((a, b) => a > b ? a : b);
+    meterFactorMaxY = meterFactorMaxY + 0.001;
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    print('Número de corridas: ${calibracionEquipo.corridas.length}');
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
@@ -156,10 +214,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                       "Fecha de calibración",
                       formato.format(calibracionEquipo.fechaCalibracion),
                     ),
-                    _buildInfoRow(
-                      "Laboratorio",
-                      _laboratorioFuture.then((lab) => lab.nombre).toString(),
-                    ),
+                    _buildInfoRow("Laboratorio", laboratorio.nombre),
                     _buildInfoRow(
                       "Dirección",
                       "Logística y Salvaguardia Estratégica",
@@ -220,15 +275,14 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     const Divider(),
                     const SizedBox(height: 8),
                     _buildInfoRow("TAG", calibracionEquipo.tagEquipo),
-                    _buildInfoRow("Estado", "Operando"),
-                    _buildInfoRow("Marca", "Marca XYZ"),
-                    _buildInfoRow("Modelo", "Modelo ABC"),
-                    _buildInfoRow("Tipo de medición", "Dinámica"),
-                    _buildInfoRow("Tipo de equipo", "Sensor de presión"),
-                    _buildInfoRow("Computadora de flujo", "OMNI 3000"),
-                    _buildInfoRow("Incertidumbre", "±0.5%"),
-                    _buildInfoRow("Intervalo de calibración", "12 meses"),
-                    _buildInfoRow("Intervalo de verificación", "6 meses"),
+                    _buildInfoRow("Estado", equipo.estado),
+                    _buildInfoRow("Marca", equipo.marca),
+                    _buildInfoRow("Modelo", equipo.modelo),
+                    _buildInfoRow("Tipo de medición", equipo.tipoMedicion),
+                    _buildInfoRow("Incertidumbre", '± ${equipo.incertidumbre} % ${equipo.magnitudIncertidumbre}'),
+                    //Redondeo de intervalo de calibracion a meses
+                    _buildInfoRow("Intervalo de calibración", '${(equipo.intervaloCalibracion / 30).round()} meses'),
+                    _buildInfoRow("Intervalo de verificación", '${(equipo.intervaloVerificacion / 30).round()} meses'),
                   ],
                 ),
               ),
@@ -450,11 +504,19 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     ),
                     const Divider(),
                     const SizedBox(height: 8),
-                    _buildInfoRow("Linealidad", "0.01%"),
-                    _buildInfoRow("Reproducibilidad", "0.02%"),
+                    _buildInfoRow(
+                      "Linealidad",
+                      '${calibracionEquipo.linealidad}%',
+                    ),
+                    _buildInfoRow(
+                      "Reproducibilidad",
+                      '${calibracionEquipo.reproducibilidad}%',
+                    ),
                     const SizedBox(height: 8),
                     Text(
-                      "No se encontraron observaciones durante la calibración.",
+                      calibracionEquipo.observaciones.isNotEmpty
+                          ? calibracionEquipo.observaciones
+                          : 'Ninguna',
                       style: TextStyle(fontSize: 16, color: colors.secondary),
                     ),
                   ],
