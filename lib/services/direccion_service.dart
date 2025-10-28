@@ -5,4 +5,6 @@ abstract class DireccionService {
   Future<DtoDireccion> obtenerDireccionRegistro();
 
   Future<List<Direccion>> obtenerAllDirecciones();
+
+  Future<String> obtenerDireccionesJSON();
 }

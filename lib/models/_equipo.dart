@@ -9,6 +9,7 @@ class Equipo {
   late String modelo;
   late String noSerie;
   late String tipoMedicion;
+  late String idTipoSensor;
 
   Equipo(
     this.tagEquipo,
@@ -21,6 +22,7 @@ class Equipo {
     this.modelo,
     this.noSerie,
     this.tipoMedicion,
+    this.idTipoSensor,
   );
 
   // Getters para acceder a los atributos
@@ -34,6 +36,7 @@ class Equipo {
   int get getIntervaloVerificacion => intervaloVerificacion;
   double get getIncertidumbre => incertidumbre;
   String get getMagnitudIncertidumbre => magnitudIncertidumbre;
+  String get getIdTipoSensor => idTipoSensor;
 
   set setTagEquipo(String value) {
     tagEquipo = value; // Asignación correcta
@@ -75,7 +78,25 @@ class Equipo {
     magnitudIncertidumbre = value;
   }
 
+  set setIdTipoSensor(String value) {
+    idTipoSensor = value;
+  }
+
   factory Equipo.fromJson(Map<String, dynamic> equipoJson) {
+    String tipoSensor = '';
+
+    //Convertir numero de sensor s string
+    if (equipoJson['id_tipo_sensor'] is int) {
+      if (equipoJson['id_tipo_sensor'] == 1) {
+        tipoSensor = 'Medidor de flujo';
+      } else if (equipoJson['id_tipo_sensor'] == 2) {
+        tipoSensor = 'Temperatura';
+      } else if (equipoJson['id_tipo_sensor'] == 3) {
+        tipoSensor = 'Presión';
+      } else {
+        tipoSensor = 'Densidad';
+      }
+    }
     return Equipo(
       equipoJson['tag_equipo'],
       equipoJson['estado'],
@@ -87,6 +108,7 @@ class Equipo {
       equipoJson['modelo'],
       equipoJson['no_serie'],
       equipoJson['tipo_medicion'],
+      tipoSensor,
     );
   }
 }

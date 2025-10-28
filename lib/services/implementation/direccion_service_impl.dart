@@ -84,48 +84,38 @@ class DireccionServiceImpl extends DireccionService {
         // Aquí podrías agregar lógica adicional si es necesario
         direcciones.add(direccion);
       }
-    }
-    else {
+    } else {
       if (response.statusCode == 404) {
         // Decodificar la respuesta JSON
         throw Exception('No hay direcciones registradas');
       } else {
-        throw Exception(
-          'Hubo un error al recuperar la lista de direcciones 1',
-        );
+        throw Exception('Hubo un error al recuperar la lista de direcciones 1');
       }
     }
 
     return direcciones;
+  }
 
-    /*try {
-      final String url =
-          "https://zkviewvpmswfgpiwpoez.supabase.co/rest/v1/direccion?select=id_direccion,nombre_direccion,subdireccion(id_subdireccion,nombre_subdireccion,gerencia(id_gerencia,nombre_gerencia,instalacion(id_instalacion,nombre_instalacion)))&apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprdmlld3ZwbXN3ZmdwaXdwb2V6Iiwicm9zZSI6ImFub24iLCJpYXQiOjE3NTQ0NTgxMzQsImV4cCI6MjA3MDAzNDEzNH0.E5i81N4_usUAqcLySjGZUk7rGOFHOLBBk8p1nzYjHbw";
+  @override
+  Future<String> obtenerDireccionesJSON() async {
+    var request = http.Request(
+      'GET',
+      Uri.parse(
+        'https://zkviewvpmswfgpiwpoez.supabase.co/rest/v1/direccion?select=id_direccion,nombre_direccion,subdireccion(id_subdireccion,nombre_subdireccion,instalacion(id_instalacion, nombre_instalacion, patin_medicion(tag_patin, nombre_patin, tipo_fluido, tipo, tren_medicion!tren_medicion_tag_patin_fkey(tag_tren, estado, punto_medicion, equipos_tren(equipo(tag_equipo, estado, incertidumbre, intervalo_calibracion, intervalo_verificacion, magnitud_incertidumbre, marca, modelo, no_serie, tipo_medicion))))),gerencia(id_gerencia,nombre_gerencia,instalacion(id_instalacion, nombre_instalacion,patin_medicion(tag_patin, nombre_patin, tipo_fluido, tipo, tren_medicion!tren_medicion_tag_patin_fkey(tag_tren, estado, punto_medicion, equipos_tren(equipo(tag_equipo, estado, incertidumbre, intervalo_calibracion, intervalo_verificacion, magnitud_incertidumbre, marca, modelo, no_serie, tipo_medicion)))))))&apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprdmlld3ZwbXN3ZmdwaXdwb2V6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0NTgxMzQsImV4cCI6MjA3MDAzNDEzNH0.E5i81N4_usUAqcLySjGZUk7rGOFHOLBBk8p1nzYjHbw',
+      ),
+    );
 
-      final response = await http.get(Uri.parse(url));
+    http.StreamedResponse response = await request.send();
 
-      if (response.statusCode == 200) {
-        final List<dynamic> decodedJson = json.decode(response.body);
-        List<Direccion> direcciones = [];
-        for (var direccionJson in decodedJson) {
-          Direccion direccion = Direccion.fromJson(direccionJson);
-          // Aquí podrías agregar lógica adicional si es necesario
-          direcciones.add(direccion);
-        }
-        return direcciones;
+    if (response.statusCode == 200) {
+      return await response.stream.bytesToString();
+    } else {
+      if (response.statusCode == 404) {
+        // Decodificar la respuesta JSON
+        throw Exception('No hay direcciones registradas');
       } else {
-        if (response.statusCode == 404) {
-          // Decodificar la respuesta JSON
-          throw Exception('No hay direcciones registradas');
-        } else {
-          throw Exception(
-            'Hubo un error al recuperar la lista de direcciones 1',
-          );
-        }
+        throw Exception('Hubo un error al recuperar la lista de direcciones 2');
       }
-    } catch (e) {
-      throw Exception(' Ojoooo $e');
     }
-    */
   }
 }

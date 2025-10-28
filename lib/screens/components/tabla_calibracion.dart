@@ -55,6 +55,27 @@ class TablaCalibracion extends StatelessWidget {
     );
   }
 
+    TableCell editarFilaTabla(BuildContext context, Function() onPressed) {
+    final colors = Theme.of(context).colorScheme;
+    return TableCell(
+      child: Container(
+        decoration: BoxDecoration(
+          color: colors.tertiaryContainer,
+          border: Border.all(color: colors.tertiaryContainer, width: 0.5),
+        ),
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(4.0),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: IconButton(
+            icon: Icon(Icons.edit, color: colors.onTertiaryContainer),
+            onPressed: onPressed,
+          ),
+        ),
+      ),
+    );
+  }
+
   TableCell borraFilaTabla(BuildContext context, Function() onPressed) {
     final colors = Theme.of(context).colorScheme;
     return TableCell(

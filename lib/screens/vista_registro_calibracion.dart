@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:calibraciones/common/barrel/models.dart';
 import 'package:calibraciones/common/components/components.dart';
 import 'package:calibraciones/common/barrel/services.dart';
+import 'package:calibraciones/services/data_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:calibraciones/common/utils/conversiones.dart';
@@ -20,7 +21,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final TablaCalibracion tablaCalibracion = TablaCalibracion();
   final Conversiones convertidor = Conversiones();
   final Mensajes mensajes = Mensajes();
-  final _formularioRegistro = GlobalKey<FormState>();
+  final _keySeccionEquipo = GlobalKey<FormState>();
+  final _keySeccionDatosCalibracion = GlobalKey<FormState>();
+  final _keySeccionCorridas =
+      GlobalKey<FormState>(); // Para los campos de entrada de la corrida
+  final _keySeccionExtras = GlobalKey<FormState>();
 
   DateFormat formato = DateFormat("dd/MM/yyyy");
 
@@ -69,6 +74,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
   File? fileCertificado;
   late Uint8List? fileBytes;
+
+  bool editandoCorrida = false;
+  int indiceCorridaEditando = -1;
 
   Future<void> _seleccionarFecha(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -321,7 +329,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   @override
   void initState() {
     super.initState();
-    _futureDirecciones = direccionService.obtenerAllDirecciones();
+    _futureDirecciones = DataService().updateAndCacheData();
     _futureLaboratorios = laboratorioService.obtenerAllLaboratorios();
   }
 
@@ -342,15 +350,15 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           } else {
             final lista = snapshot.data!;
             direccionSeleccionada ??= lista[0];
-            return Form(
-              key: _formularioRegistro,
-              child: SingleChildScrollView(
-                child: Container(
-                  width: double.maxFinite,
-                  decoration: BoxDecoration(color: theme.colorScheme.onPrimary),
-                  child: Column(
-                    children: <Widget>[
-                      Container(
+            return SingleChildScrollView(
+              child: Container(
+                width: double.maxFinite,
+                decoration: BoxDecoration(color: theme.colorScheme.onPrimary),
+                child: Column(
+                  children: <Widget>[
+                    Form(
+                      key: _keySeccionEquipo,
+                      child: Container(
                         decoration: cajaFormulario.boxDecoration(context),
                         child: Padding(
                           padding: EdgeInsets.all(30),
@@ -541,8 +549,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
-                      Container(
+                    ),
+                    SizedBox(height: 20),
+                    Form(
+                      key: _keySeccionDatosCalibracion,
+                      child: Container(
                         decoration: cajaFormulario.boxDecoration(context),
                         child: Padding(
                           padding: EdgeInsets.all(30),
@@ -664,8 +675,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
-                      Container(
+                    ),
+                    SizedBox(height: 20),
+                    Form(
+                      key: _keySeccionCorridas,
+                      child: Container(
                         decoration: cajaFormulario.boxDecoration(context),
                         child: Padding(
                           padding: EdgeInsets.all(30),
@@ -923,6 +937,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             ),
                                             tablaCalibracion.cabeceraTabla(
                                               context,
+                                              'Editar',
+                                            ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
                                               'Borrar',
                                             ),
                                           ],
@@ -967,6 +985,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             tablaCalibracion.cabeceraTabla(
                                               context,
                                               '%',
+                                            ),
+                                            tablaCalibracion.cabeceraTabla(
+                                              context,
+                                              '',
                                             ),
                                             tablaCalibracion.cabeceraTabla(
                                               context,
@@ -1062,6 +1084,142 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                             3,
                                                           ),
                                                         ),
+                                                        tablaCalibracion.editarFilaTabla(context, () {
+                                                          showDialog(
+                                                            context: context,
+                                                            builder:
+                                                                (
+                                                                  BuildContext
+                                                                  context,
+                                                                ) {
+                                                                  // This is an alert dialog that asks for confirmation to delete something.
+                                                                  return AlertDialog(
+                                                                    title: Text(
+                                                                      "¿Quieres editar esta corrida?",
+                                                                    ),
+                                                                    content: SingleChildScrollView(
+                                                                      child: ListBody(
+                                                                        children:
+                                                                            <
+                                                                              Widget
+                                                                            >[
+                                                                              Text(
+                                                                                'Se cargaran los datos de la corrida en los campos de entrada para su edición',
+                                                                              ),
+                                                                            ],
+                                                                      ),
+                                                                    ),
+                                                                    actions: [
+                                                                      ElevatedButton(
+                                                                        onPressed: () {
+                                                                          Navigator.of(
+                                                                            context,
+                                                                          ).pop(
+                                                                            false,
+                                                                          ); // Return false if cancelled
+                                                                        },
+                                                                        child: Text(
+                                                                          "Cancelar",
+                                                                        ),
+                                                                      ),
+                                                                      ElevatedButton(
+                                                                        style: ButtonStyle(
+                                                                          backgroundColor: MaterialStateProperty.all(
+                                                                            theme.colorScheme.secondary,
+                                                                          ),
+                                                                        ),
+                                                                        onPressed: () async {
+                                                                          // Call a function that deletes the data when confirmed.
+                                                                          setState(() {
+                                                                            int
+                                                                            index = _corridasRegistradas.indexWhere(
+                                                                              (
+                                                                                c,
+                                                                              ) =>
+                                                                                  c.idCorrida ==
+                                                                                  corrida.idCorrida,
+                                                                            );
+                                                                            _corridaActual =
+                                                                                _corridasRegistradas[index];
+                                                                            _caudalM3Controller.text = convertidor.formatoMiles(
+                                                                              _corridaActual.caudalM3Hr,
+                                                                              2,
+                                                                            );
+                                                                            _caudalBblController.text = convertidor.formatoMiles(
+                                                                              _corridaActual.caudalBblHr,
+                                                                              2,
+                                                                            );
+                                                                            _temperaturaCentigradosController.text = convertidor.formatoMiles(
+                                                                              _corridaActual.temperaturaC,
+                                                                              2,
+                                                                            );
+                                                                            _temperaturaFahrenheitController.text = convertidor.formatoMiles(
+                                                                              _corridaActual.temperaturaF,
+                                                                              2,
+                                                                            );
+                                                                            _presionController.text = convertidor.formatoMiles(
+                                                                              _corridaActual.presionKgCm2,
+                                                                              2,
+                                                                            );
+                                                                            _presionPSIController.text = convertidor.formatoMiles(
+                                                                              _corridaActual.presionPSI,
+                                                                              2,
+                                                                            );
+                                                                            _presionKPaController.text = convertidor.formatoMiles(
+                                                                              _corridaActual.presionKPa,
+                                                                              2,
+                                                                            );
+                                                                            _meterFactorController.text = convertidor.formatoMiles(
+                                                                              _corridaActual.meterFactor,
+                                                                              5,
+                                                                            );
+                                                                            _kFactorPulsosM3Controller.text = convertidor.formatoMiles(
+                                                                              _corridaActual.kFactorPulseM3,
+                                                                              3,
+                                                                            );
+                                                                            _kFactorPulsosBblController.text = convertidor.formatoMiles(
+                                                                              _corridaActual.kFactorPulseBbl,
+                                                                              3,
+                                                                            );
+                                                                            _frecuenciaController.text = convertidor.formatoMiles(
+                                                                              _corridaActual.frecuenciaHz,
+                                                                              2,
+                                                                            );
+                                                                            _repetibilidadController.text = convertidor.formatoMiles(
+                                                                              _corridaActual.repetibilidad,
+                                                                              3,
+                                                                            );
+                                                                            editandoCorrida =
+                                                                                true;
+                                                                            indiceCorridaEditando =
+                                                                                index;
+                                                                          });
+
+                                                                          Navigator.of(
+                                                                            context,
+                                                                          ).pop(
+                                                                            true,
+                                                                          );
+                                                                        },
+                                                                        child: Text(
+                                                                          "Editar",
+                                                                          style: TextStyle(
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                                },
+                                                          );
+
+                                                          _linealidadController
+                                                              .text = convertidor
+                                                              .calcularLinealidad(
+                                                                _corridasRegistradas,
+                                                              );
+                                                        }),
                                                         tablaCalibracion.borraFilaTabla(context, () {
                                                           showDialog(
                                                             context: context,
@@ -1089,6 +1247,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                     ),
                                                                     actions: [
                                                                       ElevatedButton(
+                                                                        style: ButtonStyle(
+                                                                          backgroundColor: MaterialStateProperty.all(
+                                                                            theme.colorScheme.primary,
+                                                                          ),
+                                                                        ),
                                                                         onPressed: () {
                                                                           Navigator.of(
                                                                             context,
@@ -1101,6 +1264,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                         ),
                                                                       ),
                                                                       ElevatedButton(
+                                                                        style: ButtonStyle(
+                                                                          backgroundColor: MaterialStateProperty.all(
+                                                                            theme.colorScheme.secondary,
+                                                                          ),
+                                                                        ),
                                                                         onPressed: () async {
                                                                           // Call a function that deletes the data when confirmed.
                                                                           setState(() {
@@ -1161,7 +1329,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                         .tertiaryContainer,
                                                   ),
                                                   children: List.generate(
-                                                    10,
+                                                    11,
                                                     (index) => Padding(
                                                       padding: EdgeInsets.all(
                                                         2.0,
@@ -1178,18 +1346,31 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                               ),
                               SizedBox(height: 20),
                               Center(
-                                child: ElevatedButton(
-                                  onPressed: _agregarCorrida,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.secondary,
-                                    foregroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.onSecondary,
-                                  ),
-                                  child: const Text('Agregar corrida'),
-                                ),
+                                child: editandoCorrida
+                                    ? ElevatedButton(
+                                        onPressed: _agregarCorrida,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
+                                          foregroundColor: Theme.of(
+                                            context,
+                                          ).colorScheme.onSecondary,
+                                        ),
+                                        child: const Text('Agregar edición'),
+                                      )
+                                    : ElevatedButton(
+                                        onPressed: _agregarCorrida,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
+                                          foregroundColor: Theme.of(
+                                            context,
+                                          ).colorScheme.onSecondary,
+                                        ),
+                                        child: const Text('Agregar corrida'),
+                                      ),
                               ),
                               SizedBox(height: 10),
                               Center(
@@ -1210,8 +1391,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
-                      Container(
+                    ),
+                    SizedBox(height: 20),
+                    Form(
+                      key: _keySeccionExtras,
+                      child: Container(
                         decoration: cajaFormulario.boxDecoration(context),
                         child: Padding(
                           padding: EdgeInsets.all(30),
@@ -1309,8 +1493,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -1321,13 +1505,15 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void _guardarCalibracion() async {
-    if (_corridasRegistradas.isEmpty) {
+    if (_corridasRegistradas.isEmpty && _corridasRegistradas.length < 5) {
       ScaffoldMessenger.of(context).showSnackBar(
-        mensajes.error(context, 'Debe registrar al menos 4 corridas'),
+        mensajes.error(context, 'Debe registrar al menos 5 corridas'),
       );
       return;
     } else {
-      if (!_formularioRegistro.currentState!.validate()) {
+      if (!_keySeccionEquipo.currentState!.validate() &&
+          !_keySeccionDatosCalibracion.currentState!.validate() &&
+          !_keySeccionExtras.currentState!.validate()) {
         return;
       }
 
@@ -1363,7 +1549,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         );
         //limpiar formulario
         setState(() {
-          _formularioRegistro.currentState!.reset();
+          _keySeccionEquipo.currentState!.reset();
+          _keySeccionDatosCalibracion.currentState!.reset();
+          _keySeccionCorridas.currentState!.reset();
+          _keySeccionExtras.currentState!.reset();
           _laboratorioController.clear();
           _productoController.clear();
           _certificadoController.clear();
@@ -1395,6 +1584,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void _agregarCorrida() {
+    if (!_keySeccionCorridas.currentState!.validate()) {
+      return;
+    }
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(mensajes.info(context, 'Se  agregó una corrida'));
@@ -1423,19 +1615,16 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     );
 
     setState(() {
-      _listaCorridas.add(_corridaActual);
-      _corridasRegistradas.add(_corridaActual);
-      // limpiar inputs al terminar
-      /*_caudalM3Controller.clear();
-      _caudalBblController.clear();
-      _temperaturaCentigradosController.clear();
-      _presionController.clear();
-      _presionPSIController.clear();
-      _meterFactorController.clear();
-      _kFactorPulsosM3Controller.clear();
-      _kFactorPulsosBblController.clear();
-      _frecuenciaController.clear();
-      _repetibilidadController.clear();*/
+      if (editandoCorrida && indiceCorridaEditando != -1) {
+        // Si estamos editando, reemplazamos la corrida en el índice correspondiente
+        _corridasRegistradas[indiceCorridaEditando] = _corridaActual;
+        _listaCorridas[indiceCorridaEditando] = _corridaActual;
+        editandoCorrida = false;
+        indiceCorridaEditando = -1;
+      } else {
+        _listaCorridas.add(_corridaActual);
+        _corridasRegistradas.add(_corridaActual);
+      }
     });
 
     _linealidadController.text = convertidor.calcularLinealidad(
@@ -1503,18 +1692,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
             return null;
           },
           onChanged: onChanged,
-          /*onEditingComplete: () {
-            FocusScope.of(context).unfocus();
-            if (decimales > 0) {
-              String textoFormateado = convertidor.formatoMiles(
-                double.tryParse(controllerText.text) ?? 0,
-                decimales,
-              );
-              setState(() {
-                controllerText.text = textoFormateado;
-              });
-            }
-          },*/
         ),
       ),
     );

@@ -1,9 +1,9 @@
-import 'dart:math';
-
 import 'package:calibraciones/common/barrel/services.dart';
 import 'package:calibraciones/common/barrel/models.dart';
 import 'package:calibraciones/common/components/components.dart';
 import 'package:calibraciones/common/utils/conversiones.dart';
+import 'package:calibraciones/models/_ruta_equipo.dart';
+import 'package:calibraciones/services/data_service.dart';
 import 'package:calibraciones/services/equipo_service.dart';
 import 'package:calibraciones/services/implementation/equipo_service_impl.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -44,11 +44,21 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   double meterFactorMinY = 0;
   double meterFactorMaxY = 1;
 
+  DataService dataService = DataService();
+  late Future<List<Direccion>> _futureDirecciones;
+  RutaEquipo? rutaEquipo;
+
   @override
   void initState() {
     super.initState();
-    // Inicializaciones que NO dependen de context se quedan aquí.
-    // Los servicios y formatos ya son final o inicializados inmediatamente.
+    //recuperaJSON();
+  }
+
+  void recuperaJSON() async {
+    // Aquí puedes implementar la lógica para recuperar el JSON si es necesario
+     _futureDirecciones = DataService().updateAndCacheData();
+     rutaEquipo = buscarRutaAscendente(
+       await _futureDirecciones, calibracionEquipo.tagEquipo);
   }
 
   // 💡 USAMOS didChangeDependencies
@@ -275,6 +285,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     const Divider(),
                     const SizedBox(height: 8),
                     _buildInfoRow("TAG", calibracionEquipo.tagEquipo),
+                    _buildInfoRow("Tipo de sensor", equipo.idTipoSensor.toString()),
                     _buildInfoRow("Estado", equipo.estado),
                     _buildInfoRow("Marca", equipo.marca),
                     _buildInfoRow("Modelo", equipo.modelo),
