@@ -33,4 +33,6 @@ abstract class UsuarioService {
 
   //Consultar usuario
   Future<Usuario?> obtenerUsuario(String? correoElectronico);
+
+  Future<Usuario> obtenerUsuarioPorId(int idUsuario);
 }

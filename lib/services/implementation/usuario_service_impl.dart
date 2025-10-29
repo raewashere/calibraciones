@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UsuarioServiceImpl implements UsuarioService {
+  final Map<int, Future<Usuario>> _cache = {};
   final SupabaseClient supabase = Supabase.instance.client;
   final String urlN8N =
       "https://n8n-1xb0.onrender.com/webhook/31f9de4b-5677-4e3a-aa03-31e7174c7b6a";
@@ -161,6 +162,33 @@ class UsuarioServiceImpl implements UsuarioService {
 
       if (data.isEmpty) {
         return null;
+      }
+      return Usuario.fromJsonCreate(data[0]);
+    } catch (e) {
+      return Future.error(e);
+    }
+  }
+
+  @override
+  Future<Usuario> obtenerUsuarioPorId(int id) {
+    // 1. Verificar caché
+    if (_cache.containsKey(id)) {
+      return _cache[id]!;
+    }
+    final Future<Usuario> future = _fetchUsuarioReal(id);
+    _cache[id] = future;
+    return future;
+  }
+
+  Future<Usuario> _fetchUsuarioReal(int idUsuario) async {
+    try {
+      final data = await Supabase.instance.client
+          .from('usuario')
+          .select()
+          .eq('id_usuario', idUsuario);
+
+      if (data.isEmpty) {
+        throw Exception('Usuario no encontrado');
       }
       return Usuario.fromJsonCreate(data[0]);
     } catch (e) {

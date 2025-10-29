@@ -23,8 +23,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final Mensajes mensajes = Mensajes();
   final _keySeccionEquipo = GlobalKey<FormState>();
   final _keySeccionDatosCalibracion = GlobalKey<FormState>();
-  final _keySeccionCorridas =
-      GlobalKey<FormState>(); // Para los campos de entrada de la corrida
+  final _keySeccionCorridas = GlobalKey<FormState>();
   final _keySeccionExtras = GlobalKey<FormState>();
 
   DateFormat formato = DateFormat("dd/MM/yyyy");
@@ -108,15 +107,14 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       setState(() {
         _fechaController.text = formato.format(picked);
         selectedFecha = picked;
-        _fechaProximaController.text = formato.format(
-          picked.add(
-            Duration(
-              days: equipoSeleccionado != null
-                  ? equipoSeleccionado!.intervaloCalibracion
-                  : 0,
-            ),
+        selectedFechaProxima = picked.add(
+          Duration(
+            days: equipoSeleccionado != null
+                ? equipoSeleccionado!.intervaloCalibracion
+                : 0,
           ),
         );
+        _fechaProximaController.text = formato.format(selectedFechaProxima);
       });
     }
   }
@@ -1124,7 +1122,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                       ),
                                                                       ElevatedButton(
                                                                         style: ButtonStyle(
-                                                                          backgroundColor: MaterialStateProperty.all(
+                                                                          backgroundColor: WidgetStateProperty.all(
                                                                             theme.colorScheme.secondary,
                                                                           ),
                                                                         ),
@@ -1248,7 +1246,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                     actions: [
                                                                       ElevatedButton(
                                                                         style: ButtonStyle(
-                                                                          backgroundColor: MaterialStateProperty.all(
+                                                                          backgroundColor: WidgetStateProperty.all(
                                                                             theme.colorScheme.primary,
                                                                           ),
                                                                         ),
@@ -1265,7 +1263,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                                       ),
                                                                       ElevatedButton(
                                                                         style: ButtonStyle(
-                                                                          backgroundColor: MaterialStateProperty.all(
+                                                                          backgroundColor: WidgetStateProperty.all(
                                                                             theme.colorScheme.secondary,
                                                                           ),
                                                                         ),

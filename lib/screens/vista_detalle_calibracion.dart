@@ -51,14 +51,16 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   @override
   void initState() {
     super.initState();
-    //recuperaJSON();
+    recuperaJSON();
   }
 
   void recuperaJSON() async {
     // Aquí puedes implementar la lógica para recuperar el JSON si es necesario
-     _futureDirecciones = DataService().updateAndCacheData();
-     rutaEquipo = buscarRutaAscendente(
-       await _futureDirecciones, calibracionEquipo.tagEquipo);
+    _futureDirecciones = DataService().updateAndCacheData();
+    rutaEquipo = buscarRutaAscendente(
+      await _futureDirecciones,
+      calibracionEquipo.tagEquipo,
+    );
   }
 
   // 💡 USAMOS didChangeDependencies
@@ -227,14 +229,40 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     _buildInfoRow("Laboratorio", laboratorio.nombre),
                     _buildInfoRow(
                       "Dirección",
-                      "Logística y Salvaguardia Estratégica",
+                      rutaEquipo != null
+                          ? rutaEquipo!.direccion.nombre
+                          : 'No disponible',
                     ),
-                    _buildInfoRow("Subdirección", "Transporte"),
+                    _buildInfoRow(
+                      "Subdirección",
+                      rutaEquipo != null
+                          ? rutaEquipo!.subdireccion.nombre
+                          : 'No disponible',
+                    ),
                     _buildInfoRow(
                       "Gerencia",
-                      "Transporte, Mantenimiento y Servicio de Ductos",
+                      rutaEquipo != null
+                          ? rutaEquipo!.gerencia.nombre
+                          : 'No disponible',
                     ),
-                    _buildInfoRow("Instalación", "ERM Pajaritos"),
+                    _buildInfoRow(
+                      "Instalación",
+                      rutaEquipo != null
+                          ? rutaEquipo!.instalacion.nombreInstalacion
+                          : 'No disponible',
+                    ),
+                    _buildInfoRow(
+                      "Patín de medición",
+                      rutaEquipo != null
+                          ? rutaEquipo!.patin.nombrePatin
+                          : 'No disponible',
+                    ),
+                    _buildInfoRow(
+                      "Tren de medición",
+                      rutaEquipo != null
+                          ? rutaEquipo!.tren.tagTren
+                          : 'No disponible',
+                    ),
                     const SizedBox(height: 12),
                     Center(
                       child: ElevatedButton.icon(
@@ -285,15 +313,27 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     const Divider(),
                     const SizedBox(height: 8),
                     _buildInfoRow("TAG", calibracionEquipo.tagEquipo),
-                    _buildInfoRow("Tipo de sensor", equipo.idTipoSensor.toString()),
+                    _buildInfoRow(
+                      "Tipo de sensor",
+                      equipo.idTipoSensor.toString(),
+                    ),
                     _buildInfoRow("Estado", equipo.estado),
                     _buildInfoRow("Marca", equipo.marca),
                     _buildInfoRow("Modelo", equipo.modelo),
                     _buildInfoRow("Tipo de medición", equipo.tipoMedicion),
-                    _buildInfoRow("Incertidumbre", '± ${equipo.incertidumbre} % ${equipo.magnitudIncertidumbre}'),
+                    _buildInfoRow(
+                      "Incertidumbre",
+                      '± ${equipo.incertidumbre} % ${equipo.magnitudIncertidumbre}',
+                    ),
                     //Redondeo de intervalo de calibracion a meses
-                    _buildInfoRow("Intervalo de calibración", '${(equipo.intervaloCalibracion / 30).round()} meses'),
-                    _buildInfoRow("Intervalo de verificación", '${(equipo.intervaloVerificacion / 30).round()} meses'),
+                    _buildInfoRow(
+                      "Intervalo de calibración",
+                      '${(equipo.intervaloCalibracion / 30).round()} meses',
+                    ),
+                    _buildInfoRow(
+                      "Intervalo de verificación",
+                      '${(equipo.intervaloVerificacion / 30).round()} meses',
+                    ),
                   ],
                 ),
               ),

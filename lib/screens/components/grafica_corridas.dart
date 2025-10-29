@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:calibraciones/common/utils/conversiones.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -12,7 +15,7 @@ class GraficaCorridas extends StatelessWidget {
   final double meterFactorMinX;
   final double meterFactorMaxY;
   final double meterFactorMinY;
-   // Añadir minY para un mejor control del K Factor
+  // Añadir minY para un mejor control del K Factor
 
   const GraficaCorridas({
     super.key,
@@ -30,20 +33,21 @@ class GraficaCorridas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Conversiones conversiones = Conversiones();
     final colors = Theme.of(context).colorScheme;
     return SizedBox(
       height: 600,
       child: Column(
         children: <Widget>[
           // 1. PRIMERA GRÁFICA (Toma la mitad del espacio disponible)
-          Text( 
+          Text(
             'K Factor vs Flujo',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: colors.onSurface,
             ),
-          ),  
+          ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -131,7 +135,10 @@ class GraficaCorridas extends StatelessWidget {
                       // ... (Estilos de la línea)
                       color: colors.secondaryContainer,
                       dotData: FlDotData(show: true),
-                      belowBarData: BarAreaData(show: false),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: colors.secondaryContainer.withOpacity(0.3),
+                      ),
                       spots: spotsKFactor, // Usa la lista de puntos dinámica
                     ),
                   ],
@@ -151,19 +158,29 @@ class GraficaCorridas extends StatelessWidget {
           const Divider(), // Separador visual (opcional)
           // ----------------------------------------------------
           // 2. SEGUNDA GRÁFICA (Toma la otra mitad del espacio disponible)
-          Text( 
+          Text(
             'Meter Factor vs Flujo',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: colors.onSurface,
             ),
-          ), 
+          ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: LineChart(
                 LineChartData(
+                  extraLinesData: ExtraLinesData(
+                    horizontalLines: [
+                      // Aquí van tus líneas horizontales
+                      _getLimiteInferior(colors),
+                      _getLimiteSuperior(colors),
+                      _getLineaMedia(colors),
+                    ],
+                    // Puedes dejar verticalLines vacía si no las necesitas
+                    // verticalLines: [],
+                  ),
                   // ... (Configuración general de la gráfica)
                   titlesData: FlTitlesData(
                     // Títulos del Eje X (Flujo)
@@ -244,10 +261,14 @@ class GraficaCorridas extends StatelessWidget {
                   lineBarsData: [
                     LineChartBarData(
                       // ... (Estilos de la línea)
-                      color: colors.primaryContainer,
+                      color: colors.primary,
                       dotData: FlDotData(show: true),
-                      belowBarData: BarAreaData(show: false),
-                      spots: spotsMeterFactor, // Usa la lista de puntos dinámica
+                      belowBarData: BarAreaData(
+                        show: false,
+                        color: colors.tertiary,
+                      ),
+                      spots:
+                          spotsMeterFactor, // Usa la lista de puntos dinámica
                     ),
                   ],
 
@@ -265,5 +286,91 @@ class GraficaCorridas extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // Línea de Límite Inferior (LI)
+  HorizontalLine _getLimiteInferior(dynamic colors) {
+    double yValue = _calcularPromedioMeterFactor(spotsMeterFactor) -
+        2 * _calcularDesviacionEstandarMeterFactor(spotsMeterFactor);
+    return HorizontalLine(
+      y: yValue,
+      color: colors.primaryContainer,
+      strokeWidth: 2,
+      dashArray: [5, 5], // Línea punteada
+      label: HorizontalLineLabel(
+        show: true,
+        alignment: Alignment.bottomRight,
+        padding: const EdgeInsets.only(right: 5),
+        style: TextStyle(
+          color: Colors.black.withOpacity(0.8),
+          fontWeight: FontWeight.bold,
+          fontSize: 10,
+        ),
+        labelResolver: (line) => 'LI ${yValue.toStringAsFixed(5)}',
+      ),
+    );
+  }
+
+  // Línea de Límite Superior (LS)
+  HorizontalLine _getLimiteSuperior(dynamic colors) {
+    double yValue = _calcularPromedioMeterFactor(   spotsMeterFactor) +
+        2 * _calcularDesviacionEstandarMeterFactor(spotsMeterFactor);
+    return HorizontalLine(
+      y: yValue, // 💡 Define el valor Y de tu límite
+      color: colors.primaryContainer,
+      strokeWidth: 2,
+      dashArray: [5, 5], // Línea punteada
+      label: HorizontalLineLabel(
+        show: true,
+        alignment: Alignment.topRight,
+        padding: const EdgeInsets.only(right: 5),
+        style: TextStyle(
+          color: Colors.black.withOpacity(0.8),
+          fontWeight: FontWeight.bold,
+          fontSize: 10,
+        ),
+        labelResolver: (line) => 'LS ${yValue.toStringAsFixed(5)}',
+      ),
+    );
+  }
+
+  // Línea de Valor Promedio (Media)
+  HorizontalLine _getLineaMedia(dynamic colors) {
+    double yValue = _calcularPromedioMeterFactor(spotsMeterFactor);
+    return HorizontalLine(
+      y: yValue, // 💡 Define el valor Y de tu límite
+      color: colors.secondaryContainer,
+      strokeWidth: 2,
+      dashArray: [5, 5], // Línea punteada
+      label: HorizontalLineLabel(
+        show: true,
+        alignment: Alignment.topRight,
+        padding: const EdgeInsets.only(right: 5),
+        style: TextStyle(
+          color: Colors.black.withOpacity(0.8),
+          fontWeight: FontWeight.bold,
+          fontSize: 10,
+        ),
+        labelResolver: (line) => 'AVG ${yValue.toStringAsFixed(5)}',
+      ),
+    );
+  }
+
+  //Calcular el valor promedio de Meter Factor
+  double _calcularPromedioMeterFactor(List<FlSpot> spots) {
+    if (spots.isEmpty) return 0.0;
+
+    double suma = spots.fold(0.0, (prev, spot) => prev + spot.y);
+    return suma / spots.length;
+  }
+
+  //Calcular desviación estándar de Meter Factor
+  double _calcularDesviacionEstandarMeterFactor(List<FlSpot> spots) {
+    if (spots.isEmpty) return 0.0;
+
+    double promedio = _calcularPromedioMeterFactor(spots);
+    double sumaDiferenciasCuadradas = spots.fold(
+        0.0, (prev, spot) => prev + (spot.y - promedio) * (spot.y - promedio));
+    return sqrt((sumaDiferenciasCuadradas / spots.length));
   }
 }

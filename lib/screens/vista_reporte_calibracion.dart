@@ -1,9 +1,14 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:calibraciones/common/utils/conversiones.dart';
 import 'package:calibraciones/models/_calibracion_equipo.dart';
+import 'package:calibraciones/models/_usuario.dart';
 import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:calibraciones/services/calibracion_service.dart';
 import 'package:calibraciones/services/implementation/calibracion_service_impl.dart';
+import 'package:calibraciones/services/implementation/usuario_service_impl.dart';
+import 'package:calibraciones/services/usuario_service.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class VistaReporteCalibracion extends StatefulWidget {
   const VistaReporteCalibracion({super.key});
@@ -14,6 +19,8 @@ class VistaReporteCalibracion extends StatefulWidget {
 }
 
 class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
+  final UsuarioService usuarioService = UsuarioServiceImpl();
+  final DateFormat formato = DateFormat("dd/MM/yyyy");
   final Mensajes mensajes = Mensajes();
   final ScrollController _scrollController = ScrollController();
   List<CalibracionEquipo> calibracionesEquipos = [];
@@ -117,8 +124,30 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
                     children: [
                       const SizedBox(height: 4),
                       Text('Equipo: ${calibracion.tagEquipo}'),
-                      Text('Fecha: ${calibracion.fechaCalibracion}'),
-                      Text('Próxima: ${calibracion.fechaProximaCalibracion}'),
+                      Text(
+                        'Fecha: ${formato.format(calibracion.fechaCalibracion)}',
+                      ),
+                      Text(
+                        'Próxima: ${formato.format(calibracion.fechaProximaCalibracion)}',
+                      ),
+                      FutureBuilder<Usuario>(
+                        future: usuarioService.obtenerUsuarioPorId(
+                          calibracion.idUsuario,
+                        ),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            final usuario = snapshot.data;
+                            return Text(
+                              'Registró : ${usuario?.nombre} ${usuario?.primerApellido} ${usuario?.segundoApellido}',
+                            );
+                          }
+                        },
+                      ),
                     ],
                   ),
                   trailing: IconButton(

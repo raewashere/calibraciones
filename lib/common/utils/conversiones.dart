@@ -30,7 +30,7 @@ class Conversiones {
 
   //Formato de miles
   String formatoMiles(double value, int decimales) {
-    final formateador = NumberFormat("####,###,##0.${'0' * decimales}", "en");
+    final formateador = NumberFormat("####,###,##0.${'0' * decimales}", "es_MX");
     return formateador.format(value);
   }
 
