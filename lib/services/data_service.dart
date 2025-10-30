@@ -25,20 +25,17 @@ class DataService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_jsonKey, newJsonString);
 
-      print('💾 JSON String actualizado de la API y almacenado en caché exitosamente.');
 
       // 3. Convertir el String JSON a objetos Direccion para devolverlos a la UI
       return _convertJsonStringToDirecciones(newJsonString);
 
     } catch (e) {
-      print('❌ Error al actualizar los datos desde la API: $e');
 
       // **Estrategia de Fallback:** Intenta cargar el String JSON del caché existente.
       final prefs = await SharedPreferences.getInstance();
       final cachedJsonString = prefs.getString(_jsonKey);
 
       if (cachedJsonString != null) {
-        print('⏳ Fallback: Devolviendo datos desde el caché antiguo.');
         // 4. Convertir el caché String JSON a objetos Direccion
         return _convertJsonStringToDirecciones(cachedJsonString);
       }

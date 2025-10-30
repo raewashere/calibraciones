@@ -135,7 +135,6 @@ class CalibracionEquipo {
       );
     } catch (error) {
       // Manejo de errores (por ejemplo, registrar el error y devolver una lista vacía)
-      print('Error al obtener corridas: $error');
       corridas = []; // Asegura que se devuelve una lista vacía en caso de error
     }
     return CalibracionEquipo(

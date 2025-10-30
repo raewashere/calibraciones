@@ -1,6 +1,4 @@
 import 'dart:math';
-
-import 'package:calibraciones/common/utils/conversiones.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -33,7 +31,6 @@ class GraficaCorridas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Conversiones conversiones = Conversiones();
     final colors = Theme.of(context).colorScheme;
     return SizedBox(
       height: 600,
