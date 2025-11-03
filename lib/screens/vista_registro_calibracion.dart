@@ -118,6 +118,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       });
     }
   }
+
   //Equipo
   final FocusNode _focusDireccion = FocusNode();
   final FocusNode _focusSubdireccion = FocusNode();
@@ -127,7 +128,19 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final FocusNode _focusTren = FocusNode();
   final FocusNode _focusEquipo = FocusNode();
 
-  final FocusNode _focusNodeCaudal = FocusNode();
+  //Corridas
+  final FocusNode _focusNodeCaudalM3 = FocusNode();
+  final FocusNode _focusNodeCaudalBbl = FocusNode();
+  final FocusNode _focusNodeTemperaturaCelsius = FocusNode();
+  final FocusNode _focusNodeTemperaturaFahrenheit = FocusNode();
+  final FocusNode _focusNodePresion = FocusNode();
+  final FocusNode _focusNodePresionPSI = FocusNode();
+  final FocusNode _focusNodePresionKPa = FocusNode();
+  final FocusNode _focusNodeMeterFactor = FocusNode();
+  final FocusNode _focusNodeKFactorPulsosM3 = FocusNode();
+  final FocusNode _focusNodeKFactorPulsosBbl = FocusNode();
+  final FocusNode _focusNodeFrecuencia = FocusNode();
+  final FocusNode _focusNodeRepetibilidad = FocusNode();
 
   DireccionService direccionService = DireccionServiceImpl();
   LaboratorioCalibracionService laboratorioService =
@@ -171,6 +184,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   bool _editingPresion = false;
   bool _editingPresionPSI = false;
   bool _editingPresionKPa = false;
+
+  bool corridasValido = false;
 
   static const double factor = 6.28981; // m³/h a bbl/h
   static const double factorPulsos = 0.158987; // bbl → m³
@@ -740,7 +755,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             validatorText:
                                                 'Favor de escribir el caudal',
                                             controllerText: _caudalM3Controller,
-                                            focusNode: _focusNodeCaudal,
+                                            focusNode: _focusNodeCaudalM3,
                                             onChanged: _onCaudalM3Changed,
                                             decimales: 2,
                                           ),
@@ -1597,7 +1612,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void _agregarCorrida() {
-    if (!_keySeccionCorridas.currentState!.validate()) {
+    validarYEnfocarCorridas();
+    if (!corridasValido) {
       return;
     }
     ScaffoldMessenger.of(
@@ -1645,7 +1661,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     );
 
     // dar focus después de limpiar
-    FocusScope.of(context).requestFocus(_focusNodeCaudal);
+    FocusScope.of(context).requestFocus(_focusNodeCaudalM3);
   }
 
   void _limpiaCorrida() {
@@ -1664,7 +1680,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       _repetibilidadController.clear();
     });
 
-    FocusScope.of(context).requestFocus(_focusNodeCaudal);
+    FocusScope.of(context).requestFocus(_focusNodeCaudalM3);
   }
 
   InputDecoration _inputDecoration(String label) =>
@@ -2101,6 +2117,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void validarYEnfocarEquipos() {
+    FocusScope.of(context).unfocus();
     bool formValido = _keySeccionEquipo.currentState!.validate();
     if (!formValido) {
       if (direccionSeleccionada == null) {
@@ -2136,6 +2153,45 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     } else {
       // Formulario válido
       print('Sección Equipo es válida.');
+    }
+  }
+
+  void validarYEnfocarCorridas() {
+    FocusScope.of(context).unfocus();
+    bool corridasValido = _keySeccionCorridas.currentState!.validate();
+    if (!corridasValido) {
+      if (_caudalM3Controller.text.isEmpty) {
+        FocusScope.of(context).requestFocus(_focusNodeCaudalM3);
+        return;
+      }
+      if (_caudalBblController.text.isEmpty) {
+        FocusScope.of(context).requestFocus(_focusNodeCaudalBbl);
+        return;
+      }
+      if (_temperaturaCentigradosController.text.isEmpty) {
+        FocusScope.of(context).requestFocus(_focusNodeTemperaturaCelsius);
+        return;
+      }
+      if (_presionController.text.isEmpty) {
+        FocusScope.of(context).requestFocus(_focusNodePresion);
+        return;
+      }
+      if (_meterFactorController.text.isEmpty) {
+        FocusScope.of(context).requestFocus(_focusNodeMeterFactor);
+        return;
+      }
+      if (_kFactorPulsosM3Controller.text.isEmpty) {
+        FocusScope.of(context).requestFocus(_focusNodeKFactorPulsosM3);
+        return;
+      }
+      if (_frecuenciaController.text.isEmpty) {
+        FocusScope.of(context).requestFocus(_focusNodeFrecuencia);
+        return;
+      }
+      if (_repetibilidadController.text.isEmpty) {
+        FocusScope.of(context).requestFocus(_focusNodeRepetibilidad);
+        return;
+      }
     }
   }
 }
