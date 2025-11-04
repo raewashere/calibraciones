@@ -106,21 +106,21 @@ class CalibracionEquipo {
     idUsuario = value;
   }
 
-  factory CalibracionEquipo.fromJson(Map<String, dynamic> calibracionJson) {
-    return CalibracionEquipo.sinCorridas(
-      calibracionJson['id_calibracion'],
-      calibracionJson['certificado_calibracion'],
-      DateTime.parse(calibracionJson['fecha_calibracion']),
-      DateTime.parse(calibracionJson['fecha_proxima_calibracion']),
-      calibracionJson['linealidad'],
-      calibracionJson['reproducibilidad'],
-      calibracionJson['observaciones'],
-      calibracionJson['ruta_certificado'],
-      calibracionJson['tag_equipo'],
-      calibracionJson['id_laboratorio_calibracion'],
-      calibracionJson['id_usuario'],
-    );
-  }
+factory CalibracionEquipo.fromJson(Map<String, dynamic> calibracionJson) {
+  return CalibracionEquipo.sinCorridas(
+    calibracionJson['id_calibracion'] as int,
+    calibracionJson['certificado_calibracion'] as String,
+    DateTime.parse(calibracionJson['fecha_calibracion']),
+    DateTime.parse(calibracionJson['fecha_proxima_calibracion']),
+    (calibracionJson['linealidad'] as num).toDouble(),
+    (calibracionJson['reproducibilidad'] as num).toDouble(),
+    calibracionJson['observaciones'] as String,
+    calibracionJson['ruta_certificado'] as String,
+    calibracionJson['tag_equipo'] as String,
+    calibracionJson['id_laboratorio_calibracion'] as int,
+    calibracionJson['id_usuario'] as int,
+  );
+}
 
   static Future<CalibracionEquipo> fromJsonAsync(
     Map<String, dynamic> calibracionJson,
@@ -137,20 +137,20 @@ class CalibracionEquipo {
       // Manejo de errores (por ejemplo, registrar el error y devolver una lista vacía)
       corridas = []; // Asegura que se devuelve una lista vacía en caso de error
     }
-    return CalibracionEquipo(
-      calibracionJson['id_calibracion'],
-      calibracionJson['certificado_calibracion'],
-      DateTime.parse(calibracionJson['fecha_calibracion']),
-      DateTime.parse(calibracionJson['fecha_proxima_calibracion']),
-      calibracionJson['linealidad'],
-      calibracionJson['reproducibilidad'],
-      calibracionJson['observaciones'],
-      calibracionJson['ruta_certificado'],
-      corridas,
-      calibracionJson['tag_equipo'],
-      calibracionJson['id_laboratorio_calibracion'],
-      calibracionJson['id_usuario'],
-    );
+return CalibracionEquipo(
+    calibracionJson['id_calibracion'] as int,
+    calibracionJson['certificado_calibracion'] as String,
+    DateTime.parse(calibracionJson['fecha_calibracion']),
+    DateTime.parse(calibracionJson['fecha_proxima_calibracion']),
+    (calibracionJson['linealidad'] as num).toDouble(),
+    (calibracionJson['reproducibilidad'] as num).toDouble(),
+    calibracionJson['observaciones'] as String,
+    calibracionJson['ruta_certificado'] as String,
+    corridas,
+    calibracionJson['tag_equipo'] as String,
+    calibracionJson['id_laboratorio_calibracion'] as int,
+    calibracionJson['id_usuario'] as int,
+  );
   }
 
   Map<String, dynamic> toJson() {
