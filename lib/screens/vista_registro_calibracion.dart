@@ -119,28 +119,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     }
   }
 
-  //Equipo
-  final FocusNode _focusDireccion = FocusNode();
-  final FocusNode _focusSubdireccion = FocusNode();
-  final FocusNode _focusGerencia = FocusNode();
-  final FocusNode _focusInstalacion = FocusNode();
-  final FocusNode _focusPatin = FocusNode();
-  final FocusNode _focusTren = FocusNode();
-  final FocusNode _focusEquipo = FocusNode();
-
-  //Corridas
-  final FocusNode _focusNodeCaudalM3 = FocusNode();
-  final FocusNode _focusNodeCaudalBbl = FocusNode();
-  final FocusNode _focusNodeTemperaturaCelsius = FocusNode();
-  final FocusNode _focusNodeTemperaturaFahrenheit = FocusNode();
-  final FocusNode _focusNodePresion = FocusNode();
-  final FocusNode _focusNodePresionPSI = FocusNode();
-  final FocusNode _focusNodePresionKPa = FocusNode();
-  final FocusNode _focusNodeMeterFactor = FocusNode();
-  final FocusNode _focusNodeKFactorPulsosM3 = FocusNode();
-  final FocusNode _focusNodeKFactorPulsosBbl = FocusNode();
-  final FocusNode _focusNodeFrecuencia = FocusNode();
-  final FocusNode _focusNodeRepetibilidad = FocusNode();
+  final FocusNode _focusNodeCaudal = FocusNode();
 
   DireccionService direccionService = DireccionServiceImpl();
   LaboratorioCalibracionService laboratorioService =
@@ -184,8 +163,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   bool _editingPresion = false;
   bool _editingPresionPSI = false;
   bool _editingPresionKPa = false;
-
-  bool corridasValido = false;
 
   static const double factor = 6.28981; // m³/h a bbl/h
   static const double factorPulsos = 0.158987; // bbl → m³
@@ -423,7 +400,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       hintText: "Dirección",
                                       items: _futureDirecciones,
                                       value: direccionSeleccionada,
-                                      focusNode: _focusDireccion,
                                       onChanged: (value) {
                                         setState(() {
                                           subdireccionSeleccionada = null;
@@ -450,7 +426,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       hintText: "Subdirección",
                                       items: subdirecciones,
                                       value: subdireccionSeleccionada,
-                                      focusNode: _focusSubdireccion,
                                       onChanged: (value) {
                                         setState(() {
                                           gerenciaSeleccionada = null;
@@ -481,7 +456,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             hintText: "Gerencia",
                                             items: gerencias,
                                             value: gerenciaSeleccionada,
-                                            focusNode: _focusGerencia,
                                             onChanged: (value) {
                                               setState(() {
                                                 instalacionSeleccionada = null;
@@ -506,7 +480,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       hintText: "Instalación",
                                       items: instalaciones,
                                       value: instalacionSeleccionada,
-                                      focusNode: _focusInstalacion,
                                       onChanged: (value) {
                                         setState(() {
                                           patinMedicionSeleccionado = null;
@@ -527,7 +500,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       hintText: "Patín de Medición",
                                       items: patinesMedicion,
                                       value: patinMedicionSeleccionado,
-                                      focusNode: _focusPatin,
                                       onChanged: (value) {
                                         setState(() {
                                           trenMedicionSeleccionado = null;
@@ -546,7 +518,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       hintText: "Tren de Medición",
                                       items: trenesMedicion,
                                       value: trenMedicionSeleccionado,
-                                      focusNode: _focusTren,
                                       onChanged: (value) {
                                         setState(() {
                                           equipoSeleccionado = null;
@@ -562,7 +533,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                       hintText: "Equipo",
                                       items: equiposTren,
                                       value: equipoSeleccionado,
-                                      focusNode: _focusEquipo,
                                       onChanged: (value) {
                                         setState(() {
                                           equipoSeleccionado = value;
@@ -755,7 +725,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                             validatorText:
                                                 'Favor de escribir el caudal',
                                             controllerText: _caudalM3Controller,
-                                            focusNode: _focusNodeCaudalM3,
+                                            focusNode: _focusNodeCaudal,
                                             onChanged: _onCaudalM3Changed,
                                             decimales: 2,
                                           ),
@@ -1539,11 +1509,11 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       );
       return;
     } else {
-      validarYEnfocarEquipos();
-      /*if (!_keySeccionDatosCalibracion.currentState!.validate() &&
+      if (!_keySeccionEquipo.currentState!.validate() &&
+          !_keySeccionDatosCalibracion.currentState!.validate() &&
           !_keySeccionExtras.currentState!.validate()) {
         return;
-      }*/
+      }
 
       _calibracionEquipo = CalibracionEquipo(
         0,
@@ -1612,8 +1582,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void _agregarCorrida() {
-    validarYEnfocarCorridas();
-    if (!corridasValido) {
+    if (!_keySeccionCorridas.currentState!.validate()) {
       return;
     }
     ScaffoldMessenger.of(
@@ -1661,7 +1630,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     );
 
     // dar focus después de limpiar
-    FocusScope.of(context).requestFocus(_focusNodeCaudalM3);
+    FocusScope.of(context).requestFocus(_focusNodeCaudal);
   }
 
   void _limpiaCorrida() {
@@ -1680,7 +1649,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       _repetibilidadController.clear();
     });
 
-    FocusScope.of(context).requestFocus(_focusNodeCaudalM3);
+    FocusScope.of(context).requestFocus(_focusNodeCaudal);
   }
 
   InputDecoration _inputDecoration(String label) =>
@@ -1766,7 +1735,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required String hintText,
     required Future<List<Direccion>> items,
     required Direccion? value,
-    required FocusNode focusNode,
     required ValueChanged<Direccion?> onChanged,
   }) {
     //future to list
@@ -1780,7 +1748,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         } else {
           final direcciones = snapshot.data!;
           return DropdownButtonFormField<Direccion>(
-            focusNode: focusNode,
             isExpanded: true,
             decoration: _inputDecoration(hintText),
             initialValue: value,
@@ -1809,11 +1776,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required String hintText,
     required List<Subdireccion> items,
     required Subdireccion? value,
-    required FocusNode focusNode,
     required ValueChanged<Subdireccion?> onChanged,
   }) {
     return DropdownButtonFormField<Subdireccion>(
-      focusNode: focusNode,
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
@@ -1839,11 +1804,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required String hintText,
     required List<Gerencia> items,
     required Gerencia? value,
-    required FocusNode focusNode,
     required ValueChanged<Gerencia?> onChanged,
   }) {
     return DropdownButtonFormField<Gerencia>(
-      focusNode: focusNode,
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
@@ -1869,11 +1832,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required String hintText,
     required List<Instalacion> items,
     required Instalacion? value,
-    required FocusNode focusNode,
     required ValueChanged<Instalacion?> onChanged,
   }) {
     return DropdownButtonFormField<Instalacion>(
-      focusNode: focusNode,
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
@@ -1899,11 +1860,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required String hintText,
     required List<PatinMedicion> items,
     required PatinMedicion? value,
-    required FocusNode focusNode,
     required ValueChanged<PatinMedicion?> onChanged,
   }) {
     return DropdownButtonFormField<PatinMedicion>(
-      focusNode: focusNode,
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
@@ -1929,11 +1888,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required String hintText,
     required List<TrenMedicion> items,
     required TrenMedicion? value,
-    required FocusNode focusNode,
     required ValueChanged<TrenMedicion?> onChanged,
   }) {
     return DropdownButtonFormField<TrenMedicion>(
-      focusNode: focusNode,
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
@@ -1959,11 +1916,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required String hintText,
     required List<Equipo> items,
     required Equipo? value,
-    required FocusNode focusNode,
     required ValueChanged<Equipo?> onChanged,
   }) {
     return DropdownButtonFormField<Equipo>(
-      focusNode: focusNode,
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
@@ -2114,84 +2069,5 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         ).showSnackBar(mensajes.ayuda(context, mensaje));
       },
     );
-  }
-
-  void validarYEnfocarEquipos() {
-    FocusScope.of(context).unfocus();
-    bool formValido = _keySeccionEquipo.currentState!.validate();
-    if (!formValido) {
-      if (direccionSeleccionada == null) {
-        FocusScope.of(context).requestFocus(_focusDireccion);
-        _focusDireccion.requestFocus();
-        return;
-      }
-      if (subdireccionSeleccionada == null) {
-        FocusScope.of(context).requestFocus(_focusSubdireccion);
-        _focusSubdireccion.requestFocus();
-        return;
-      }
-      if (gerenciaSeleccionada == null) {
-        FocusScope.of(context).requestFocus(_focusGerencia);
-        return;
-      }
-      if (instalacionSeleccionada == null) {
-        FocusScope.of(context).requestFocus(_focusInstalacion);
-        return;
-      }
-      if (patinMedicionSeleccionado == null) {
-        FocusScope.of(context).requestFocus(_focusPatin);
-        return;
-      }
-      if (trenMedicionSeleccionado == null) {
-        FocusScope.of(context).requestFocus(_focusTren);
-        return;
-      }
-      if (equipoSeleccionado == null) {
-        FocusScope.of(context).requestFocus(_focusEquipo);
-        return;
-      }
-    } else {
-      // Formulario válido
-      print('Sección Equipo es válida.');
-    }
-  }
-
-  void validarYEnfocarCorridas() {
-    FocusScope.of(context).unfocus();
-    bool corridasValido = _keySeccionCorridas.currentState!.validate();
-    if (!corridasValido) {
-      if (_caudalM3Controller.text.isEmpty) {
-        FocusScope.of(context).requestFocus(_focusNodeCaudalM3);
-        return;
-      }
-      if (_caudalBblController.text.isEmpty) {
-        FocusScope.of(context).requestFocus(_focusNodeCaudalBbl);
-        return;
-      }
-      if (_temperaturaCentigradosController.text.isEmpty) {
-        FocusScope.of(context).requestFocus(_focusNodeTemperaturaCelsius);
-        return;
-      }
-      if (_presionController.text.isEmpty) {
-        FocusScope.of(context).requestFocus(_focusNodePresion);
-        return;
-      }
-      if (_meterFactorController.text.isEmpty) {
-        FocusScope.of(context).requestFocus(_focusNodeMeterFactor);
-        return;
-      }
-      if (_kFactorPulsosM3Controller.text.isEmpty) {
-        FocusScope.of(context).requestFocus(_focusNodeKFactorPulsosM3);
-        return;
-      }
-      if (_frecuenciaController.text.isEmpty) {
-        FocusScope.of(context).requestFocus(_focusNodeFrecuencia);
-        return;
-      }
-      if (_repetibilidadController.text.isEmpty) {
-        FocusScope.of(context).requestFocus(_focusNodeRepetibilidad);
-        return;
-      }
-    }
   }
 }
