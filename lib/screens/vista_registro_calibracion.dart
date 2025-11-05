@@ -655,7 +655,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                           child: _buildDateFormField(
                                             context,
                                             hintText:
-                                                "Fecha de próxima calibración",
+                                                "Fecha de próxima calibración recomendada",
                                             validatorText:
                                                 'Favor de escribir la fecha',
                                             controllerText:
