@@ -134,7 +134,7 @@ class GraficaCorridas extends StatelessWidget {
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: colors.secondaryContainer.withOpacity(0.3),
+                        color: colors.secondaryContainer.withValues(alpha: 0.3)
                       ),
                       spots: spotsKFactor, // Usa la lista de puntos dinámica
                     ),
@@ -299,7 +299,7 @@ class GraficaCorridas extends StatelessWidget {
         alignment: Alignment.bottomRight,
         padding: const EdgeInsets.only(right: 5),
         style: TextStyle(
-          color: Colors.black.withOpacity(0.8),
+          color: Colors.black.withValues(alpha: 0.8),
           fontWeight: FontWeight.bold,
           fontSize: 10,
         ),
@@ -322,7 +322,7 @@ class GraficaCorridas extends StatelessWidget {
         alignment: Alignment.topRight,
         padding: const EdgeInsets.only(right: 5),
         style: TextStyle(
-          color: Colors.black.withOpacity(0.8),
+          color: Colors.black.withValues(alpha: 0.8),
           fontWeight: FontWeight.bold,
           fontSize: 10,
         ),
@@ -344,7 +344,7 @@ class GraficaCorridas extends StatelessWidget {
         alignment: Alignment.topRight,
         padding: const EdgeInsets.only(right: 5),
         style: TextStyle(
-          color: Colors.black.withOpacity(0.8),
+          color: Colors.black.withValues(alpha: 0.08),
           fontWeight: FontWeight.bold,
           fontSize: 10,
         ),

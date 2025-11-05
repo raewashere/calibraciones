@@ -14,7 +14,7 @@ class CajaFormulario extends StatelessWidget {
       borderRadius: BorderRadius.circular(60),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.1), // sombra sutil
+          color: Colors.black.withValues(alpha: 0.1),
           spreadRadius: 1,
           blurRadius: 8,
           offset: Offset(0, 4), // desplazada hacia abajo
@@ -22,7 +22,7 @@ class CajaFormulario extends StatelessWidget {
       ],
       border: Border(
         bottom: BorderSide(
-          color: Colors.grey.withOpacity(0.3), // línea suave
+          color: Colors.grey.withValues(alpha: 0.3), // línea suave
           width: 1,
         ),
       ),

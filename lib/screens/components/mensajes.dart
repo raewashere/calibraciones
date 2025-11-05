@@ -15,7 +15,7 @@ class Mensajes extends StatelessWidget {
       elevation: 6,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       behavior: SnackBarBehavior.floating,
-      backgroundColor: theme.colorScheme.tertiaryContainer.withOpacity(0.95),
+      backgroundColor: theme.colorScheme.tertiaryContainer.withValues(alpha: 0.95),
       duration: const Duration(seconds: 5),
       content: Row(
         children: [
@@ -42,7 +42,7 @@ class Mensajes extends StatelessWidget {
       elevation: 6,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       behavior: SnackBarBehavior.floating,
-      backgroundColor: theme.colorScheme.secondaryContainer.withOpacity(0.95),
+      backgroundColor: theme.colorScheme.secondaryContainer.withValues(alpha: 0.95),
       duration: const Duration(seconds: 5),
       content: Row(
         children: [
@@ -69,7 +69,7 @@ class Mensajes extends StatelessWidget {
       elevation: 6,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       behavior: SnackBarBehavior.floating,
-      backgroundColor: theme.colorScheme.errorContainer.withOpacity(0.95),
+      backgroundColor: theme.colorScheme.errorContainer.withValues(alpha: 0.95),
       duration: const Duration(seconds: 5),
       content: Row(
         children: [
