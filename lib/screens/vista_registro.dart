@@ -63,7 +63,7 @@ class VistaRegistroState extends State<VistaRegistro> {
   }
 
   InputDecoration _inputDecoration(String label) =>
-      InputDecoration(labelText: label, border: const OutlineInputBorder());
+      InputDecoration(labelText: label, border: OutlineInputBorder());
 
   InputDecoration _inputDecorationPassword(String label) => InputDecoration(
     labelText: label,
@@ -463,7 +463,7 @@ class VistaRegistroState extends State<VistaRegistro> {
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
-      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      dropdownColor: Theme.of(context).colorScheme.tertiary,
       items: items.map((DtoDireccion item) {
         return DropdownMenuItem<DtoDireccion>(
           value: item,
@@ -491,7 +491,7 @@ class VistaRegistroState extends State<VistaRegistro> {
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
-      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      dropdownColor: Theme.of(context).colorScheme.tertiary,
       items: items.map((DtoSubdireccionLogistica item) {
         return DropdownMenuItem<DtoSubdireccionLogistica>(
           value: item,
@@ -519,7 +519,7 @@ class VistaRegistroState extends State<VistaRegistro> {
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
-      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      dropdownColor: Theme.of(context).colorScheme.tertiary,
       items: items.map((DtoGerencia item) {
         return DropdownMenuItem<DtoGerencia>(
           value: item,
@@ -547,7 +547,7 @@ class VistaRegistroState extends State<VistaRegistro> {
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
-      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      dropdownColor: Theme.of(context).colorScheme.tertiary,
       items: items.map((DtoInstalacion item) {
         return DropdownMenuItem<DtoInstalacion>(
           value: item,

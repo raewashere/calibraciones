@@ -74,29 +74,29 @@ class _MainState extends State<PemexCalibraciones> {
     final baseColorScheme = ColorScheme(
       brightness: brightness,
       primary: const Color(0xFF9B2247),
-      onPrimary: Colors.white,
-      primaryContainer: const Color(0xFFDE688C),
-      onPrimaryContainer: Colors.black,
+      onPrimary: const Color(0xFFE6E6E6),
+      primaryContainer: const Color(0xFFEE85B5),
+      onPrimaryContainer: const Color(0xFF121212),
       secondary: const Color(0xFF1E5B4F),
-      onSecondary: Colors.white,
-      secondaryContainer: const Color(0xFF57C7B0),
-      onSecondaryContainer: Colors.black,
+      onSecondary: const Color(0xFFE6E6E6),
+      secondaryContainer: const Color(0xFFA4D4B4),
+      onSecondaryContainer: const Color(0xFF121212),
       tertiary: const Color(0xFFA57F2C),
-      onTertiary: Colors.white,
-      tertiaryContainer: const Color(0xFFE6D194),
-      onTertiaryContainer: Colors.black,
-      surface: isDark ? const Color(0xFF121212) : Colors.white,
-      onSurface: isDark ? Colors.white : const Color(0xFF161A1D),
-      outline: isDark ? Colors.white54 : const Color(0xFF5F5F5F),
+      onTertiary: const Color(0xFF121212),
+      tertiaryContainer: const Color(0xFFEFECCA),
+      onTertiaryContainer: const Color(0xFF121212),
+      surface: isDark ? const Color(0xFF121212) : const Color(0xFFE6E6E6),
+      onSurface: isDark ? const Color(0xFFE6E6E6) : const Color(0xFF121212),
+      outline: isDark ? const Color(0xFFE6E6E6) : const Color(0xFF121212),
       error: Colors.red,
-      onError: Colors.white,
+      onError: const Color(0xFFE6E6E6),
     );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: baseColorScheme,
       scaffoldBackgroundColor: baseColorScheme.surface,
-      fontFamily: 'Montserrat', // 🎨 Fuente más moderna y elegante
+      fontFamily: 'Montserrat',
       textTheme: _buildTextTheme(baseColorScheme.onSurface),
       appBarTheme: AppBarTheme(
         backgroundColor: baseColorScheme.primary,
@@ -110,22 +110,36 @@ class _MainState extends State<PemexCalibraciones> {
         ),
       ),
       cardTheme: CardThemeData(
-        color: baseColorScheme.surface,
+        color: baseColorScheme.primaryContainer,
         elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
+      // *** CONFIGURACIÓN GLOBAL DE INPUTS DE TEXTO (EXISTENTE) ***
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: isDark ? Colors.grey[800] : Colors.grey[100],
+        fillColor: isDark ? const Color(0xFFE6E6E6) : const Color(0xFFE6E6E6),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: baseColorScheme.outline),
+          borderSide: BorderSide(color: baseColorScheme.secondary, width: 2),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: baseColorScheme.primary, width: 2),
         ),
-        labelStyle: TextStyle(color: baseColorScheme.onSurface),
+        labelStyle: TextStyle(color: baseColorScheme.primary),
+      ),
+      // *** NUEVA CONFIGURACIÓN GLOBAL DE ICONOS ***
+      iconTheme: IconThemeData(color: baseColorScheme.primary, size: 24),
+      // *** NUEVA CONFIGURACIÓN GLOBAL DEL MENÚ DESPLEGABLE ***
+      dropdownMenuTheme: DropdownMenuThemeData(
+        textStyle: _buildTextTheme(baseColorScheme.onSurface).bodyLarge,
+        menuStyle: MenuStyle(
+          backgroundColor: WidgetStateProperty.all(baseColorScheme.surface),
+          elevation: WidgetStateProperty.all(4),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -135,6 +149,20 @@ class _MainState extends State<PemexCalibraciones> {
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+      // Dentro de tu ThemeData...
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor:
+              baseColorScheme.primary, // El color del texto es Primary
+          textStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ), // Mismo estilo de texto que ElevatedButton
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12), // Mismo radio de borde
           ),
         ),
       ),

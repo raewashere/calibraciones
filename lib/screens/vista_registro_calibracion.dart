@@ -4,7 +4,10 @@ import 'dart:typed_data';
 import 'package:calibraciones/common/barrel/models.dart';
 import 'package:calibraciones/common/components/components.dart';
 import 'package:calibraciones/common/barrel/services.dart';
+import 'package:calibraciones/models/_producto.dart';
 import 'package:calibraciones/services/data_service.dart';
+import 'package:calibraciones/services/implementation/producto_service_impl.dart';
+import 'package:calibraciones/services/producto_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:calibraciones/common/utils/conversiones.dart';
@@ -151,6 +154,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
   late Future<List<LaboratorioCalibracion>> _futureLaboratorios;
   LaboratorioCalibracion? laboratorioSeleccionado;
+
+  ProductosService productosService = ProductoServiceImpl();
+  late Future<List<Producto>> _futureProductos;
+  Producto? productoSeleccionado;
 
   bool habilitaGerencia = false;
 
@@ -329,6 +336,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     super.initState();
     _futureDirecciones = DataService().updateAndCacheData();
     _futureLaboratorios = laboratorioService.obtenerAllLaboratorios();
+    _futureProductos = productosService.obtenerAllProductos();
   }
 
   @override
@@ -601,13 +609,16 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                         });
                                       },
                                     ),
-                                    _buildTextFormField(
+                                    _buildDropdownButtonProducto(
                                       context,
                                       hintText: "Producto",
-                                      validatorText:
-                                          'Favor de escribir el producto',
-                                      controllerText: _productoController,
-                                      decimales: 0,
+                                      items: _futureProductos,
+                                      value: productoSeleccionado,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          productoSeleccionado = value;
+                                        });
+                                      },
                                     ),
                                     Row(
                                       children: [
@@ -654,8 +665,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                         Expanded(
                                           child: _buildDateFormField(
                                             context,
-                                            hintText:
-                                                "Fecha de próxima calibración recomendada",
+                                            hintText: "Próxima calibración",
                                             validatorText:
                                                 'Favor de escribir la fecha',
                                             controllerText:
@@ -1528,6 +1538,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         equipoSeleccionado!.getTagEquipo,
         laboratorioSeleccionado!.getIdLaboratorioCalibracion,
         0,
+        productoSeleccionado!
       );
 
       bool exito = await calibracionService.registrarCalibracionEquipo(
@@ -1751,7 +1762,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
             isExpanded: true,
             decoration: _inputDecoration(hintText),
             initialValue: value,
-            dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+            dropdownColor: Theme.of(context).colorScheme.tertiary,
             items: direcciones.map((Direccion item) {
               return DropdownMenuItem<Direccion>(
                 value: item,
@@ -1965,6 +1976,47 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
               return DropdownMenuItem<LaboratorioCalibracion>(
                 value: item,
                 child: Text(item.getNombre),
+              );
+            }).toList(),
+            onChanged: onChanged,
+            validator: (value) {
+              if (value == null) {
+                return 'Por favor selecciona una opción';
+              }
+              return null;
+            },
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildDropdownButtonProducto(
+    BuildContext context, {
+    required String hintText,
+    required Future<List<Producto>> items,
+    required Producto? value,
+    required ValueChanged<Producto?> onChanged,
+  }) {
+    //future to list
+    return FutureBuilder<List<Producto>>(
+      future: items,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          final direcciones = snapshot.data!;
+          return DropdownButtonFormField<Producto>(
+            isExpanded: true,
+            decoration: _inputDecoration(hintText),
+            initialValue: value,
+            dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+            items: direcciones.map((Producto item) {
+              return DropdownMenuItem<Producto>(
+                value: item,
+                child: Text(item.getProducto),
               );
             }).toList(),
             onChanged: onChanged,

@@ -97,11 +97,11 @@ class VistaInicioState extends State<VistaInicio> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.tune),
-            label: 'Registra calibración',
+            label: 'Registro',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.table_view),
-            label: 'Reporte calibraciones',
+            label: 'Reporte',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.monitor_rounded),
