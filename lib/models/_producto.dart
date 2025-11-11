@@ -16,10 +16,10 @@ class Producto {
   }
 
   static fromJson(Map<String, dynamic> productoJson) {
-    return Producto(productoJson['id_producto'], productoJson['producto']);
+    return Producto(productoJson['id_producto'] as int, productoJson['producto'] as String);
   }
 
   factory Producto.fromJsonFactory(Map<String, dynamic> json) {
-    return Producto(json['id_producto'], json['producto']);
+    return Producto(json['id_producto'] as int, json['producto'] as String);
   }
 }

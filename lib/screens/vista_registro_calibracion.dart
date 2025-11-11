@@ -609,6 +609,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                         });
                                       },
                                     ),
+                                    SizedBox(height: 10),
                                     _buildDropdownButtonProducto(
                                       context,
                                       hintText: "Producto",
@@ -620,6 +621,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                         });
                                       },
                                     ),
+                                    SizedBox(height: 10),
                                     Row(
                                       children: [
                                         Expanded(
@@ -647,6 +649,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                         ),
                                       ],
                                     ),
+                                    SizedBox(height: 10),
                                     Row(
                                       children: [
                                         Expanded(
@@ -1762,7 +1765,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
             isExpanded: true,
             decoration: _inputDecoration(hintText),
             initialValue: value,
-            dropdownColor: Theme.of(context).colorScheme.tertiary,
+            dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
             items: direcciones.map((Direccion item) {
               return DropdownMenuItem<Direccion>(
                 value: item,

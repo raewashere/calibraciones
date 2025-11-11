@@ -130,11 +130,11 @@ class GraficaCorridas extends StatelessWidget {
                   lineBarsData: [
                     LineChartBarData(
                       // ... (Estilos de la línea)
-                      color: colors.secondaryContainer,
+                      color: colors.secondary,
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: colors.secondaryContainer.withValues(alpha: 0.3)
+                        color: colors.secondaryContainer
                       ),
                       spots: spotsKFactor, // Usa la lista de puntos dinámica
                     ),
@@ -291,7 +291,7 @@ class GraficaCorridas extends StatelessWidget {
         2 * _calcularDesviacionEstandarMeterFactor(spotsMeterFactor);
     return HorizontalLine(
       y: yValue,
-      color: colors.primaryContainer,
+      color: colors.primary,
       strokeWidth: 2,
       dashArray: [5, 5], // Línea punteada
       label: HorizontalLineLabel(
@@ -299,7 +299,7 @@ class GraficaCorridas extends StatelessWidget {
         alignment: Alignment.bottomRight,
         padding: const EdgeInsets.only(right: 5),
         style: TextStyle(
-          color: Colors.black.withValues(alpha: 0.8),
+          color: Colors.black,
           fontWeight: FontWeight.bold,
           fontSize: 10,
         ),
@@ -314,7 +314,7 @@ class GraficaCorridas extends StatelessWidget {
         2 * _calcularDesviacionEstandarMeterFactor(spotsMeterFactor);
     return HorizontalLine(
       y: yValue, // 💡 Define el valor Y de tu límite
-      color: colors.primaryContainer,
+      color: colors.tertiary,
       strokeWidth: 2,
       dashArray: [5, 5], // Línea punteada
       label: HorizontalLineLabel(
@@ -322,7 +322,7 @@ class GraficaCorridas extends StatelessWidget {
         alignment: Alignment.topRight,
         padding: const EdgeInsets.only(right: 5),
         style: TextStyle(
-          color: Colors.black.withValues(alpha: 0.8),
+          color: Colors.black,
           fontWeight: FontWeight.bold,
           fontSize: 10,
         ),
@@ -336,7 +336,7 @@ class GraficaCorridas extends StatelessWidget {
     double yValue = _calcularPromedioMeterFactor(spotsMeterFactor);
     return HorizontalLine(
       y: yValue, // 💡 Define el valor Y de tu límite
-      color: colors.secondaryContainer,
+      color: colors.secondary,
       strokeWidth: 2,
       dashArray: [5, 5], // Línea punteada
       label: HorizontalLineLabel(
@@ -344,7 +344,7 @@ class GraficaCorridas extends StatelessWidget {
         alignment: Alignment.topRight,
         padding: const EdgeInsets.only(right: 5),
         style: TextStyle(
-          color: Colors.black.withValues(alpha: 0.08),
+          color: Colors.black,
           fontWeight: FontWeight.bold,
           fontSize: 10,
         ),

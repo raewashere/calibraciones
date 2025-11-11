@@ -94,6 +94,7 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
             return FadeInUp(
               duration: const Duration(milliseconds: 400),
               child: Card(
+                borderOnForeground: true,
                 elevation: 3,
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 shape: RoundedRectangleBorder(
@@ -182,7 +183,7 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
               context,
             ).showSnackBar(mensajes.info(context, 'Descargando reporte...'));
           },
-          backgroundColor: theme.colorScheme.primaryContainer,
+          //backgroundColor: theme.colorScheme.primaryContainer,
           child: const Icon(Icons.download),
         ),
         const SizedBox(height: 12),

@@ -186,7 +186,7 @@ class _VistaEquipoState extends State<VistaEquipo> {
                                   onPressed: () {
                                     Navigator.pushNamed(
                                       context,
-                                      '/detalle_calibracion',
+                                      '/detalle_equipo',
                                       arguments: equipo,
                                     );
                                   },

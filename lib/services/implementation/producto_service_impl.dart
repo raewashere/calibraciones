@@ -8,7 +8,7 @@ class ProductoServiceImpl extends ProductosService {
   @override
   Future<List<Producto>> obtenerAllProductos() async{
     try {
-      final response = await supabase.from('laboratorio_calibracion').select();
+      final response = await supabase.from('catalogo_productos').select();
 
       if (response.isNotEmpty) {
         return (response as List).map((e) => Producto.fromJsonFactory(e)).toList();
