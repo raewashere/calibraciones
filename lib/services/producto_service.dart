@@ -4,4 +4,6 @@ abstract class ProductosService {
 
   Future<List<Producto>> obtenerAllProductos();
 
+  Future<Producto> obtenerProductoPorId(int idProducto);
+
 }

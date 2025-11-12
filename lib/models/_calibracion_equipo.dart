@@ -1,7 +1,9 @@
 import 'package:calibraciones/models/_corrida.dart';
 import 'package:calibraciones/models/_producto.dart';
 import 'package:calibraciones/services/corridas_service.dart';
+import 'package:calibraciones/services/producto_service.dart';
 import 'package:calibraciones/services/implementation/corrida_service_impl.dart';
+import 'package:calibraciones/services/implementation/producto_service_impl.dart';
 
 class CalibracionEquipo {
   late int idCalibracionEquipo;
@@ -134,12 +136,18 @@ class CalibracionEquipo {
     Map<String, dynamic> calibracionJson,
   ) async {
     List<Corrida> corridas = [];
+    Producto producto = Producto(0, "");
     CorridasService corridaService = CorridasServiceImpl();
+    ProductosService productoService = ProductoServiceImpl();
 
     try {
       // 1. AWAIT: Esperamos a que la consulta termine y obtenga las corridas.
       corridas = await corridaService.obtenerCorridaPorCalibracion(
         calibracionJson['id_calibracion'],
+      );
+
+      producto = await productoService.obtenerProductoPorId(
+        calibracionJson['producto'] as int,
       );
     } catch (error) {
       // Manejo de errores (por ejemplo, registrar el error y devolver una lista vacía)
@@ -158,7 +166,7 @@ class CalibracionEquipo {
       calibracionJson['tag_equipo'] as String,
       calibracionJson['id_laboratorio_calibracion'] as int,
       calibracionJson['id_usuario'] as int,
-      Producto(0, "producto"),
+      producto,
     );
   }
 

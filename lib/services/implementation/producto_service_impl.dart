@@ -20,4 +20,18 @@ class ProductoServiceImpl extends ProductosService {
     }
   }
 
+  @override
+  Future<Producto> obtenerProductoPorId(int idProducto) async {
+    try {
+      final response = await supabase
+          .from('catalogo_productos')
+          .select()
+          .eq('id_producto', idProducto)
+          .single();
+
+      return Producto.fromJson(response);
+    } catch (e) {
+      throw Exception('Error al obtener el equipo por tag: $e');
+    }
+  }
 }

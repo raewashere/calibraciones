@@ -3,6 +3,7 @@ import 'package:calibraciones/common/barrel/models.dart';
 import 'package:calibraciones/common/components/components.dart';
 import 'package:calibraciones/common/utils/conversiones.dart';
 import 'package:calibraciones/dto/dto_equipo.dart';
+import 'package:calibraciones/models/_producto.dart';
 import 'package:calibraciones/models/_ruta_equipo.dart';
 import 'package:calibraciones/services/data_service.dart';
 import 'package:calibraciones/services/equipo_service.dart';
@@ -33,6 +34,8 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
   late DtoEquipo equipo;
   late Equipo equipoCompleto;
   final EquipoService equipoService = EquipoServiceImpl();
+  final CalibracionService calibracionService = CalibracionServiceImpl();
+  late Future<List<CalibracionEquipo>> _futureCalibraciones;
 
   List<FlSpot> spotsKFactor = [];
   List<FlSpot> spotsMeterFactor = [];
@@ -48,6 +51,9 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
   DataService dataService = DataService();
   late Future<List<Direccion>> _futureDirecciones;
   RutaEquipo? rutaEquipo;
+
+  late Future<List<Producto>> _futureProductos;
+  Producto? productoSeleccionado;
 
   @override
   void initState() {
@@ -90,6 +96,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
           meterFactorMinY: meterFactorMinY,
         );*/
         buscarEquipo();
+        buscarCalibracionesEquipo();
         _isDataInitialized = true; // Marcamos como inicializado
       }
     }
@@ -100,6 +107,11 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
     setState(() {
       equipoCompleto = resultado;
     });
+  }
+
+  Future<void> buscarCalibracionesEquipo() async {
+    final _futureCalibraciones = await calibracionService
+        .obtenerCalibracionesEquipo(equipo.tagEquipo);      
   }
 
   @override
@@ -271,6 +283,17 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                     ),
                     const Divider(),
                     const SizedBox(height: 12),
+                    _buildDropdownButtonProducto(
+                      context,
+                      hintText: "Producto",
+                      items: _futureProductos,
+                      value: productoSeleccionado,
+                      onChanged: (value) {
+                        setState(() {
+                          productoSeleccionado = value;
+                        });
+                      },
+                    ),
                     // graficaCorridas,
                   ],
                 ),
@@ -299,6 +322,50 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
           Expanded(flex: 6, child: Text(value)),
         ],
       ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String label) =>
+      InputDecoration(labelText: label, border: const OutlineInputBorder());
+
+  Widget _buildDropdownButtonProducto(
+    BuildContext context, {
+    required String hintText,
+    required Future<List<Producto>> items,
+    required Producto? value,
+    required ValueChanged<Producto?> onChanged,
+  }) {
+    //future to list
+    return FutureBuilder<List<Producto>>(
+      future: items,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          final direcciones = snapshot.data!;
+          return DropdownButtonFormField<Producto>(
+            isExpanded: true,
+            decoration: _inputDecoration(hintText),
+            initialValue: value,
+            dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+            items: direcciones.map((Producto item) {
+              return DropdownMenuItem<Producto>(
+                value: item,
+                child: Text(item.getProducto),
+              );
+            }).toList(),
+            onChanged: onChanged,
+            validator: (value) {
+              if (value == null) {
+                return 'Por favor selecciona una opción';
+              }
+              return null;
+            },
+          );
+        }
+      },
     );
   }
 }

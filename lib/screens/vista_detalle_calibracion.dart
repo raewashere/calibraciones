@@ -263,6 +263,10 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                           ? rutaEquipo!.tren.tagTren
                           : 'No disponible',
                     ),
+                    _buildInfoRow(
+                      "Producto",
+                      calibracionEquipo.producto.producto,
+                    ),
                     const SizedBox(height: 12),
                     Center(
                       child: ElevatedButton.icon(

@@ -44,7 +44,7 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
     if (_isLoading) return;
 
     setState(() => _isLoading = true);
-    final nuevas = await calibracionService.obtenerCalibracionesEquipo(
+    final nuevas = await calibracionService.obtenerCalibracionesAll(
       _currentOffset,
       _limit,
     );

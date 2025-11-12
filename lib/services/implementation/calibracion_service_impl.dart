@@ -31,7 +31,8 @@ class CalibracionServiceImpl implements CalibracionService {
     int idUsuario = responseUsuario['id_usuario'];
     calibracionEquipo.setIdUsuario = idUsuario;
 
-    calibracionEquipo.setRutaCertificado = '$patinSeleccionado/$trenSeleccionado/${calibracionEquipo.tagEquipo}/${calibracionEquipo.certificadoCalibracion}.pdf';
+    calibracionEquipo.setRutaCertificado =
+        '$patinSeleccionado/$trenSeleccionado/${calibracionEquipo.tagEquipo}/${calibracionEquipo.certificadoCalibracion}.pdf';
 
     final response = await supabase
         .from('calibracion_equipo')
@@ -63,7 +64,7 @@ class CalibracionServiceImpl implements CalibracionService {
   }
 
   @override
-  Future<List<CalibracionEquipo>> obtenerCalibracionesEquipo(
+  Future<List<CalibracionEquipo>> obtenerCalibracionesAll(
     int offset,
     int limit,
   ) async {
@@ -74,11 +75,32 @@ class CalibracionServiceImpl implements CalibracionService {
           .order('id_calibracion', ascending: false)
           .range(offset, offset + limit - 1);
 
-      return await Future.wait(response.map<Future<CalibracionEquipo>>(
-        (calibracionJson) async {
+      return await Future.wait(
+        response.map<Future<CalibracionEquipo>>((calibracionJson) async {
           return await CalibracionEquipo.fromJsonAsync(calibracionJson);
-        },
-      ).toList());
+        }).toList(),
+      );
+    } catch (e) {
+      throw Exception('Error al obtener calibraciones: $e');
+    }
+  }
+
+  @override
+  Future<List<CalibracionEquipo>> obtenerCalibracionesEquipo(
+    String tagEquipo,
+  ) async {
+    try {
+      final response = await supabase
+          .from('calibracion_equipo')
+          .select()
+          .eq('tag_equipo', tagEquipo)
+          .order('id_calibracion', ascending: false);
+
+      return await Future.wait(
+        response.map<Future<CalibracionEquipo>>((calibracionJson) async {
+          return await CalibracionEquipo.fromJsonAsync(calibracionJson);
+        }).toList(),
+      );
     } catch (e) {
       throw Exception('Error al obtener calibraciones: $e');
     }
