@@ -291,7 +291,7 @@ class GraficaCorridas extends StatelessWidget {
         2 * _calcularDesviacionEstandarMeterFactor(spotsMeterFactor);
     return HorizontalLine(
       y: yValue,
-      color: colors.primary,
+      color: colors.tertiary,
       strokeWidth: 2,
       dashArray: [5, 5], // Línea punteada
       label: HorizontalLineLabel(

@@ -12,6 +12,7 @@ import 'screens/vista_recuperacion_contrasenia.dart';
 import 'screens/vista_modificacion_datos.dart';
 import 'screens/vista_equipo.dart';
 import 'screens/vista_detalle_calibracion.dart';
+import 'screens/vista_detalle_equipo.dart';
 import 'screens/vista_registro_calibracion.dart';
 import 'screens/vista_reporte_calibracion.dart';
 
@@ -56,7 +57,7 @@ class _MainState extends State<PemexCalibraciones> {
         '/inicio': (context) => const VistaInicio(),
         '/contrasenia': (context) => const VistaContrasenia(),
         '/detalle_calibracion': (context) => const VistaDetalleCalibracion(),
-        '/detalle_equipo': (context) => const VistaDetalleCalibracion(),
+        '/detalle_equipo': (context) => const VistaDetalleEquipo(),
         '/registro_calibracion': (context) => const VistaRegistroCalibracion(),
         '/reporte_calibraciones': (context) => const VistaReporteCalibracion(),
         '/equipos': (context) => const VistaEquipo(),

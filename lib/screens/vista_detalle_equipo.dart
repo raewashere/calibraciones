@@ -2,6 +2,7 @@ import 'package:calibraciones/common/barrel/services.dart';
 import 'package:calibraciones/common/barrel/models.dart';
 import 'package:calibraciones/common/components/components.dart';
 import 'package:calibraciones/common/utils/conversiones.dart';
+import 'package:calibraciones/dto/dto_equipo.dart';
 import 'package:calibraciones/models/_ruta_equipo.dart';
 import 'package:calibraciones/services/data_service.dart';
 import 'package:calibraciones/services/equipo_service.dart';
@@ -10,14 +11,14 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class VistaDetalleCalibracion extends StatefulWidget {
-  const VistaDetalleCalibracion({super.key});
+class VistaDetalleEquipo extends StatefulWidget {
+  const VistaDetalleEquipo({super.key});
 
   @override
-  State<StatefulWidget> createState() => VistaDetalleCalibracionState();
+  State<StatefulWidget> createState() => VistaDetalleEquipoState();
 }
 
-class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
+class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
   final Conversiones convertidor = Conversiones();
   final TablaCalibracion tablaCalibracion = TablaCalibracion();
   final Mensajes mensajes = Mensajes();
@@ -27,9 +28,10 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   final LaboratorioCalibracionService laboratorioService =
       LaboratorioCalibracionServiceImpl();
   String nombreLaboratorio = '';
-  late GraficaCorridas graficaCorridas;
+  //late GraficaCorridas graficaCorridas;
   bool _isDataInitialized = false;
-  late Equipo equipo;
+  late DtoEquipo equipo;
+  late Equipo equipoCompleto;
   final EquipoService equipoService = EquipoServiceImpl();
 
   List<FlSpot> spotsKFactor = [];
@@ -73,7 +75,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
       final args = ModalRoute.of(context)!.settings.arguments;
       if (args != null) {
         // Asignación directa: No necesitamos setState() porque esto se ejecuta ANTES del primer build
-        equipo = args as Equipo;
+        equipo = args as DtoEquipo;
         //corridasAPuntos();
         /*graficaCorridas = GraficaCorridas(
           spotsKFactor: spotsKFactor,
@@ -87,10 +89,17 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
           meterFactorMaxY: meterFactorMaxY,
           meterFactorMinY: meterFactorMinY,
         );*/
-
+        buscarEquipo();
         _isDataInitialized = true; // Marcamos como inicializado
       }
     }
+  }
+
+  Future<void> buscarEquipo() async {
+    final resultado = await equipoService.obtenerEquipoPorId(equipo.tagEquipo);
+    setState(() {
+      equipoCompleto = resultado;
+    });
   }
 
   @override
@@ -147,6 +156,58 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     ),
                     const Divider(),
                     const SizedBox(height: 8),
+                    _buildInfoRow("TAG", equipoCompleto.tagEquipo),
+                    _buildInfoRow(
+                      "Tipo de sensor",
+                      equipoCompleto.idTipoSensor.toString(),
+                    ),
+                    _buildInfoRow("Estado", equipoCompleto.estado),
+                    _buildInfoRow("Marca", equipoCompleto.marca),
+                    _buildInfoRow("Modelo", equipoCompleto.modelo),
+                    _buildInfoRow(
+                      "Tipo de medición",
+                      equipoCompleto.tipoMedicion,
+                    ),
+                    _buildInfoRow(
+                      "Incertidumbre",
+                      '± ${equipoCompleto.incertidumbre} % ${equipoCompleto.magnitudIncertidumbre}',
+                    ),
+                    //Redondeo de intervalo de calibracion a meses
+                    _buildInfoRow(
+                      "Intervalo de calibración",
+                      '${(equipoCompleto.intervaloCalibracion / 30).round()} meses',
+                    ),
+                    _buildInfoRow(
+                      "Intervalo de verificación",
+                      '${(equipoCompleto.intervaloVerificacion / 30).round()} meses',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Ubicación del equipo",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colors.primary,
+                      ),
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 8),
                     _buildInfoRow(
                       "Dirección",
                       rutaEquipo != null
@@ -183,28 +244,6 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                           ? rutaEquipo!.tren.tagTren
                           : 'No disponible',
                     ),
-                    _buildInfoRow("TAG", equipo.tagEquipo),
-                    _buildInfoRow(
-                      "Tipo de sensor",
-                      equipo.idTipoSensor.toString(),
-                    ),
-                    _buildInfoRow("Estado", equipo.estado),
-                    _buildInfoRow("Marca", equipo.marca),
-                    _buildInfoRow("Modelo", equipo.modelo),
-                    _buildInfoRow("Tipo de medición", equipo.tipoMedicion),
-                    _buildInfoRow(
-                      "Incertidumbre",
-                      '± ${equipo.incertidumbre} % ${equipo.magnitudIncertidumbre}',
-                    ),
-                    //Redondeo de intervalo de calibracion a meses
-                    _buildInfoRow(
-                      "Intervalo de calibración",
-                      '${(equipo.intervaloCalibracion / 30).round()} meses',
-                    ),
-                    _buildInfoRow(
-                      "Intervalo de verificación",
-                      '${(equipo.intervaloVerificacion / 30).round()} meses',
-                    )
                   ],
                 ),
               ),
@@ -232,7 +271,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     ),
                     const Divider(),
                     const SizedBox(height: 12),
-                    graficaCorridas,
+                    // graficaCorridas,
                   ],
                 ),
               ),

@@ -143,7 +143,7 @@ class VistaLoginState extends State<VistaLogin> {
                     Text(
                       "Registro y gestión de calibraciones de equipos de medición",
                       style: TextStyle(
-                        color: theme.colorScheme.onPrimary.withOpacity(0.85),
+                        color: theme.colorScheme.onPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                       ),
