@@ -86,7 +86,7 @@ class GraficaCorridas extends StatelessWidget {
                             ),
                           );
                         },
-                        interval: 100,
+                        interval: 20,
                       ),
                     ),
 
@@ -114,7 +114,7 @@ class GraficaCorridas extends StatelessWidget {
                           value.toStringAsFixed(3),
                           style: const TextStyle(fontSize: 8),
                         ),
-                        interval: 1.0,
+                        interval: 10.0,
                       ),
                     ),
 
@@ -139,7 +139,7 @@ class GraficaCorridas extends StatelessWidget {
                       spots: spotsKFactor, // Usa la lista de puntos dinámica
                     ),
                   ],
-
+                  
                   // LÍMITES DE LA GRÁFICA
                   minX: kFactorMinX, // El valor X del primer punto
                   maxX: kFactorMaxX, // El valor X máximo
@@ -214,7 +214,7 @@ class GraficaCorridas extends StatelessWidget {
                             ),
                           );
                         },
-                        interval: 100,
+                        interval: 20,
                       ),
                     ),
 

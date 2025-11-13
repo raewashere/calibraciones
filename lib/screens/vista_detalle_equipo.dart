@@ -35,7 +35,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
   late Equipo equipoCompleto;
   final EquipoService equipoService = EquipoServiceImpl();
   final CalibracionService calibracionService = CalibracionServiceImpl();
-  late Future<List<CalibracionEquipo>> _futureCalibraciones;
+  late List<CalibracionEquipo> _futureCalibraciones = [];
 
   List<FlSpot> spotsKFactor = [];
   List<FlSpot> spotsMeterFactor = [];
@@ -52,8 +52,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
   late Future<List<Direccion>> _futureDirecciones;
   RutaEquipo? rutaEquipo;
 
-  late Future<List<Producto>> _futureProductos;
+  List<Producto> _listaProductos = [];
   Producto? productoSeleccionado;
+
+  final Map<int, bool> _calibracionesSeleccionadas = {};
 
   @override
   void initState() {
@@ -110,8 +112,32 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
   }
 
   Future<void> buscarCalibracionesEquipo() async {
-    final _futureCalibraciones = await calibracionService
-        .obtenerCalibracionesEquipo(equipo.tagEquipo);      
+    // 1. Cargar todas las calibraciones del equipo y guardarlas en el estado.
+    final List<CalibracionEquipo> todasLasCalibraciones =
+        await calibracionService.obtenerCalibracionesEquipo(equipo.tagEquipo);
+
+    // Usamos el Set para extraer productos únicos, como ya lo ajustamos.
+    final Set<Producto> productosUnicos = todasLasCalibraciones
+        .map((c) => c.producto)
+        .toSet();
+
+    setState(() {
+      // 2. Guardar la lista COMPLETA de calibraciones del equipo.
+      _futureCalibraciones = todasLasCalibraciones;
+
+      // 3. Guardar la lista ÚNICA de productos disponibles.
+      _listaProductos = productosUnicos.toList();
+
+      // 4. Seleccionar el primer producto si existe.
+      if (_listaProductos.isNotEmpty) {
+        productoSeleccionado = _listaProductos.first;
+      } else {
+        productoSeleccionado = null;
+      }
+
+      // Opcional: Limpiar las selecciones de checkboxes antiguas
+      _calibracionesSeleccionadas.clear();
+    });
   }
 
   @override
@@ -168,7 +194,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                     ),
                     const Divider(),
                     const SizedBox(height: 8),
-                    _buildInfoRow("TAG", equipoCompleto.tagEquipo),
+                    _buildInfoRow("TAG", equipo.tagEquipo),
                     _buildInfoRow(
                       "Tipo de sensor",
                       equipoCompleto.idTipoSensor.toString(),
@@ -286,7 +312,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                     _buildDropdownButtonProducto(
                       context,
                       hintText: "Producto",
-                      items: _futureProductos,
+                      items: _listaProductos,
                       value: productoSeleccionado,
                       onChanged: (value) {
                         setState(() {
@@ -294,6 +320,9 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                         });
                       },
                     ),
+                    const SizedBox(height: 12),
+                    _buildCalibrationsCheckboxes(),
+                    const SizedBox(height: 12),
                     // graficaCorridas,
                   ],
                 ),
@@ -331,41 +360,92 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
   Widget _buildDropdownButtonProducto(
     BuildContext context, {
     required String hintText,
-    required Future<List<Producto>> items,
+    required List<Producto> items,
     required Producto? value,
     required ValueChanged<Producto?> onChanged,
   }) {
-    //future to list
-    return FutureBuilder<List<Producto>>(
-      future: items,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          final direcciones = snapshot.data!;
-          return DropdownButtonFormField<Producto>(
-            isExpanded: true,
-            decoration: _inputDecoration(hintText),
-            initialValue: value,
-            dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
-            items: direcciones.map((Producto item) {
-              return DropdownMenuItem<Producto>(
-                value: item,
-                child: Text(item.getProducto),
-              );
-            }).toList(),
-            onChanged: onChanged,
-            validator: (value) {
-              if (value == null) {
-                return 'Por favor selecciona una opción';
-              }
-              return null;
-            },
-          );
+    return DropdownButtonFormField<Producto>(
+      isExpanded: true,
+      decoration: _inputDecoration(hintText),
+      initialValue: value,
+      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      items: items.map((Producto item) {
+        return DropdownMenuItem<Producto>(
+          value: item,
+          child: Text(item.getProducto),
+        );
+      }).toList(),
+      onChanged: onChanged,
+      validator: (value) {
+        if (value == null) {
+          return 'Por favor selecciona una opción';
         }
+        return null;
       },
+    );
+  }
+
+  Widget _buildCalibrationsCheckboxes() {
+    if (productoSeleccionado == null || _futureCalibraciones.isEmpty) {
+      return const Center(
+        child: Text('Selecciona un producto y carga las calibraciones.'),
+      );
+    }
+
+    // 1. Filtrar las calibraciones (la lógica de filtrado se mantiene)
+    final List<CalibracionEquipo> calibracionesFiltradas = _futureCalibraciones
+        .where(
+          (cal) => cal.producto.idProducto == productoSeleccionado!.idProducto,
+        )
+        .toList();
+
+    if (calibracionesFiltradas.isEmpty) {
+      return const Center(
+        child: Text('No hay calibraciones disponibles para este producto.'),
+      );
+    }
+
+    // 2. Usar Wrap para colocar los ítems horizontalmente y permitir salto de línea
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Wrap(
+        spacing: 12.0, // Espacio horizontal entre los chips/checkboxes
+        runSpacing: 4.0, // Espacio vertical entre las líneas
+        children: calibracionesFiltradas.map((calibracion) {
+          final int calibracionId = calibracion.idCalibracionEquipo;
+
+          // Inicializar el estado
+          if (!_calibracionesSeleccionadas.containsKey(calibracionId)) {
+            _calibracionesSeleccionadas[calibracionId] = false;
+          }
+
+          // Creamos una Row para el Checkbox y su texto (similar a un chip)
+          return Row(
+            mainAxisSize: MainAxisSize
+                .min, // Crucial para que Row ocupe solo el espacio necesario
+            children: [
+              Checkbox(
+                value: _calibracionesSeleccionadas[calibracionId],
+                onChanged: (bool? newValue) {
+                  // 3. Actualizar el estado
+                  setState(() {
+                    _calibracionesSeleccionadas[calibracionId] =
+                        newValue ?? false;
+                  });
+                },
+              ),
+              Flexible(
+                // Flexible permite que el texto se ajuste si es largo
+                child: Text(
+                  calibracion.certificadoCalibracion,
+                  overflow: TextOverflow
+                      .ellipsis, // Opcional: para manejar textos muy largos
+                ),
+              ),
+            ],
+          );
+        }).toList(),
+      ),
     );
   }
 }

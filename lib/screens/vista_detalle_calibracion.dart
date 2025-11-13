@@ -35,10 +35,11 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
 
   List<FlSpot> spotsKFactor = [];
   List<FlSpot> spotsMeterFactor = [];
-  double kFactorMinX = 0;
+  double kFactorMinX = -10;
   double kFactorMaxX = 2000;
   double kFactorMinY = 0;
   double kFactorMaxY = 1;
+
   double meterFactorMinX = 0;
   double meterFactorMaxX = 2000;
   double meterFactorMinY = 0;
