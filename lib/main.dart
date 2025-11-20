@@ -15,6 +15,7 @@ import 'screens/vista_detalle_calibracion.dart';
 import 'screens/vista_detalle_equipo.dart';
 import 'screens/vista_registro_calibracion.dart';
 import 'screens/vista_reporte_calibracion.dart';
+import 'package:calibraciones/services/data_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,17 @@ class PemexCalibraciones extends StatefulWidget {
 
 class _MainState extends State<PemexCalibraciones> {
   final User? usuarioActual = Supabase.instance.client.auth.currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    recuperaJSON();
+  }
+
+  void recuperaJSON() async {
+    // Aquí puedes implementar la lógica para recuperar el JSON si es necesario
+    DataService().updateAndCacheData();
+  }
 
   @override
   Widget build(BuildContext context) {

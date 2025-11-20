@@ -39,11 +39,15 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   double kFactorMaxX = 2000;
   double kFactorMinY = 0;
   double kFactorMaxY = 1;
+  double kFactorMargenX = 0;
+  double kFactorMargenY = 0;
 
   double meterFactorMinX = 0;
   double meterFactorMaxX = 2000;
   double meterFactorMinY = 0;
   double meterFactorMaxY = 1;
+  double meterMargenX = 0;
+  double meterMargenY = 0;
 
   DataService dataService = DataService();
   late Future<List<Direccion>> _futureDirecciones;
@@ -138,19 +142,24 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
     kFactorMinX = spotsKFactor
         .map((spot) => spot.x)
         .reduce((a, b) => a < b ? a : b);
-    kFactorMinX = kFactorMinX - (kFactorMinX * 0.1); // Un 10% menos para margen
+    //Porcentaje simetrico
+    kFactorMargenX = (kFactorMinX * 0.15);
+    kFactorMinX = kFactorMinX - kFactorMargenX; // Un 10% menos para margen
     kFactorMaxX = spotsKFactor
         .map((spot) => spot.x)
         .reduce((a, b) => a > b ? a : b);
-    kFactorMaxX = kFactorMaxX + (kFactorMaxX * 0.1); // Un 10% más para margen
+    kFactorMaxX = kFactorMaxX + kFactorMargenX; // Un 10% más para margen
     kFactorMinY = spotsKFactor
         .map((spot) => spot.y)
         .reduce((a, b) => a < b ? a : b);
-    kFactorMinY = kFactorMinY - 1.5; // Un 15% menos para margen
+
+    //Porcentaje simetrico
+    kFactorMargenY = (kFactorMinY * 0.001);
+    kFactorMinY = kFactorMinY - kFactorMargenY; // Un 15% menos para margen
     kFactorMaxY = spotsKFactor
         .map((spot) => spot.y)
         .reduce((a, b) => a > b ? a : b);
-    kFactorMaxY = kFactorMaxY + 1.5; // Un 15% más para margen
+    kFactorMaxY = kFactorMaxY + kFactorMargenY; // Un 15% más para margen
 
     meterFactorMinX = kFactorMinX;
     meterFactorMaxX = kFactorMaxX;

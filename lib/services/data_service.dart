@@ -19,18 +19,16 @@ class DataService {
   Future<List<Direccion>> updateAndCacheData() async {
     try {
       // 1. Obtener el String JSON más reciente de la API
-      final String newJsonString = await direccionService.obtenerDireccionesJSON();
+      final String newJsonString = await direccionService
+          .obtenerDireccionesJSON();
 
       // 2. Almacenar el String JSON directamente en SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_jsonKey, newJsonString);
 
-
       // 3. Convertir el String JSON a objetos Direccion para devolverlos a la UI
       return _convertJsonStringToDirecciones(newJsonString);
-
     } catch (e) {
-
       // **Estrategia de Fallback:** Intenta cargar el String JSON del caché existente.
       final prefs = await SharedPreferences.getInstance();
       final cachedJsonString = prefs.getString(_jsonKey);
@@ -41,7 +39,9 @@ class DataService {
       }
 
       // Si falla la API Y no hay caché, lanza la excepción.
-      throw Exception('No se pudo obtener la data ni había caché disponible: $e');
+      throw Exception(
+        'No se pudo obtener la data ni había caché disponible: $e',
+      );
     }
   }
 
@@ -55,6 +55,4 @@ class DataService {
       throw Exception('No hay datos en caché disponibles.');
     }
   }
-  
-  // NOTA: También necesitarías ajustar getCachedOrFetchData() para usar _convertJsonStringToDirecciones
 }

@@ -5,6 +5,7 @@ import 'package:calibraciones/common/utils/conversiones.dart';
 import 'package:calibraciones/dto/dto_equipo.dart';
 import 'package:calibraciones/models/_producto.dart';
 import 'package:calibraciones/models/_ruta_equipo.dart';
+import 'package:calibraciones/screens/components/limites_grafica.dart';
 import 'package:calibraciones/services/data_service.dart';
 import 'package:calibraciones/services/equipo_service.dart';
 import 'package:calibraciones/services/implementation/equipo_service_impl.dart';
@@ -37,16 +38,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
   final CalibracionService calibracionService = CalibracionServiceImpl();
   late List<CalibracionEquipo> _futureCalibraciones = [];
 
-  List<FlSpot> spotsKFactor = [];
-  List<FlSpot> spotsMeterFactor = [];
-  double kFactorMinX = 0;
-  double kFactorMaxX = 2000;
-  double kFactorMinY = 0;
-  double kFactorMaxY = 1;
-  double meterFactorMinX = 0;
-  double meterFactorMaxX = 2000;
-  double meterFactorMinY = 0;
-  double meterFactorMaxY = 1;
+  double _currentMinX = 0;
+  double _currentMaxX = 2000;
+  double _currentMinY = 0;
+  double _currentMaxY = 1;
 
   DataService dataService = DataService();
   late Future<List<Direccion>> _futureDirecciones;
@@ -323,6 +318,70 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                     const SizedBox(height: 12),
                     _buildCalibrationsCheckboxes(),
                     const SizedBox(height: 12),
+                    SizedBox(
+                      height: 600,
+                      child: LineChart(
+                        LineChartData(
+                          // LLamada a la nueva función de transformación
+                          lineBarsData: generarCurvasCorridas(
+                            _futureCalibraciones,
+                            _calibracionesSeleccionadas,
+                          ),
+
+                          // Configuración de los ejes (TitlesData)
+                          titlesData: FlTitlesData(
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 30,
+                                getTitlesWidget: (value, meta) {
+                                  final text = value.toStringAsFixed(0);
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      text,
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                interval: 15, // Mostrar cada número entero
+                              ),
+                            ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                // Aumentamos el espacio reservado para las etiquetas con decimales
+                                reservedSize: 50,
+                                getTitlesWidget: (value, meta) => Text(
+                                  value.toStringAsFixed(2),
+                                  style: const TextStyle(fontSize: 8),
+                                ),
+                                interval: 5000,
+                              ),
+                            ),
+                            topTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            rightTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                          ),
+                          // ... otras configuraciones del gráfico (Grid, Border, etc.)
+                          gridData: const FlGridData(show: true),
+                          borderData: FlBorderData(show: true),
+
+                          /*minX: 1,
+                          maxX: 5, // Si asumes que todas tienen 5 corridas*/
+                          minX: _currentMinX, // El valor X del primer punto
+                          maxX: _currentMaxX, // El valor X máximo
+                          minY: _currentMinX, // El valor Y mínimo (K Factor)
+                          maxY: _currentMaxY, // El valor Y máximo
+                        ),
+                      ),
+                    ),
                     // graficaCorridas,
                   ],
                 ),
@@ -431,6 +490,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                   setState(() {
                     _calibracionesSeleccionadas[calibracionId] =
                         newValue ?? false;
+                    actualizarLimitesGrafica();
                   });
                 },
               ),
@@ -447,5 +507,87 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
         }).toList(),
       ),
     );
+  }
+
+  List<LineChartBarData> generarCurvasCorridas(
+    List<CalibracionEquipo> todasLasCalibraciones,
+    Map<int, bool> calibracionesVisibles,
+  ) {
+    List<LineChartBarData> lineBarsData = [];
+
+    for (var calibracion in todasLasCalibraciones) {
+      int id = calibracion.idCalibracionEquipo;
+
+      // 1. Filtrado: Solo si el ID de la calibración está marcado como visible
+      if (calibracionesVisibles[id] == true) {
+        // 2. Mapeo: Convertir la lista de Corridas a una lista de FlSpot
+        List<FlSpot> spots = [];
+
+        // Usamos el index (i) para el Eje X
+        for (int i = 0; i < calibracion.corridas.length; i++) {
+          final corrida = calibracion.corridas[i];
+
+          // Eje X: i + 1 (para que las corridas empiecen en el punto 1, no 0)
+          // Eje Y: el valor de caudalM3Hr
+          spots.add(FlSpot(corrida.caudalM3Hr, corrida.kFactorPulseM3));
+        }
+
+        // 3. Generación de la Curva (LineChartBarData)
+        lineBarsData.add(
+          LineChartBarData(
+            spots: spots,
+            isCurved: true,
+            color: Colors.blue.withOpacity(
+              id / 105,
+            ), // Ejemplo de color dinámico
+            barWidth: 4,
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, percent, barData, index) {
+                return FlDotCirclePainter(
+                  radius: 3,
+                  color: Colors.blue.shade900,
+                );
+              },
+            ),
+            // Se puede usar 'id' para identificar la curva en la leyenda
+            // read the data from 'calibracion.idCalibracionEquipo' for the legend
+            // title: 'Calibración $id',
+          ),
+        );
+      }
+    }
+
+    return lineBarsData;
+  }
+
+  // Dentro de VistaDetalleEquipoState
+  void actualizarLimitesGrafica() {
+    // 1. Filtrar las calibraciones por Producto (igual que en _buildCalibrationsCheckboxes)
+    final List<CalibracionEquipo> calibracionesFiltradasPorProducto =
+        _futureCalibraciones
+            .where(
+              (cal) =>
+                  cal.producto.idProducto == productoSeleccionado?.idProducto,
+            )
+            .toList();
+
+    // 2. Seleccionar el extractor de valor Y (ejemplo K-Factor)
+    double yValueSelector(Corrida c) =>
+        c.kFactorPulseM3; // Puedes cambiar esto según lo que quieras graficar
+
+    final limites = calcularLimitesGrafica(
+      todasLasCalibraciones: calibracionesFiltradasPorProducto,
+      calibracionesVisibles: _calibracionesSeleccionadas,
+      yValueSelector: yValueSelector,
+    );
+
+    setState(() {
+      _currentMinX = limites.minX;
+      _currentMaxX = limites.maxX;
+      _currentMinY = limites.minY;
+      _currentMaxY = limites.maxY;
+      // maxCorridas puede ser útil si el Eje X es el índice de corrida.
+    });
   }
 }

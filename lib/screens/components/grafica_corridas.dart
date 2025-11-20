@@ -50,6 +50,13 @@ class GraficaCorridas extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: LineChart(
                 LineChartData(
+                  extraLinesData: ExtraLinesData(
+                    horizontalLines: [
+                      _getLineaMediaKFactor(colors),
+                    ],
+                    // Puedes dejar verticalLines vacía si no las necesitas
+                    // verticalLines: [],
+                  ),
                   // ... (Configuración general de la gráfica)
                   titlesData: FlTitlesData(
                     // Títulos del Eje X (Flujo)
@@ -86,7 +93,7 @@ class GraficaCorridas extends StatelessWidget {
                             ),
                           );
                         },
-                        interval: 20,
+                        interval: 15,
                       ),
                     ),
 
@@ -111,10 +118,10 @@ class GraficaCorridas extends StatelessWidget {
                         // Aumentamos el espacio reservado para las etiquetas con decimales
                         reservedSize: 50,
                         getTitlesWidget: (value, meta) => Text(
-                          value.toStringAsFixed(3),
+                          value.toStringAsFixed(2),
                           style: const TextStyle(fontSize: 8),
                         ),
-                        interval: 10.0,
+                        interval: 20,
                       ),
                     ),
 
@@ -214,7 +221,7 @@ class GraficaCorridas extends StatelessWidget {
                             ),
                           );
                         },
-                        interval: 20,
+                        interval: 15,
                       ),
                     ),
 
@@ -287,7 +294,7 @@ class GraficaCorridas extends StatelessWidget {
 
   // Línea de Límite Inferior (LI)
   HorizontalLine _getLimiteInferior(dynamic colors) {
-    double yValue = _calcularPromedioMeterFactor(spotsMeterFactor) -
+    double yValue = _calcularPromedio(spotsMeterFactor) -
         2 * _calcularDesviacionEstandarMeterFactor(spotsMeterFactor);
     return HorizontalLine(
       y: yValue,
@@ -310,7 +317,7 @@ class GraficaCorridas extends StatelessWidget {
 
   // Línea de Límite Superior (LS)
   HorizontalLine _getLimiteSuperior(dynamic colors) {
-    double yValue = _calcularPromedioMeterFactor(   spotsMeterFactor) +
+    double yValue = _calcularPromedio(   spotsMeterFactor) +
         2 * _calcularDesviacionEstandarMeterFactor(spotsMeterFactor);
     return HorizontalLine(
       y: yValue, // 💡 Define el valor Y de tu límite
@@ -333,7 +340,7 @@ class GraficaCorridas extends StatelessWidget {
 
   // Línea de Valor Promedio (Media)
   HorizontalLine _getLineaMedia(dynamic colors) {
-    double yValue = _calcularPromedioMeterFactor(spotsMeterFactor);
+    double yValue = _calcularPromedio(spotsMeterFactor);
     return HorizontalLine(
       y: yValue, // 💡 Define el valor Y de tu límite
       color: colors.secondary,
@@ -353,8 +360,29 @@ class GraficaCorridas extends StatelessWidget {
     );
   }
 
+    HorizontalLine _getLineaMediaKFactor(dynamic colors) {
+    double yValue = _calcularPromedio(spotsKFactor);
+    return HorizontalLine(
+      y: yValue, // 💡 Define el valor Y de tu límite
+      color: colors.secondary,
+      strokeWidth: 2,
+      dashArray: [5, 5], // Línea punteada
+      label: HorizontalLineLabel(
+        show: true,
+        alignment: Alignment.topRight,
+        padding: const EdgeInsets.only(right: 5),
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 10,
+        ),
+        labelResolver: (line) => 'AVG ${yValue.toStringAsFixed(2)}',
+      ),
+    );
+  }
+
   //Calcular el valor promedio de Meter Factor
-  double _calcularPromedioMeterFactor(List<FlSpot> spots) {
+  double _calcularPromedio(List<FlSpot> spots) {
     if (spots.isEmpty) return 0.0;
 
     double suma = spots.fold(0.0, (prev, spot) => prev + spot.y);
@@ -365,7 +393,7 @@ class GraficaCorridas extends StatelessWidget {
   double _calcularDesviacionEstandarMeterFactor(List<FlSpot> spots) {
     if (spots.isEmpty) return 0.0;
 
-    double promedio = _calcularPromedioMeterFactor(spots);
+    double promedio = _calcularPromedio(spots);
     double sumaDiferenciasCuadradas = spots.fold(
         0.0, (prev, spot) => prev + (spot.y - promedio) * (spot.y - promedio));
     return sqrt((sumaDiferenciasCuadradas / spots.length));
