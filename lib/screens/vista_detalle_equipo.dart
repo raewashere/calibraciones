@@ -5,6 +5,7 @@ import 'package:calibraciones/common/utils/conversiones.dart';
 import 'package:calibraciones/dto/dto_equipo.dart';
 import 'package:calibraciones/models/_producto.dart';
 import 'package:calibraciones/models/_ruta_equipo.dart';
+import 'package:calibraciones/models/_tipo_sensor.dart';
 import 'package:calibraciones/screens/components/limites_grafica.dart';
 import 'package:calibraciones/services/data_service.dart';
 import 'package:calibraciones/services/equipo_service.dart';
@@ -24,7 +25,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
   final Conversiones convertidor = Conversiones();
   final TablaCalibracion tablaCalibracion = TablaCalibracion();
   final Mensajes mensajes = Mensajes();
-  DateFormat formato = DateFormat("dd/MM/yyyy");
+  DateFormat formato = DateFormat("dd/MM/yy");
   //late CalibracionEquipo calibracionEquipo;
   late LaboratorioCalibracion laboratorio;
   final LaboratorioCalibracionService laboratorioService =
@@ -37,6 +38,32 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
   final EquipoService equipoService = EquipoServiceImpl();
   final CalibracionService calibracionService = CalibracionServiceImpl();
   late List<CalibracionEquipo> _futureCalibraciones = [];
+
+  final List<Color> coloresPuntos = [
+    Colors.red,
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.purple,
+    Colors.brown,
+    Colors.cyan,
+    Colors.pink,
+    Colors.teal,
+    Colors.amber,
+  ];
+
+  final List<Color> coloresPuntosSombras = [
+    Colors.red.shade700,
+    Colors.blue.shade700,
+    Colors.green.shade700,
+    Colors.orange.shade700,
+    Colors.purple.shade700,
+    Colors.brown.shade700,
+    Colors.cyan.shade700,
+    Colors.pink.shade700,
+    Colors.teal.shade700,
+    Colors.amber.shade700,
+  ];
 
   double _currentMinX = 0;
   double _currentMaxX = 2000;
@@ -310,6 +337,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                       items: _listaProductos,
                       value: productoSeleccionado,
                       onChanged: (value) {
+                        // Limpiamos las selecciones anteriores
+                        // Comentar en caso de querer mantener las selecciones
+                        _calibracionesSeleccionadas.clear();
+
                         setState(() {
                           productoSeleccionado = value;
                         });
@@ -319,7 +350,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                     _buildCalibrationsCheckboxes(),
                     const SizedBox(height: 12),
                     SizedBox(
-                      height: 600,
+                      height: 400,
                       child: LineChart(
                         LineChartData(
                           // LLamada a la nueva función de transformación
@@ -359,7 +390,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                                   value.toStringAsFixed(2),
                                   style: const TextStyle(fontSize: 8),
                                 ),
-                                interval: 5000,
+                                interval: 0.02,
                               ),
                             ),
                             topTitles: const AxisTitles(
@@ -377,7 +408,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                           maxX: 5, // Si asumes que todas tienen 5 corridas*/
                           minX: _currentMinX, // El valor X del primer punto
                           maxX: _currentMaxX, // El valor X máximo
-                          minY: _currentMinX, // El valor Y mínimo (K Factor)
+                          minY: _currentMinY, // El valor Y mínimo (K Factor)
                           maxY: _currentMaxY, // El valor Y máximo
                         ),
                       ),
@@ -497,9 +528,16 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
               Flexible(
                 // Flexible permite que el texto se ajuste si es largo
                 child: Text(
-                  calibracion.certificadoCalibracion,
+                  calibracion.fechaCalibracion != null
+                      ? '${formato.format(calibracion.fechaCalibracion!)}'
+                      : '',
                   overflow: TextOverflow
                       .ellipsis, // Opcional: para manejar textos muy largos
+                  style: TextStyle(
+                    color:
+                        coloresPuntosSombras[calibracion.idCalibracionEquipo %
+                            coloresPuntosSombras.length],
+                  ),
                 ),
               ),
             ],
@@ -529,7 +567,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
 
           // Eje X: i + 1 (para que las corridas empiecen en el punto 1, no 0)
           // Eje Y: el valor de caudalM3Hr
-          spots.add(FlSpot(corrida.caudalM3Hr, corrida.kFactorPulseM3));
+          spots.add(FlSpot(corrida.caudalM3Hr, corrida.meterFactor));
         }
 
         // 3. Generación de la Curva (LineChartBarData)
@@ -537,16 +575,16 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
           LineChartBarData(
             spots: spots,
             isCurved: true,
-            color: Colors.blue.withOpacity(
-              id / 105,
-            ), // Ejemplo de color dinámico
-            barWidth: 4,
+            color:
+                coloresPuntos[id %
+                    coloresPuntos.length], // Ejemplo de color dinámico
+            barWidth: 3,
             dotData: FlDotData(
               show: true,
               getDotPainter: (spot, percent, barData, index) {
                 return FlDotCirclePainter(
-                  radius: 3,
-                  color: Colors.blue.shade900,
+                  radius: 5,
+                  color: coloresPuntosSombras[id % coloresPuntosSombras.length],
                 );
               },
             ),
@@ -574,7 +612,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
 
     // 2. Seleccionar el extractor de valor Y (ejemplo K-Factor)
     double yValueSelector(Corrida c) =>
-        c.kFactorPulseM3; // Puedes cambiar esto según lo que quieras graficar
+        c.meterFactor; // Puedes cambiar esto según lo que quieras graficar
 
     final limites = calcularLimitesGrafica(
       todasLasCalibraciones: calibracionesFiltradasPorProducto,

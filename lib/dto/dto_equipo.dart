@@ -5,6 +5,7 @@ class DtoEquipo {
   String modelo;
   String noSerie;
   String tipoSensor;
+  int idTipoSensor;
 
   DtoEquipo(
     this.tagEquipo,
@@ -13,6 +14,7 @@ class DtoEquipo {
     this.modelo,
     this.noSerie,
     this.tipoSensor,
+    this.idTipoSensor,
   );
 
   @override
@@ -43,6 +45,7 @@ class DtoEquipo {
       json['modelo'],
       json['no_serie'],
       tipoSensor,
+      json['id_tipo_sensor'],
     );
   }
 
@@ -68,5 +71,9 @@ class DtoEquipo {
 
   String getTipoSensor() {
     return tipoSensor;
+  }
+
+  int getIdTipoSensor() {
+    return idTipoSensor;
   }
 }

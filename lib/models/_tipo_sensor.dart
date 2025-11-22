@@ -17,8 +17,15 @@ class TipoSensor {
 
   static fromJson(Map<String, dynamic> tipoSensorJson) {
     return TipoSensor(
-      tipoSensorJson['id_tipo_sensor'],
-      tipoSensorJson['descripcion'],
+      tipoSensorJson['id_tipo_sensor'] as int,
+      tipoSensorJson['descripcion'] as String,
+    );
+  }
+
+  factory TipoSensor.fromJsonFactory(Map<String, dynamic> json) {
+    return TipoSensor(
+      json['id_tipo_sensor'] as int,
+      json['descripcion'] as String,
     );
   }
 }

@@ -25,8 +25,7 @@ class LimitesGrafica {
 LimitesGrafica calcularLimitesGrafica({
   required List<CalibracionEquipo> todasLasCalibraciones,
   required Map<int, bool> calibracionesVisibles,
-  required double Function(Corrida)
-  yValueSelector, // Selector para el valor del Eje Y
+  required double Function(Corrida) yValueSelector,
 }) {
   List<FlSpot> todosLosPuntos = [];
   int maxCorridas = 0;
@@ -34,19 +33,13 @@ LimitesGrafica calcularLimitesGrafica({
   // 1. Consolidar todos los puntos visibles
   for (var calibracion in todasLasCalibraciones) {
     int id = calibracion.idCalibracionEquipo;
-
     if (calibracionesVisibles[id] == true) {
-      // Actualizar el número máximo de corridas (para el caso del Eje X basado en índice)
       if (calibracion.corridas.length > maxCorridas) {
         maxCorridas = calibracion.corridas.length;
       }
-
-      // Mapeo: Crear puntos a partir de las corridas visibles
       for (int i = 0; i < calibracion.corridas.length; i++) {
         final corrida = calibracion.corridas[i];
-
-        // El Eje X es el caudal (caudalM3Hr) o el índice (i+1)
-        // Usaremos caudalM3Hr como X, para seguir tu ejemplo de `corridasAPuntos`.
+        // Usando caudalM3Hr como Eje X
         todosLosPuntos.add(FlSpot(corrida.caudalM3Hr, yValueSelector(corrida)));
       }
     }
@@ -55,12 +48,13 @@ LimitesGrafica calcularLimitesGrafica({
   // 2. Manejar caso sin datos
   if (todosLosPuntos.isEmpty) {
     return LimitesGrafica(
+      // Valores por defecto cuando no hay nada seleccionado
       minX: 0,
-      maxX: 200 ,
-      minY: 5000,
-      maxY: 20000,
+      maxX: 2000,
+      minY: 0,
+      maxY: 1,
       maxCorridas: 5,
-    ); // Valores por defecto
+    );
   }
 
   // 3. Encontrar Mínimos y Máximos sin margen
@@ -89,13 +83,13 @@ LimitesGrafica calcularLimitesGrafica({
   double finalMaxX = dataMaxX + margenX;
 
   // Margen en Y
-  double margenY = dataMinY * 0.001; // 15% del rango total
-  print(dataMinY);
-  print(margenY);
+  double margenY = dataMaxY * 0.10; // 15% del rango total
+  //print(dataMinY);
+  //print(margenY);
   double finalMinY = dataMinY - margenY;
   double finalMaxY = dataMaxY + margenY;
-  print(finalMinY);
-  print(finalMaxY);
+  //print(finalMinY);
+  //print(finalMaxY);
   return LimitesGrafica(
     minX: finalMinX,
     maxX: finalMaxX,
