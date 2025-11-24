@@ -27,7 +27,7 @@ class _VistaEquipoState extends State<VistaEquipo> {
   List<TipoSensor> _listaTipoSensores = [];
   TipoSensor? tipoSensorSeleccionado;
 
-  Set<TipoSensor> _opcionesSeleccionadas = <TipoSensor>{};
+  final Set<TipoSensor> _opcionesSeleccionadas = <TipoSensor>{};
 
   @override
   void initState() {

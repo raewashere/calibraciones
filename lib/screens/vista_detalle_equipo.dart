@@ -528,9 +528,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
               Flexible(
                 // Flexible permite que el texto se ajuste si es largo
                 child: Text(
-                  calibracion.fechaCalibracion != null
-                      ? '${formato.format(calibracion.fechaCalibracion!)}'
-                      : '',
+                  '${formato.format(calibracion.fechaCalibracion!)}',
                   overflow: TextOverflow
                       .ellipsis, // Opcional: para manejar textos muy largos
                   style: TextStyle(
