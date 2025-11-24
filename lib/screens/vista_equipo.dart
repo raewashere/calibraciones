@@ -1,5 +1,6 @@
 import 'package:calibraciones/dto/dto_equipo.dart';
 import 'package:calibraciones/models/_tipo_sensor.dart';
+import 'package:calibraciones/screens/components/filtros_reporte_modal.dart';
 import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:calibraciones/services/equipo_service.dart';
 import 'package:calibraciones/services/implementation/equipo_service_impl.dart';
@@ -72,44 +73,36 @@ class _VistaEquipoState extends State<VistaEquipo> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 2. Sección Inmóvil de Filtros (ejemplo)ñlñññlñlpñlññplk
+                  // 2. Sección Inmóvil de Filtros (ejemplo)
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
+                    padding: const EdgeInsets.all(4.0),
+                    /*child: Text(
                       'Filtros de Búsqueda',
                       style: theme.textTheme.titleSmall,
-                    ),
+                    ),*/
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12.0),
                     child: Wrap(
                       // Wrap para tener varios filtros horizontales
                       spacing: 8.0,
-                      children: _listaTipoSensores.map((TipoSensor opcion) {
-                        // 2. Crear el FilterChip
-                        return FilterChip(
-                          label: Text(opcion.nombreTipoSensor),
-                          selected: _opcionesSeleccionadas.contains(
-                            opcion,
-                          ), // 3. Leer estado
-                          // 4. Lógica de selección/deselección
-                          onSelected: (bool selected) {
-                            _cargarEquipos(); // Recargar la lista de equipos al cambiar el filtro
-                            setState(() {
-                              if (selected) {
-                                _opcionesSeleccionadas.add(
-                                  opcion,
-                                ); // Agregar si se selecciona
-                              } else {
-                                _opcionesSeleccionadas.remove(
-                                  opcion,
-                                ); // Remover si se deselecciona
-                              }
-                              // Opcional: print(_opcionesSeleccionadas);
-                            });
-                          },
-                        );
-                      }).toList(), // 5. Convertir el Iterable resultante a List<Widget>
+                      children: [
+                        Center(
+                          child: ElevatedButton.icon(
+                            icon: Icon(Icons.filter),
+                            onPressed: mostrarPopUpFiltros,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.secondary,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onSecondary,
+                            ),
+                            label: const Text('Filtrar equipos'),
+                          ),
+                        ),
+                      ], // 5. Convertir el Iterable resultante a List<Widget>
                     ),
                   ),
                   // Opcional: Separador visual
@@ -229,6 +222,16 @@ class _VistaEquipoState extends State<VistaEquipo> {
         );
       }).toList(),
       onChanged: onChanged,
+    );
+  }
+
+  void mostrarPopUpFiltros() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return const FiltrosEquiposModal();
+      },
     );
   }
 }
