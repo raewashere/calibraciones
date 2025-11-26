@@ -1,6 +1,6 @@
 import 'package:calibraciones/dto/dto_equipo.dart';
 import 'package:calibraciones/models/_tipo_sensor.dart';
-import 'package:calibraciones/screens/components/filtros_reporte_modal.dart';
+import 'package:calibraciones/screens/components/filtros_equipos_modal.dart';
 import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:calibraciones/services/equipo_service.dart';
 import 'package:calibraciones/services/implementation/equipo_service_impl.dart';
@@ -88,18 +88,41 @@ class _VistaEquipoState extends State<VistaEquipo> {
                       spacing: 8.0,
                       children: [
                         Center(
-                          child: ElevatedButton.icon(
-                            icon: Icon(Icons.filter),
-                            onPressed: mostrarPopUpFiltros,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.secondary,
-                              foregroundColor: Theme.of(
-                                context,
-                              ).colorScheme.onSecondary,
-                            ),
-                            label: const Text('Filtrar equipos'),
+                          child: Row(
+                            children: [
+                              ElevatedButton.icon(
+                                icon: Icon(Icons.filter_list),
+                                onPressed: () {
+                                  _cargarEquipos();
+                                  mostrarPopUpFiltros();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.secondary,
+                                  foregroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.onSecondary,
+                                ),
+                                label: const Text('Filtrar equipos'),
+                              ),
+                              const SizedBox(width: 10),
+                              ElevatedButton.icon(
+                                icon: Icon(Icons.filter_list_off),
+                                onPressed: () {
+                                  _cargarEquipos();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.secondary,
+                                  foregroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.onSecondary,
+                                ),
+                                label: const Text('Quitar filtros'),
+                              ),
+                            ],
                           ),
                         ),
                       ], // 5. Convertir el Iterable resultante a List<Widget>
@@ -225,13 +248,47 @@ class _VistaEquipoState extends State<VistaEquipo> {
     );
   }
 
-  void mostrarPopUpFiltros() {
-    showModalBottomSheet(
+  void mostrarPopUpFiltros() async {
+    //_cargarEquipos();
+
+    final resultados = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
+        // Retorna el widget que contiene tus filtros
         return const FiltrosEquiposModal();
       },
     );
+
+    if (resultados != null && resultados is Map<String, dynamic>) {
+      // Procesa los resultados de los filtros aquí
+      String tagFiltro = resultados['tag'] ?? '';
+      Set<TipoSensor> sensoresFiltro =
+          resultados['sensores'] as Set<TipoSensor>? ?? <TipoSensor>{};
+      Set<String> estadosFiltro =
+          resultados['estados'] as Set<String>? ?? <String>{};
+
+      // Aplica los filtros a la lista de equipos
+      setState(() {
+        equipos = equipos.where((equipo) {
+          final cumpleTag =
+              tagFiltro.isEmpty ||
+              equipo.tagEquipo.toLowerCase().contains(tagFiltro.toLowerCase());
+          final cumpleSensor =
+              sensoresFiltro.isEmpty ||
+              sensoresFiltro.any(
+                (sensor) =>
+                    sensor.nombreTipoSensor.toLowerCase() ==
+                    equipo.tipoSensor.toLowerCase(),
+              );
+          final cumpleEstado =
+              estadosFiltro.isEmpty ||
+              estadosFiltro.any(
+                (estado) => estado.toLowerCase() == equipo.estado.toLowerCase(),
+              );
+          return cumpleTag && cumpleSensor && cumpleEstado;
+        }).toList();
+      });
+    }
   }
 }

@@ -1,6 +1,8 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:calibraciones/models/_calibracion_equipo.dart';
 import 'package:calibraciones/models/_usuario.dart';
+import 'package:calibraciones/screens/components/filtros_calibraciones_modal.dart';
+import 'package:calibraciones/screens/components/filtros_equipos_modal.dart';
 import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:calibraciones/services/calibracion_service.dart';
 import 'package:calibraciones/services/implementation/calibracion_service_impl.dart';
@@ -75,179 +77,210 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
     final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      floatingActionButton: _botonesAccion(context),
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: ListView.builder(
-          controller: _scrollController,
-          padding: const EdgeInsets.all(12),
-          itemCount: calibracionesEquipos.length + (_isLoading ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (index >= calibracionesEquipos.length) {
-              return const Padding(
-                padding: EdgeInsets.all(20),
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
-
-            final calibracion = calibracionesEquipos[index];
-            return FadeInUp(
-              duration: const Duration(milliseconds: 400),
-              child: Card(
-                borderOnForeground: true,
-                elevation: 3,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                // 2. Sección Inmóvil de Filtros (ejemplo)
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  /*child: Text(
+                      'Filtros de Búsqueda',
+                      style: theme.textTheme.titleSmall,
+                    ),*/
                 ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  leading: CircleAvatar(
-                    backgroundColor: theme.colorScheme.secondaryContainer,
-                    child: Icon(
-                      Icons.build,
-                      color: theme.colorScheme.onSecondaryContainer,
-                    ),
-                  ),
-                  title: Text(
-                    calibracion.certificadoCalibracion,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Wrap(
+                    // Wrap para tener varios filtros horizontales
+                    spacing: 8.0,
                     children: [
-                      const SizedBox(height: 4),
-                      Text('Equipo: ${calibracion.tagEquipo}'),
-                      Text(
-                        'Fecha: ${formato.format(calibracion.fechaCalibracion)}',
-                      ),
-                      Text(
-                        'Próxima: ${formato.format(calibracion.fechaProximaCalibracion)}',
-                      ),
-                      FutureBuilder<Usuario>(
-                        future: usuarioService.obtenerUsuarioPorId(
-                          calibracion.idUsuario,
+                      Center(
+                        child: ElevatedButton.icon(
+                          icon: Icon(Icons.filter_list),
+                          onPressed: () {
+                            _refresh();
+                            mostrarPopUpFiltros();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.secondary,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onSecondary,
+                          ),
+                          label: const Text('Filtrar equipos'),
                         ),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return CircularProgressIndicator();
-                          } else if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          } else {
-                            final usuario = snapshot.data;
-                            return Text(
-                              'Registró : ${usuario?.nombre} ${usuario?.primerApellido} ${usuario?.segundoApellido}',
-                            );
-                          }
-                        },
                       ),
-                    ],
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.zoom_in),
-                    color: theme.colorScheme.tertiary,
-                    tooltip: "Ver detalle",
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/detalle_calibracion',
-                        arguments: calibracion,
-                      );
-                    },
+                    ], // 5. Convertir el Iterable resultante a List<Widget>
                   ),
                 ),
-              ),
-            );
-          },
-        ),
-      ),
+                // Opcional: Separador visual
+                const Padding(
+                  padding: const EdgeInsets.only(
+                    left: 12.0,
+                    right: 12.0,
+                    bottom: 12.0,
+                  ),
+                  //child: Divider(),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: calibracionesEquipos.isEmpty
+                        ? Center(
+                            child: Text('No hay calibraciones registradas'),
+                          )
+                        : RefreshIndicator(
+                            onRefresh: _refresh,
+                            child: ListView.builder(
+                              controller: _scrollController,
+                              padding: const EdgeInsets.all(12),
+                              itemCount:
+                                  calibracionesEquipos.length +
+                                  (_isLoading ? 1 : 0),
+                              itemBuilder: (context, index) {
+                                if (index >= calibracionesEquipos.length) {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  );
+                                }
+
+                                final calibracion = calibracionesEquipos[index];
+                                return FadeInUp(
+                                  duration: const Duration(milliseconds: 400),
+                                  child: Card(
+                                    borderOnForeground: true,
+                                    elevation: 3,
+                                    margin: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: ListTile(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 12,
+                                          ),
+                                      leading: CircleAvatar(
+                                        backgroundColor: theme
+                                            .colorScheme
+                                            .secondaryContainer,
+                                        child: Icon(
+                                          Icons.build,
+                                          color: theme
+                                              .colorScheme
+                                              .onSecondaryContainer,
+                                        ),
+                                      ),
+                                      title: Text(
+                                        calibracion.certificadoCalibracion,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: theme.colorScheme.primary,
+                                        ),
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Equipo: ${calibracion.tagEquipo}',
+                                          ),
+                                          Text(
+                                            'Fecha: ${formato.format(calibracion.fechaCalibracion)}',
+                                          ),
+                                          Text(
+                                            'Próxima: ${formato.format(calibracion.fechaProximaCalibracion)}',
+                                          ),
+                                          FutureBuilder<Usuario>(
+                                            future: usuarioService
+                                                .obtenerUsuarioPorId(
+                                                  calibracion.idUsuario,
+                                                ),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.waiting) {
+                                                return CircularProgressIndicator();
+                                              } else if (snapshot.hasError) {
+                                                return Text(
+                                                  'Error: ${snapshot.error}',
+                                                );
+                                              } else {
+                                                final usuario = snapshot.data;
+                                                return Text(
+                                                  'Registró : ${usuario?.nombre} ${usuario?.primerApellido} ${usuario?.segundoApellido}',
+                                                );
+                                              }
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      trailing: IconButton(
+                                        icon: const Icon(Icons.zoom_in),
+                                        color: theme.colorScheme.tertiary,
+                                        tooltip: "Ver detalle",
+                                        onPressed: () {
+                                          Navigator.pushNamed(
+                                            context,
+                                            '/detalle_calibracion',
+                                            arguments: calibracion,
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 
-  Widget _botonesAccion(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        FloatingActionButton(
-          heroTag: "btnDescargar",
-          onPressed: () {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(mensajes.info(context, 'Descargando reporte...'));
-          },
-          //backgroundColor: theme.colorScheme.primaryContainer,
-          child: const Icon(Icons.download),
-        ),
-        const SizedBox(height: 12),
-        FloatingActionButton(
-          heroTag: "btnFiltrar",
-          onPressed: () => _abrirFormulario(context),
-          backgroundColor: theme.colorScheme.secondaryContainer,
-          child: const Icon(Icons.filter_list),
-        ),
-      ],
-    );
-  }
-
-  void _abrirFormulario(BuildContext context) {
-    showDialog(
+  void mostrarPopUpFiltros() async {
+    final resultados = await showModalBottomSheet(
       context: context,
-      builder: (context) {
-        final theme = Theme.of(context);
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: theme.colorScheme.surfaceContainer,
-          title: Text(
-            'Filtrar Calibraciones',
-            style: TextStyle(color: theme.colorScheme.primary),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              SizedBox(height: 8),
-              TextField(decoration: InputDecoration(labelText: 'TAG')),
-              SizedBox(height: 8),
-              TextField(decoration: InputDecoration(labelText: 'SERIE')),
-              SizedBox(height: 8),
-              TextField(decoration: InputDecoration(labelText: 'TIPO')),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Cancelar',
-                style: TextStyle(color: theme.colorScheme.secondary),
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(mensajes.info(context, 'Aplicando filtro...'));
-              },
-              child: const Text('Aplicar'),
-            ),
-          ],
-        );
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return const FiltrosCalibracionesModal();
       },
     );
+
+    if (resultados != null && resultados is Map<String, dynamic>) {
+      // Procesar los resultados del filtro
+      String tag = resultados['tag'] ?? '';
+      String certificado = resultados['certificado'] ?? '';
+      DateTime? fechaCertificado = resultados['fecha_certificado'];
+
+      // Aquí puedes usar estos valores para filtrar la lista de calibraciones
+      setState(() {
+        calibracionesEquipos = calibracionesEquipos.where((calibracion) {
+          final cumpleTag =
+              tag.isEmpty ||
+              calibracion.tagEquipo.toLowerCase().contains(tag.toLowerCase());
+          final cumpleCertificado =
+              certificado.isEmpty ||
+              calibracion.certificadoCalibracion.toLowerCase().contains(
+                certificado.toLowerCase(),
+              );
+          final cumpleFecha =
+              fechaCertificado == null ||
+              calibracion.fechaCalibracion == fechaCertificado;
+
+          return cumpleTag && cumpleCertificado && cumpleFecha;
+        }).toList();
+      });
+    }
   }
 }
