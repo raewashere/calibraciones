@@ -4,14 +4,14 @@ class FiltrosCalibracionesModal extends StatefulWidget {
   const FiltrosCalibracionesModal({super.key});
 
   @override
-  State<FiltrosCalibracionesModal> createState() => _FiltrosCalibracionesModalState();
+  State<FiltrosCalibracionesModal> createState() =>
+      _FiltrosCalibracionesModalState();
 }
 
 class _FiltrosCalibracionesModalState extends State<FiltrosCalibracionesModal> {
-  DateTime? fecha_certificado;
+  DateTime? fechaCertificado;
   final TextEditingController _tagController = TextEditingController();
   final TextEditingController _certificadoController = TextEditingController();
-
 
   @override
   void initState() {
@@ -60,9 +60,11 @@ class _FiltrosCalibracionesModalState extends State<FiltrosCalibracionesModal> {
             ),
             const SizedBox(width: 10),
             ListTile(
-              title: Text(fecha_certificado == null
-                  ? 'Seleccionar Fecha de Inicio'
-                  : 'Fecha de Inicio: ${fecha_certificado!.toLocal().toString().split(' ')[0]}'),
+              title: Text(
+                fechaCertificado == null
+                    ? 'Seleccionar Fecha de Inicio'
+                    : 'Fecha de Inicio: ${fechaCertificado!.toLocal().toString().split(' ')[0]}',
+              ),
               trailing: const Icon(Icons.calendar_today),
               onTap: _seleccionarFecha,
             ),
@@ -82,13 +84,13 @@ class _FiltrosCalibracionesModalState extends State<FiltrosCalibracionesModal> {
   Future<void> _seleccionarFecha() async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: fecha_certificado ?? DateTime.now(),
+      initialDate: fechaCertificado ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != fecha_certificado) {
+    if (picked != null && picked != fechaCertificado) {
       setState(() {
-        fecha_certificado = picked;
+        fechaCertificado = picked;
       });
     }
   }
@@ -97,7 +99,7 @@ class _FiltrosCalibracionesModalState extends State<FiltrosCalibracionesModal> {
     Navigator.pop(context, {
       'tag': _tagController.text,
       'certificado': _certificadoController.text,
-      'fecha_certificado': fecha_certificado,
+      'fechaCertificado': fechaCertificado,
       //'estados': _opcionesEstadoSeleccionados,
     });
   }

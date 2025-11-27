@@ -4,8 +4,6 @@ import 'package:calibraciones/screens/components/filtros_equipos_modal.dart';
 import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:calibraciones/services/equipo_service.dart';
 import 'package:calibraciones/services/implementation/equipo_service_impl.dart';
-import 'package:calibraciones/services/implementation/tipo_sensor_impl.dart';
-import 'package:calibraciones/services/tipo_sensor_service.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart'; // <-- Para animaciones suaves (añádelo a pubspec.yaml)
 
@@ -20,37 +18,22 @@ class _VistaEquipoState extends State<VistaEquipo> {
   final Mensajes mensajes = Mensajes();
   final ScrollController _scrollController = ScrollController();
   final EquipoService _equipoService = EquipoServiceImpl();
-  final TipoSensorService _tipoSensorService = TipoSensorServiceImpl();
 
   List<DtoEquipo> equipos = [];
   bool _isLoading = true;
 
-  List<TipoSensor> _listaTipoSensores = [];
-  TipoSensor? tipoSensorSeleccionado;
-
-  final Set<TipoSensor> _opcionesSeleccionadas = <TipoSensor>{};
 
   @override
   void initState() {
     super.initState();
     _cargarEquipos();
-    _cargarSensores();
   }
 
   Future<void> _cargarEquipos() async {
     final resultado = await _equipoService.obtenerAllEquipos();
-    final listaTipoSensores = await _tipoSensorService.obtenerAllTipoSensores();
     setState(() {
       equipos = resultado;
-      _listaTipoSensores = listaTipoSensores;
       _isLoading = false;
-    });
-  }
-
-  Future<void> _cargarSensores() async {
-    final listaTipoSensores = await _tipoSensorService.obtenerAllTipoSensores();
-    setState(() {
-      _listaTipoSensores = listaTipoSensores;
     });
   }
 

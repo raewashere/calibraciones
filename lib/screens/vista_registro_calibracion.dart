@@ -688,823 +688,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                       ),
                     ),
                     SizedBox(height: 20),
-                    Form(
-                      key: _keySeccionCorridas,
-                      child: Container(
-                        decoration: cajaFormulario.boxDecoration(context),
-                        child: Padding(
-                          padding: EdgeInsets.all(30),
-                          child: Column(
-                            children: <Widget>[
-                              SizedBox(height: 15),
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                child: Center(
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        "Corridas",
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.tertiary,
-                                        ),
-                                      ),
-                                      SizedBox(width: 10),
-                                      _iconoAyudaSeccion(
-                                        context,
-                                        'Ingrese los datos de la corrida de calibración y agreguela a la tabla, las conversiones se hacen en automático, también elimine las corridas que no sean necesarias.',
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onPrimary,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Column(
-                                  children: <Widget>[
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: _buildTextFormField(
-                                            context,
-                                            hintText: "Caudal (m³/hr)",
-                                            validatorText:
-                                                'Favor de escribir el caudal',
-                                            controllerText: _caudalM3Controller,
-                                            focusNode: _focusNodeCaudal,
-                                            onChanged: _onCaudalM3Changed,
-                                            decimales: 2,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          width: 12,
-                                        ), // separación entre campos
-                                        Expanded(
-                                          child: _buildTextFormField(
-                                            context,
-                                            hintText: "Caudal (bbl/hr)",
-                                            validatorText:
-                                                'Favor de escribir el caudal',
-                                            controllerText:
-                                                _caudalBblController,
-                                            onChanged: _onCaudalBblChanged,
-                                            decimales: 2,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: _buildTextFormField(
-                                            context,
-                                            hintText: "Temperatura (°C)",
-                                            validatorText:
-                                                'Favor de escribir la temperatura',
-                                            controllerText:
-                                                _temperaturaCentigradosController,
-                                            onChanged: _onCelsiusChanged,
-                                            decimales: 2,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          width: 12,
-                                        ), // separación entre campos
-                                        Expanded(
-                                          child: _buildTextFormField(
-                                            context,
-                                            hintText: "Temperatura (°F)",
-                                            validatorText:
-                                                'Favor de escribir la temperatura',
-                                            controllerText:
-                                                _temperaturaFahrenheitController,
-                                            onChanged: _onFahrenheitChanged,
-                                            decimales: 2,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: _buildTextFormField(
-                                            context,
-                                            hintText: "Presión (kg/cm2)",
-                                            validatorText:
-                                                'Favor de escribir la presión',
-                                            controllerText: _presionController,
-                                            onChanged: _onPresionChanged,
-                                            decimales: 2,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          width: 12,
-                                        ), // separación entre campos
-                                        Expanded(
-                                          child: _buildTextFormField(
-                                            context,
-                                            hintText: "Presión (PSI)",
-                                            validatorText:
-                                                'Favor de escribir la presión',
-                                            controllerText:
-                                                _presionPSIController,
-                                            onChanged: _onPresionPSIChanged,
-                                            decimales: 2,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          width: 12,
-                                        ), // separación entre campos
-                                        Expanded(
-                                          child: _buildTextFormField(
-                                            context,
-                                            hintText: "Presión (kPa)",
-                                            validatorText:
-                                                'Favor de escribir la presión',
-                                            controllerText:
-                                                _presionKPaController,
-                                            onChanged: _onPresionKPaChanged,
-                                            decimales: 2,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "Meter Factor",
-                                      validatorText:
-                                          'Favor de escribir el Meter Factor',
-                                      controllerText: _meterFactorController,
-                                      decimales: 5,
-                                    ),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: _buildTextFormField(
-                                            context,
-                                            hintText: "K Factor (pulsos/m3)",
-                                            validatorText:
-                                                'Favor de escribir el K Factor (pulsos/m3)',
-                                            controllerText:
-                                                _kFactorPulsosM3Controller,
-                                            onChanged: _onPulsosM3Changed,
-                                            decimales: 3,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          width: 12,
-                                        ), // separación entre campos
-                                        Expanded(
-                                          child: _buildTextFormField(
-                                            context,
-                                            hintText: "K Factor (pulsos/bbl)",
-                                            validatorText:
-                                                'Favor de escribir el K Factor (pulsos/bbl)',
-                                            controllerText:
-                                                _kFactorPulsosBblController,
-                                            onChanged: _onPulsosBblChanged,
-                                            decimales: 3,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "Frecuencia (Hz)",
-                                      validatorText:
-                                          'Favor de escribir la frecuencia',
-                                      controllerText: _frecuenciaController,
-                                      decimales: 2,
-                                    ),
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "Repetibilidad (%)",
-                                      validatorText:
-                                          'Favor de escribir la repetibilidad',
-                                      controllerText: _repetibilidadController,
-                                      decimales: 3,
-                                    ),
-                                    SizedBox(height: 20),
-                                    Table(
-                                      border: TableBorder.symmetric(
-                                        inside: const BorderSide(
-                                          color: Colors.black,
-                                          width: 1,
-                                        ),
-                                        outside: const BorderSide(
-                                          color: Colors.black,
-                                          width: 2,
-                                        ),
-                                      ),
-                                      children: [
-                                        TableRow(
-                                          decoration: BoxDecoration(
-                                            color: theme.colorScheme.tertiary,
-                                          ),
-                                          children: [
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'Caudal',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'Caudal',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'Temperatura',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'Presión',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'Meter',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'Frecuencia',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'K Factor',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'K Factor',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'Repetibilidad',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'Editar',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'Borrar',
-                                            ),
-                                          ],
-                                        ),
-                                        TableRow(
-                                          decoration: BoxDecoration(
-                                            color: theme.colorScheme.tertiary,
-                                          ),
-                                          children: [
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'm³/hr',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'bbl/hr',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              '°C',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'Kg/m2',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'Factor',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'Hz',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'Pulsos/m³',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              'Pulsos/bbl',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              '%',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              '',
-                                            ),
-                                            tablaCalibracion.cabeceraTabla(
-                                              context,
-                                              '',
-                                            ),
-                                          ],
-                                        ),
-                                        ...(_corridasRegistradas.isNotEmpty
-                                            ? _corridasRegistradas
-                                                  .map(
-                                                    (corrida) => TableRow(
-                                                      decoration: BoxDecoration(
-                                                        color: theme
-                                                            .colorScheme
-                                                            .tertiaryContainer,
-                                                      ),
-                                                      children: [
-                                                        tablaCalibracion.celdaTabla(
-                                                          context,
-                                                          convertidor
-                                                              .formatoMiles(
-                                                                corrida
-                                                                    .caudalM3Hr,
-                                                                2,
-                                                              ),
-                                                        ),
-                                                        tablaCalibracion.celdaTabla(
-                                                          context,
-                                                          convertidor
-                                                              .formatoMiles(
-                                                                corrida
-                                                                    .caudalBblHr,
-                                                                2,
-                                                              ),
-                                                        ),
-                                                        tablaCalibracion.celdaTabla(
-                                                          context,
-                                                          convertidor
-                                                              .formatoMiles(
-                                                                corrida
-                                                                    .temperaturaC,
-                                                                2,
-                                                              ),
-                                                        ),
-                                                        tablaCalibracion.celdaTabla(
-                                                          context,
-                                                          convertidor
-                                                              .formatoMiles(
-                                                                corrida
-                                                                    .presionKgCm2,
-                                                                2,
-                                                              ),
-                                                        ),
-                                                        tablaCalibracion.celdaTabla(
-                                                          context,
-                                                          convertidor
-                                                              .formatoMiles(
-                                                                corrida
-                                                                    .meterFactor,
-                                                                5,
-                                                              ),
-                                                        ),
-                                                        tablaCalibracion.celdaTabla(
-                                                          context,
-                                                          convertidor
-                                                              .formatoMiles(
-                                                                corrida
-                                                                    .frecuenciaHz,
-                                                                2,
-                                                              ),
-                                                        ),
-                                                        tablaCalibracion.celdaTabla(
-                                                          context,
-                                                          convertidor.formatoMiles(
-                                                            corrida
-                                                                .kFactorPulseM3,
-                                                            3,
-                                                          ),
-                                                        ),
-                                                        tablaCalibracion.celdaTabla(
-                                                          context,
-                                                          convertidor.formatoMiles(
-                                                            corrida
-                                                                .kFactorPulseBbl,
-                                                            3,
-                                                          ),
-                                                        ),
-                                                        tablaCalibracion.celdaTabla(
-                                                          context,
-                                                          convertidor.formatoMiles(
-                                                            corrida
-                                                                .repetibilidad,
-                                                            3,
-                                                          ),
-                                                        ),
-                                                        tablaCalibracion.editarFilaTabla(context, () {
-                                                          showDialog(
-                                                            context: context,
-                                                            builder:
-                                                                (
-                                                                  BuildContext
-                                                                  context,
-                                                                ) {
-                                                                  // This is an alert dialog that asks for confirmation to delete something.
-                                                                  return AlertDialog(
-                                                                    title: Text(
-                                                                      "¿Quieres editar esta corrida?",
-                                                                    ),
-                                                                    content: SingleChildScrollView(
-                                                                      child: ListBody(
-                                                                        children:
-                                                                            <
-                                                                              Widget
-                                                                            >[
-                                                                              Text(
-                                                                                'Se cargaran los datos de la corrida en los campos de entrada para su edición',
-                                                                              ),
-                                                                            ],
-                                                                      ),
-                                                                    ),
-                                                                    actions: [
-                                                                      ElevatedButton(
-                                                                        onPressed: () {
-                                                                          Navigator.of(
-                                                                            context,
-                                                                          ).pop(
-                                                                            false,
-                                                                          ); // Return false if cancelled
-                                                                        },
-                                                                        child: Text(
-                                                                          "Cancelar",
-                                                                        ),
-                                                                      ),
-                                                                      ElevatedButton(
-                                                                        style: ButtonStyle(
-                                                                          backgroundColor: WidgetStateProperty.all(
-                                                                            theme.colorScheme.secondary,
-                                                                          ),
-                                                                        ),
-                                                                        onPressed: () async {
-                                                                          // Call a function that deletes the data when confirmed.
-                                                                          setState(() {
-                                                                            int
-                                                                            index = _corridasRegistradas.indexWhere(
-                                                                              (
-                                                                                c,
-                                                                              ) =>
-                                                                                  c.idCorrida ==
-                                                                                  corrida.idCorrida,
-                                                                            );
-                                                                            _corridaActual =
-                                                                                _corridasRegistradas[index];
-                                                                            _caudalM3Controller.text = convertidor.formatoMiles(
-                                                                              _corridaActual.caudalM3Hr,
-                                                                              2,
-                                                                            );
-                                                                            _caudalBblController.text = convertidor.formatoMiles(
-                                                                              _corridaActual.caudalBblHr,
-                                                                              2,
-                                                                            );
-                                                                            _temperaturaCentigradosController.text = convertidor.formatoMiles(
-                                                                              _corridaActual.temperaturaC,
-                                                                              2,
-                                                                            );
-                                                                            _temperaturaFahrenheitController.text = convertidor.formatoMiles(
-                                                                              _corridaActual.temperaturaF,
-                                                                              2,
-                                                                            );
-                                                                            _presionController.text = convertidor.formatoMiles(
-                                                                              _corridaActual.presionKgCm2,
-                                                                              2,
-                                                                            );
-                                                                            _presionPSIController.text = convertidor.formatoMiles(
-                                                                              _corridaActual.presionPSI,
-                                                                              2,
-                                                                            );
-                                                                            _presionKPaController.text = convertidor.formatoMiles(
-                                                                              _corridaActual.presionKPa,
-                                                                              2,
-                                                                            );
-                                                                            _meterFactorController.text = convertidor.formatoMiles(
-                                                                              _corridaActual.meterFactor,
-                                                                              5,
-                                                                            );
-                                                                            _kFactorPulsosM3Controller.text = convertidor.formatoMiles(
-                                                                              _corridaActual.kFactorPulseM3,
-                                                                              3,
-                                                                            );
-                                                                            _kFactorPulsosBblController.text = convertidor.formatoMiles(
-                                                                              _corridaActual.kFactorPulseBbl,
-                                                                              3,
-                                                                            );
-                                                                            _frecuenciaController.text = convertidor.formatoMiles(
-                                                                              _corridaActual.frecuenciaHz,
-                                                                              2,
-                                                                            );
-                                                                            _repetibilidadController.text = convertidor.formatoMiles(
-                                                                              _corridaActual.repetibilidad,
-                                                                              3,
-                                                                            );
-                                                                            editandoCorrida =
-                                                                                true;
-                                                                            indiceCorridaEditando =
-                                                                                index;
-                                                                          });
-
-                                                                          Navigator.of(
-                                                                            context,
-                                                                          ).pop(
-                                                                            true,
-                                                                          );
-                                                                        },
-                                                                        child: Text(
-                                                                          "Editar",
-                                                                          style: TextStyle(
-                                                                            color:
-                                                                                Colors.white,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  );
-                                                                },
-                                                          );
-
-                                                          _linealidadController
-                                                              .text = convertidor
-                                                              .calcularLinealidad(
-                                                                _corridasRegistradas,
-                                                              );
-                                                        }),
-                                                        tablaCalibracion.borraFilaTabla(context, () {
-                                                          showDialog(
-                                                            context: context,
-                                                            builder:
-                                                                (
-                                                                  BuildContext
-                                                                  context,
-                                                                ) {
-                                                                  // This is an alert dialog that asks for confirmation to delete something.
-                                                                  return AlertDialog(
-                                                                    title: Text(
-                                                                      "¿Quieres quitar esta corrida?",
-                                                                    ),
-                                                                    content: SingleChildScrollView(
-                                                                      child: ListBody(
-                                                                        children:
-                                                                            <
-                                                                              Widget
-                                                                            >[
-                                                                              Text(
-                                                                                'Quitarás la corrida de la tabla y del cálculo',
-                                                                              ),
-                                                                            ],
-                                                                      ),
-                                                                    ),
-                                                                    actions: [
-                                                                      ElevatedButton(
-                                                                        style: ButtonStyle(
-                                                                          backgroundColor: WidgetStateProperty.all(
-                                                                            theme.colorScheme.primary,
-                                                                          ),
-                                                                        ),
-                                                                        onPressed: () {
-                                                                          Navigator.of(
-                                                                            context,
-                                                                          ).pop(
-                                                                            false,
-                                                                          ); // Return false if cancelled
-                                                                        },
-                                                                        child: Text(
-                                                                          "Cancelar",
-                                                                        ),
-                                                                      ),
-                                                                      ElevatedButton(
-                                                                        style: ButtonStyle(
-                                                                          backgroundColor: WidgetStateProperty.all(
-                                                                            theme.colorScheme.secondary,
-                                                                          ),
-                                                                        ),
-                                                                        onPressed: () async {
-                                                                          // Call a function that deletes the data when confirmed.
-                                                                          setState(() {
-                                                                            int
-                                                                            index = _corridasRegistradas.indexWhere(
-                                                                              (
-                                                                                c,
-                                                                              ) =>
-                                                                                  c.idCorrida ==
-                                                                                  corrida.idCorrida,
-                                                                            );
-                                                                            _corridasRegistradas.removeWhere(
-                                                                              (
-                                                                                c,
-                                                                              ) =>
-                                                                                  c.idCorrida ==
-                                                                                  corrida.idCorrida,
-                                                                            );
-                                                                            _listaCorridas.removeAt(
-                                                                              index,
-                                                                            );
-                                                                          });
-
-                                                                          Navigator.of(
-                                                                            context,
-                                                                          ).pop(
-                                                                            true,
-                                                                          );
-                                                                        },
-                                                                        child: Text(
-                                                                          "Quitar",
-                                                                          style: TextStyle(
-                                                                            color:
-                                                                                Colors.white,
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ],
-                                                                  );
-                                                                },
-                                                          );
-
-                                                          _linealidadController
-                                                              .text = convertidor
-                                                              .calcularLinealidad(
-                                                                _corridasRegistradas,
-                                                              );
-                                                        }),
-                                                      ],
-                                                    ),
-                                                  )
-                                                  .toList()
-                                            : [
-                                                TableRow(
-                                                  decoration: BoxDecoration(
-                                                    color: theme
-                                                        .colorScheme
-                                                        .tertiaryContainer,
-                                                  ),
-                                                  children: List.generate(
-                                                    11,
-                                                    (index) => Padding(
-                                                      padding: EdgeInsets.all(
-                                                        2.0,
-                                                      ),
-                                                      child: Text(''),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ]),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: 20),
-                              Center(
-                                child: editandoCorrida
-                                    ? ElevatedButton(
-                                        onPressed: _agregarCorrida,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Theme.of(
-                                            context,
-                                          ).colorScheme.secondary,
-                                          foregroundColor: Theme.of(
-                                            context,
-                                          ).colorScheme.onSecondary,
-                                        ),
-                                        child: const Text('Agregar edición'),
-                                      )
-                                    : ElevatedButton(
-                                        onPressed: _agregarCorrida,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Theme.of(
-                                            context,
-                                          ).colorScheme.secondary,
-                                          foregroundColor: Theme.of(
-                                            context,
-                                          ).colorScheme.onSecondary,
-                                        ),
-                                        child: const Text('Agregar corrida'),
-                                      ),
-                              ),
-                              SizedBox(height: 10),
-                              Center(
-                                child: ElevatedButton(
-                                  onPressed: _limpiaCorrida,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                    foregroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.onPrimary,
-                                  ),
-                                  child: const Text('Limpiar corrida'),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    _seccionCorridas(context),
                     SizedBox(height: 20),
-                    Form(
-                      key: _keySeccionExtras,
-                      child: Container(
-                        decoration: cajaFormulario.boxDecoration(context),
-                        child: Padding(
-                          padding: EdgeInsets.all(30),
-                          child: Column(
-                            children: <Widget>[
-                              SizedBox(height: 15),
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                child: Center(
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        "Extras",
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.tertiary,
-                                        ),
-                                      ),
-                                      SizedBox(width: 10),
-                                      _iconoAyudaSeccion(
-                                        context,
-                                        'La linealidad se calcula automáticamente al agregar o eliminar corridas, solo agrega observaciones si es necesario.',
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onPrimary,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Column(
-                                  children: <Widget>[
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: _buildTextFormField(
-                                            context,
-                                            hintText: "Linealidad (%)",
-                                            validatorText:
-                                                'Favor de escribir la linealidad',
-                                            controllerText:
-                                                _linealidadController,
-                                            decimales: 3,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          width: 12,
-                                        ), // separación entre campos
-                                        Expanded(
-                                          child: _buildTextFormField(
-                                            context,
-                                            hintText: "Reproducibilidad (%)",
-                                            validatorText:
-                                                'Favor de escribir la reproducibilidad',
-                                            controllerText:
-                                                _reproducibilidadController,
-                                            decimales: 3,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    _buildTextFormField(
-                                      context,
-                                      hintText: "Observaciones",
-                                      validatorText:
-                                          'Favor de escribir las observaciones',
-                                      controllerText: _observacionesController,
-                                      decimales: 0,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: 20),
-                              Center(
-                                child: ElevatedButton(
-                                  onPressed: _guardarCalibracion,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.secondary,
-                                    foregroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.onSecondary,
-                                  ),
-                                  child: Text('Registrar'),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    _seccionExtras(context),
                   ],
                 ),
               ),
@@ -1541,7 +727,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         equipoSeleccionado!.getTagEquipo,
         laboratorioSeleccionado!.getIdLaboratorioCalibracion,
         0,
-        productoSeleccionado!
+        productoSeleccionado!,
       );
 
       bool exito = await calibracionService.registrarCalibracionEquipo(
@@ -2123,6 +1309,813 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           context,
         ).showSnackBar(mensajes.ayuda(context, mensaje));
       },
+    );
+  }
+
+  //Secciones cambiantes por tipo equipo
+  Widget _seccionCorridas(BuildContext context) {
+    final theme = Theme.of(context);
+    return Form(
+      key: _keySeccionCorridas,
+      child: Container(
+        decoration: cajaFormulario.boxDecoration(context),
+        child: Padding(
+          padding: EdgeInsets.all(30),
+          child: Column(
+            children: <Widget>[
+              SizedBox(height: 15),
+              Container(
+                padding: EdgeInsets.all(10),
+                child: Center(
+                  child: Row(
+                    children: [
+                      Text(
+                        "Corridas",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      _iconoAyudaSeccion(
+                        context,
+                        'Ingrese los datos de la corrida de calibración y agreguela a la tabla, las conversiones se hacen en automático, también elimine las corridas que no sean necesarias.',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Caudal (m³/hr)",
+                            validatorText: 'Favor de escribir el caudal',
+                            controllerText: _caudalM3Controller,
+                            focusNode: _focusNodeCaudal,
+                            onChanged: _onCaudalM3Changed,
+                            decimales: 2,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Caudal (bbl/hr)",
+                            validatorText: 'Favor de escribir el caudal',
+                            controllerText: _caudalBblController,
+                            onChanged: _onCaudalBblChanged,
+                            decimales: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Temperatura (°C)",
+                            validatorText: 'Favor de escribir la temperatura',
+                            controllerText: _temperaturaCentigradosController,
+                            onChanged: _onCelsiusChanged,
+                            decimales: 2,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Temperatura (°F)",
+                            validatorText: 'Favor de escribir la temperatura',
+                            controllerText: _temperaturaFahrenheitController,
+                            onChanged: _onFahrenheitChanged,
+                            decimales: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Presión (kg/cm2)",
+                            validatorText: 'Favor de escribir la presión',
+                            controllerText: _presionController,
+                            onChanged: _onPresionChanged,
+                            decimales: 2,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Presión (PSI)",
+                            validatorText: 'Favor de escribir la presión',
+                            controllerText: _presionPSIController,
+                            onChanged: _onPresionPSIChanged,
+                            decimales: 2,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Presión (kPa)",
+                            validatorText: 'Favor de escribir la presión',
+                            controllerText: _presionKPaController,
+                            onChanged: _onPresionKPaChanged,
+                            decimales: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    _buildTextFormField(
+                      context,
+                      hintText: "Meter Factor",
+                      validatorText: 'Favor de escribir el Meter Factor',
+                      controllerText: _meterFactorController,
+                      decimales: 5,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "K Factor (pulsos/m3)",
+                            validatorText:
+                                'Favor de escribir el K Factor (pulsos/m3)',
+                            controllerText: _kFactorPulsosM3Controller,
+                            onChanged: _onPulsosM3Changed,
+                            decimales: 3,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "K Factor (pulsos/bbl)",
+                            validatorText:
+                                'Favor de escribir el K Factor (pulsos/bbl)',
+                            controllerText: _kFactorPulsosBblController,
+                            onChanged: _onPulsosBblChanged,
+                            decimales: 3,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    _buildTextFormField(
+                      context,
+                      hintText: "Frecuencia (Hz)",
+                      validatorText: 'Favor de escribir la frecuencia',
+                      controllerText: _frecuenciaController,
+                      decimales: 2,
+                    ),
+                    _buildTextFormField(
+                      context,
+                      hintText: "Repetibilidad (%)",
+                      validatorText: 'Favor de escribir la repetibilidad',
+                      controllerText: _repetibilidadController,
+                      decimales: 3,
+                    ),
+                    SizedBox(height: 20),
+                    Table(
+                      border: TableBorder.symmetric(
+                        inside: const BorderSide(color: Colors.black, width: 1),
+                        outside: const BorderSide(
+                          color: Colors.black,
+                          width: 2,
+                        ),
+                      ),
+                      children: [
+                        TableRow(
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.tertiary,
+                          ),
+                          children: [
+                            tablaCalibracion.cabeceraTabla(context, 'Caudal'),
+                            tablaCalibracion.cabeceraTabla(context, 'Caudal'),
+                            tablaCalibracion.cabeceraTabla(
+                              context,
+                              'Temperatura',
+                            ),
+                            tablaCalibracion.cabeceraTabla(context, 'Presión'),
+                            tablaCalibracion.cabeceraTabla(context, 'Meter'),
+                            tablaCalibracion.cabeceraTabla(
+                              context,
+                              'Frecuencia',
+                            ),
+                            tablaCalibracion.cabeceraTabla(context, 'K Factor'),
+                            tablaCalibracion.cabeceraTabla(context, 'K Factor'),
+                            tablaCalibracion.cabeceraTabla(
+                              context,
+                              'Repetibilidad',
+                            ),
+                            tablaCalibracion.cabeceraTabla(context, 'Editar'),
+                            tablaCalibracion.cabeceraTabla(context, 'Borrar'),
+                          ],
+                        ),
+                        TableRow(
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.tertiary,
+                          ),
+                          children: [
+                            tablaCalibracion.cabeceraTabla(context, 'm³/hr'),
+                            tablaCalibracion.cabeceraTabla(context, 'bbl/hr'),
+                            tablaCalibracion.cabeceraTabla(context, '°C'),
+                            tablaCalibracion.cabeceraTabla(context, 'Kg/m2'),
+                            tablaCalibracion.cabeceraTabla(context, 'Factor'),
+                            tablaCalibracion.cabeceraTabla(context, 'Hz'),
+                            tablaCalibracion.cabeceraTabla(
+                              context,
+                              'Pulsos/m³',
+                            ),
+                            tablaCalibracion.cabeceraTabla(
+                              context,
+                              'Pulsos/bbl',
+                            ),
+                            tablaCalibracion.cabeceraTabla(context, '%'),
+                            tablaCalibracion.cabeceraTabla(context, ''),
+                            tablaCalibracion.cabeceraTabla(context, ''),
+                          ],
+                        ),
+                        ...(_corridasRegistradas.isNotEmpty
+                            ? _corridasRegistradas
+                                  .map(
+                                    (corrida) => TableRow(
+                                      decoration: BoxDecoration(
+                                        color:
+                                            theme.colorScheme.tertiaryContainer,
+                                      ),
+                                      children: [
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.caudalM3Hr,
+                                            2,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.caudalBblHr,
+                                            2,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.temperaturaC,
+                                            2,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.presionKgCm2,
+                                            2,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.meterFactor,
+                                            5,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.frecuenciaHz,
+                                            2,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.kFactorPulseM3,
+                                            3,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.kFactorPulseBbl,
+                                            3,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.repetibilidad,
+                                            3,
+                                          ),
+                                        ),
+                                        tablaCalibracion.editarFilaTabla(context, () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              // This is an alert dialog that asks for confirmation to delete something.
+                                              return AlertDialog(
+                                                title: Text(
+                                                  "¿Quieres editar esta corrida?",
+                                                ),
+                                                content: SingleChildScrollView(
+                                                  child: ListBody(
+                                                    children: <Widget>[
+                                                      Text(
+                                                        'Se cargaran los datos de la corrida en los campos de entrada para su edición',
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                actions: [
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop(
+                                                        false,
+                                                      ); // Return false if cancelled
+                                                    },
+                                                    child: Text("Cancelar"),
+                                                  ),
+                                                  ElevatedButton(
+                                                    style: ButtonStyle(
+                                                      backgroundColor:
+                                                          WidgetStateProperty.all(
+                                                            theme
+                                                                .colorScheme
+                                                                .secondary,
+                                                          ),
+                                                    ),
+                                                    onPressed: () async {
+                                                      // Call a function that deletes the data when confirmed.
+                                                      setState(() {
+                                                        int
+                                                        index = _corridasRegistradas
+                                                            .indexWhere(
+                                                              (c) =>
+                                                                  c.idCorrida ==
+                                                                  corrida
+                                                                      .idCorrida,
+                                                            );
+                                                        _corridaActual =
+                                                            _corridasRegistradas[index];
+                                                        _caudalM3Controller
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActual
+                                                                  .caudalM3Hr,
+                                                              2,
+                                                            );
+                                                        _caudalBblController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActual
+                                                                  .caudalBblHr,
+                                                              2,
+                                                            );
+                                                        _temperaturaCentigradosController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActual
+                                                                  .temperaturaC,
+                                                              2,
+                                                            );
+                                                        _temperaturaFahrenheitController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActual
+                                                                  .temperaturaF,
+                                                              2,
+                                                            );
+                                                        _presionController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActual
+                                                                  .presionKgCm2,
+                                                              2,
+                                                            );
+                                                        _presionPSIController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActual
+                                                                  .presionPSI,
+                                                              2,
+                                                            );
+                                                        _presionKPaController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActual
+                                                                  .presionKPa,
+                                                              2,
+                                                            );
+                                                        _meterFactorController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActual
+                                                                  .meterFactor,
+                                                              5,
+                                                            );
+                                                        _kFactorPulsosM3Controller
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActual
+                                                                  .kFactorPulseM3,
+                                                              3,
+                                                            );
+                                                        _kFactorPulsosBblController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActual
+                                                                  .kFactorPulseBbl,
+                                                              3,
+                                                            );
+                                                        _frecuenciaController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActual
+                                                                  .frecuenciaHz,
+                                                              2,
+                                                            );
+                                                        _repetibilidadController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActual
+                                                                  .repetibilidad,
+                                                              3,
+                                                            );
+                                                        editandoCorrida = true;
+                                                        indiceCorridaEditando =
+                                                            index;
+                                                      });
+
+                                                      Navigator.of(
+                                                        context,
+                                                      ).pop(true);
+                                                    },
+                                                    child: Text(
+                                                      "Editar",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+
+                                          _linealidadController.text =
+                                              convertidor.calcularLinealidad(
+                                                _corridasRegistradas,
+                                              );
+                                        }),
+                                        tablaCalibracion.borraFilaTabla(context, () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              // This is an alert dialog that asks for confirmation to delete something.
+                                              return AlertDialog(
+                                                title: Text(
+                                                  "¿Quieres quitar esta corrida?",
+                                                ),
+                                                content: SingleChildScrollView(
+                                                  child: ListBody(
+                                                    children: <Widget>[
+                                                      Text(
+                                                        'Quitarás la corrida de la tabla y del cálculo',
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                actions: [
+                                                  ElevatedButton(
+                                                    style: ButtonStyle(
+                                                      backgroundColor:
+                                                          WidgetStateProperty.all(
+                                                            theme
+                                                                .colorScheme
+                                                                .primary,
+                                                          ),
+                                                    ),
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop(
+                                                        false,
+                                                      ); // Return false if cancelled
+                                                    },
+                                                    child: Text("Cancelar"),
+                                                  ),
+                                                  ElevatedButton(
+                                                    style: ButtonStyle(
+                                                      backgroundColor:
+                                                          WidgetStateProperty.all(
+                                                            theme
+                                                                .colorScheme
+                                                                .secondary,
+                                                          ),
+                                                    ),
+                                                    onPressed: () async {
+                                                      // Call a function that deletes the data when confirmed.
+                                                      setState(() {
+                                                        int
+                                                        index = _corridasRegistradas
+                                                            .indexWhere(
+                                                              (c) =>
+                                                                  c.idCorrida ==
+                                                                  corrida
+                                                                      .idCorrida,
+                                                            );
+                                                        _corridasRegistradas
+                                                            .removeWhere(
+                                                              (c) =>
+                                                                  c.idCorrida ==
+                                                                  corrida
+                                                                      .idCorrida,
+                                                            );
+                                                        _listaCorridas.removeAt(
+                                                          index,
+                                                        );
+                                                      });
+
+                                                      Navigator.of(
+                                                        context,
+                                                      ).pop(true);
+                                                    },
+                                                    child: Text(
+                                                      "Quitar",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+
+                                          _linealidadController.text =
+                                              convertidor.calcularLinealidad(
+                                                _corridasRegistradas,
+                                              );
+                                        }),
+                                      ],
+                                    ),
+                                  )
+                                  .toList()
+                            : [
+                                TableRow(
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.tertiaryContainer,
+                                  ),
+                                  children: List.generate(
+                                    11,
+                                    (index) => Padding(
+                                      padding: EdgeInsets.all(2.0),
+                                      child: Text(''),
+                                    ),
+                                  ),
+                                ),
+                              ]),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Center(
+                child: editandoCorrida
+                    ? ElevatedButton(
+                        onPressed: _agregarCorrida,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.secondary,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onSecondary,
+                        ),
+                        child: const Text('Agregar edición'),
+                      )
+                    : ElevatedButton(
+                        onPressed: _agregarCorrida,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.secondary,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onSecondary,
+                        ),
+                        child: const Text('Agregar corrida'),
+                      ),
+              ),
+              SizedBox(height: 10),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _limpiaCorrida,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  child: const Text('Limpiar corrida'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _seccionExtras(BuildContext context) {
+    final theme = Theme.of(context);
+    return Form(
+      key: _keySeccionExtras,
+      child: Container(
+        decoration: cajaFormulario.boxDecoration(context),
+        child: Padding(
+          padding: EdgeInsets.all(30),
+          child: Column(
+            children: <Widget>[
+              SizedBox(height: 15),
+              Container(
+                padding: EdgeInsets.all(10),
+                child: Center(
+                  child: Row(
+                    children: [
+                      Text(
+                        "Extras",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      _iconoAyudaSeccion(
+                        context,
+                        'La linealidad se calcula automáticamente al agregar o eliminar corridas, solo agrega observaciones si es necesario.',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Linealidad (%)",
+                            validatorText: 'Favor de escribir la linealidad',
+                            controllerText: _linealidadController,
+                            decimales: 3,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Reproducibilidad (%)",
+                            validatorText:
+                                'Favor de escribir la reproducibilidad',
+                            controllerText: _reproducibilidadController,
+                            decimales: 3,
+                          ),
+                        ),
+                      ],
+                    ),
+                    _buildTextFormField(
+                      context,
+                      hintText: "Observaciones",
+                      validatorText: 'Favor de escribir las observaciones',
+                      controllerText: _observacionesController,
+                      decimales: 0,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _guardarCalibracion,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                  ),
+                  child: Text('Registrar'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  Widget _seccionDensimetro(BuildContext context) {
+    final theme = Theme.of(context);
+    return Form(
+      key: _keySeccionExtras,
+      child: Container(
+        decoration: cajaFormulario.boxDecoration(context),
+        child: Padding(
+          padding: EdgeInsets.all(30),
+          child: Column(
+            children: <Widget>[
+              SizedBox(height: 15),
+              Container(
+                padding: EdgeInsets.all(10),
+                child: Center(
+                  child: Row(
+                    children: [
+                      Text(
+                        "Densímetro",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      _iconoAyudaSeccion(
+                        context,
+                        'Llena los campos adicionales del densímetro si aplica.',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Condición de referencia kg/m³ antes calibración",
+                            validatorText: 'Favor de escribir la condición de referencia',
+                            controllerText: _linealidadController,
+                            decimales: 3,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Condición de referencia kg/m³ después calibración",
+                            validatorText: 'Favor de escribir la condición de referencia',
+                            controllerText: _linealidadController,
+                            decimales: 3,
+                          ),
+                        )
+                      ],
+                    ),
+                    _buildTextFormField(
+                      context,
+                      hintText: "Diferencia de densidad (kg/m³)",
+                      validatorText: 'Favor de escribir la diferencia de densidad',
+                      controllerText: _observacionesController,
+                      decimales: 0,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _guardarCalibracion,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                  ),
+                  child: Text('Registrar'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

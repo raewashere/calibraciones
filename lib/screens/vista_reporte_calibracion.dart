@@ -2,7 +2,6 @@ import 'package:animate_do/animate_do.dart';
 import 'package:calibraciones/models/_calibracion_equipo.dart';
 import 'package:calibraciones/models/_usuario.dart';
 import 'package:calibraciones/screens/components/filtros_calibraciones_modal.dart';
-import 'package:calibraciones/screens/components/filtros_equipos_modal.dart';
 import 'package:calibraciones/screens/components/mensajes.dart';
 import 'package:calibraciones/services/calibracion_service.dart';
 import 'package:calibraciones/services/implementation/calibracion_service_impl.dart';
@@ -118,7 +117,7 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
                 ),
                 // Opcional: Separador visual
                 const Padding(
-                  padding: const EdgeInsets.only(
+                  padding: EdgeInsets.only(
                     left: 12.0,
                     right: 12.0,
                     bottom: 12.0,

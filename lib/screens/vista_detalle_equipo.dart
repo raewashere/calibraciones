@@ -5,7 +5,6 @@ import 'package:calibraciones/common/utils/conversiones.dart';
 import 'package:calibraciones/dto/dto_equipo.dart';
 import 'package:calibraciones/models/_producto.dart';
 import 'package:calibraciones/models/_ruta_equipo.dart';
-import 'package:calibraciones/models/_tipo_sensor.dart';
 import 'package:calibraciones/screens/components/limites_grafica.dart';
 import 'package:calibraciones/services/data_service.dart';
 import 'package:calibraciones/services/equipo_service.dart';
@@ -528,7 +527,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
               Flexible(
                 // Flexible permite que el texto se ajuste si es largo
                 child: Text(
-                  '${formato.format(calibracion.fechaCalibracion!)}',
+                  formato.format(calibracion.fechaCalibracion),
                   overflow: TextOverflow
                       .ellipsis, // Opcional: para manejar textos muy largos
                   style: TextStyle(

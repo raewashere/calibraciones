@@ -18,7 +18,7 @@ class _FiltrosEquiposModalState extends State<FiltrosEquiposModal> {
 
   final Set<TipoSensor> _opcionesSensoresSeleccionadas = <TipoSensor>{};
 
-  List<String> _listaEstados = ['Operando', 'Fuera de operacion'];
+  final List<String> _listaEstados = ['Operando', 'Fuera de operacion'];
   final TextEditingController _tagController = TextEditingController();
 
   final Set<String> _opcionesEstadoSeleccionados = <String>{};
