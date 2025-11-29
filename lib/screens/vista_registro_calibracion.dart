@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:calibraciones/common/barrel/models.dart';
 import 'package:calibraciones/common/components/components.dart';
 import 'package:calibraciones/common/barrel/services.dart';
+import 'package:calibraciones/models/_corrida_temperatura.dart';
 import 'package:calibraciones/models/_producto.dart';
 import 'package:calibraciones/services/data_service.dart';
 import 'package:calibraciones/services/implementation/producto_service_impl.dart';
@@ -27,6 +28,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final _keySeccionEquipo = GlobalKey<FormState>();
   final _keySeccionDatosCalibracion = GlobalKey<FormState>();
   final _keySeccionCorridas = GlobalKey<FormState>();
+  final _keySeccionTemperatura = GlobalKey<FormState>();
+  final _keySeccionPresion = GlobalKey<FormState>();
+  final _keySeccionDensimetro = GlobalKey<FormState>();
   final _keySeccionExtras = GlobalKey<FormState>();
 
   DateFormat formato = DateFormat("dd/MM/yyyy");
@@ -66,9 +70,30 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final TextEditingController _observacionesController =
       TextEditingController();
 
+  //Datos temperatura
+  final TextEditingController _patronCelsiusController =
+      TextEditingController();
+  final TextEditingController _patronFahrenheitController =
+      TextEditingController();
+  final TextEditingController _ibcCelsiusController = TextEditingController();
+  final TextEditingController _ibcFahrenheitController =
+      TextEditingController();
+  final TextEditingController _errorCelsiusController = TextEditingController();
+  final TextEditingController _errorFahrenheitController =
+      TextEditingController();
+  final TextEditingController _incertidumbreCelsiusController =
+      TextEditingController();
+  final TextEditingController _incertidumbreFahrenheitController =
+      TextEditingController();
+
+  //Corridas flujo
   final List _listaCorridas = [];
   late Corrida _corridaActual;
   late final List<Corrida> _corridasRegistradas = [];
+
+  final List _listaCorridasTemperatura = [];
+  late CorridaTemperatura _corridaActualTemperatura;
+  late final List<CorridaTemperatura> _corridasRegistradasTemperatura = [];
 
   late CalibracionEquipo _calibracionEquipo;
 
@@ -78,7 +103,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   late Uint8List? fileBytes;
 
   bool editandoCorrida = false;
+  bool editandoCorridaTemperatura = false;
   int indiceCorridaEditando = -1;
+  int indiceCorridaEditandoTemperatura = -1;
 
   Future<void> _seleccionarFecha(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -123,6 +150,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   final FocusNode _focusNodeCaudal = FocusNode();
+  final FocusNode _focusNodeTemperatura = FocusNode();
 
   DireccionService direccionService = DireccionServiceImpl();
   LaboratorioCalibracionService laboratorioService =
@@ -322,6 +350,126 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       );
     } else {
       _temperaturaCentigradosController.clear();
+    }
+    setState(() => _editingFahrenheit = false);
+  }
+
+  void _onCelsiusPatronChanged(String value) {
+    if (_editingFahrenheit) return; // evita recursividad
+    setState(() => _editingCelsius = true);
+    if (value.isNotEmpty) {
+      double celsius = double.tryParse(value) ?? 0;
+      _patronFahrenheitController.text = convertidor.formatoMiles(
+        Conversiones.celsiusToFahrenheit(celsius),
+        2,
+      );
+    } else {
+      _patronFahrenheitController.clear();
+    }
+    setState(() => _editingCelsius = false);
+  }
+
+  void _onFahrenheitPatronChanged(String value) {
+    if (_editingCelsius) return; // evita recursividad
+    setState(() => _editingFahrenheit = true);
+    if (value.isNotEmpty) {
+      double fahrenheit = double.tryParse(value) ?? 0;
+      _patronCelsiusController.text = convertidor.formatoMiles(
+        Conversiones.fahrenheitToCelsius(fahrenheit),
+        2,
+      );
+    } else {
+      _patronCelsiusController.clear();
+    }
+    setState(() => _editingFahrenheit = false);
+  }
+
+  void _onCelsiusIBCChanged(String value) {
+    if (_editingFahrenheit) return; // evita recursividad
+    setState(() => _editingCelsius = true);
+    if (value.isNotEmpty) {
+      double celsius = double.tryParse(value) ?? 0;
+      _ibcFahrenheitController.text = convertidor.formatoMiles(
+        Conversiones.celsiusToFahrenheit(celsius),
+        2,
+      );
+    } else {
+      _ibcFahrenheitController.clear();
+    }
+    setState(() => _editingCelsius = false);
+  }
+
+  void _onFahrenheitIBCChanged(String value) {
+    if (_editingCelsius) return; // evita recursividad
+    setState(() => _editingFahrenheit = true);
+    if (value.isNotEmpty) {
+      double fahrenheit = double.tryParse(value) ?? 0;
+      _ibcCelsiusController.text = convertidor.formatoMiles(
+        Conversiones.fahrenheitToCelsius(fahrenheit),
+        2,
+      );
+    } else {
+      _ibcCelsiusController.clear();
+    }
+    setState(() => _editingFahrenheit = false);
+  }
+
+  void _onCelsiusErrorChanged(String value) {
+    if (_editingFahrenheit) return; // evita recursividad
+    setState(() => _editingCelsius = true);
+    if (value.isNotEmpty) {
+      double celsius = double.tryParse(value) ?? 0;
+      _errorFahrenheitController.text = convertidor.formatoMiles(
+        Conversiones.celsiusToFahrenheit(celsius),
+        2,
+      );
+    } else {
+      _errorFahrenheitController.clear();
+    }
+    setState(() => _editingCelsius = false);
+  }
+
+  void _onFahrenheitErrorChanged(String value) {
+    if (_editingCelsius) return; // evita recursividad
+    setState(() => _editingFahrenheit = true);
+    if (value.isNotEmpty) {
+      double fahrenheit = double.tryParse(value) ?? 0;
+      _errorCelsiusController.text = convertidor.formatoMiles(
+        Conversiones.fahrenheitToCelsius(fahrenheit),
+        2,
+      );
+    } else {
+      _errorCelsiusController.clear();
+    }
+    setState(() => _editingFahrenheit = false);
+  }
+
+  void _onCelsiusIncertidumbreChanged(String value) {
+    if (_editingFahrenheit) return; // evita recursividad
+    setState(() => _editingCelsius = true);
+    if (value.isNotEmpty) {
+      double celsius = double.tryParse(value) ?? 0;
+      _incertidumbreFahrenheitController.text = convertidor.formatoMiles(
+        Conversiones.celsiusToFahrenheit(celsius),
+        2,
+      );
+    } else {
+      _incertidumbreFahrenheitController.clear();
+    }
+    setState(() => _editingCelsius = false);
+  }
+
+  void _onFahrenheitIncertidumbreChanged(String value) {
+    if (_editingCelsius) return; // evita recursividad
+    setState(() => _editingFahrenheit = true);
+    if (value.isNotEmpty) {
+      double fahrenheit = double.tryParse(value) ?? 0;
+      _incertidumbreCelsiusController.text = convertidor.formatoMiles(
+        Conversiones.fahrenheitToCelsius(fahrenheit),
+        2,
+      );
+    } else {
+      _incertidumbreCelsiusController.clear();
     }
     setState(() => _editingFahrenheit = false);
   }
@@ -688,7 +836,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                       ),
                     ),
                     SizedBox(height: 20),
-                    _seccionCorridas(context),
+                    _buildSeccionPorTipoSensor(context),
                     SizedBox(height: 20),
                     _seccionExtras(context),
                   ],
@@ -833,6 +981,52 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     FocusScope.of(context).requestFocus(_focusNodeCaudal);
   }
 
+  void _agregarCorridaTemperatura() {
+    if (!_keySeccionTemperatura.currentState!.validate()) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      mensajes.info(context, 'Se  agregó una corrida de temperatura'),
+    );
+    _corridaActualTemperatura = CorridaTemperatura(
+      _listaCorridasTemperatura.length + 1,
+      double.tryParse(_patronCelsiusController.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_patronFahrenheitController.text.replaceAll(',', '')) ??
+          0,
+      double.tryParse(_ibcCelsiusController.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_ibcFahrenheitController.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_errorCelsiusController.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_errorFahrenheitController.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(
+            _incertidumbreCelsiusController.text.replaceAll(',', ''),
+          ) ??
+          0,
+      double.tryParse(
+            _incertidumbreFahrenheitController.text.replaceAll(',', ''),
+          ) ??
+          0,
+      0,
+    );
+
+    setState(() {
+      if (editandoCorridaTemperatura &&
+          indiceCorridaEditandoTemperatura != -1) {
+        // Si estamos editando, reemplazamos la corrida en el índice correspondiente
+        _corridasRegistradasTemperatura[indiceCorridaEditandoTemperatura] =
+            _corridaActualTemperatura;
+        _listaCorridasTemperatura[indiceCorridaEditandoTemperatura] =
+            _corridaActualTemperatura;
+        editandoCorridaTemperatura = false;
+        indiceCorridaEditandoTemperatura = -1;
+      } else {
+        _listaCorridasTemperatura.add(_corridaActualTemperatura);
+        _corridasRegistradasTemperatura.add(_corridaActualTemperatura);
+      }
+    });
+    // dar focus después de limpiar
+    FocusScope.of(context).requestFocus(_focusNodeTemperatura);
+  }
+
   void _limpiaCorrida() {
     setState(() {
       _caudalM3Controller.clear();
@@ -850,6 +1044,21 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     });
 
     FocusScope.of(context).requestFocus(_focusNodeCaudal);
+  }
+
+  void _limpiaCorridaTemperatura() {
+    setState(() {
+      _patronCelsiusController.clear();
+      _patronFahrenheitController.clear();
+      _ibcCelsiusController.clear();
+      _ibcFahrenheitController.clear();
+      _errorCelsiusController.clear();
+      _errorFahrenheitController.clear();
+      _incertidumbreCelsiusController.clear();
+      _incertidumbreFahrenheitController.clear();
+    });
+
+    FocusScope.of(context).requestFocus(_focusNodeTemperatura);
   }
 
   InputDecoration _inputDecoration(String label) =>
@@ -2028,11 +2237,616 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     );
   }
 
+  Widget _seccionTemperatura(BuildContext context) {
+    final theme = Theme.of(context);
+    return Form(
+      key: _keySeccionTemperatura,
+      child: Container(
+        decoration: cajaFormulario.boxDecoration(context),
+        child: Padding(
+          padding: EdgeInsets.all(30),
+          child: Column(
+            children: <Widget>[
+              SizedBox(height: 15),
+              Container(
+                padding: EdgeInsets.all(10),
+                child: Center(
+                  child: Row(
+                    children: [
+                      Text(
+                        "Temperatura",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      _iconoAyudaSeccion(
+                        context,
+                        'Llena los campos adicionales de temperatura si aplica.',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Lectura Patrón (°C)",
+                            validatorText: 'Favor de escribir el caudal',
+                            controllerText: _patronCelsiusController,
+                            focusNode: _focusNodeTemperatura,
+                            onChanged: _onCelsiusPatronChanged,
+                            decimales: 2,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Lectura Patrón (°F)",
+                            validatorText: 'Favor de escribir el caudal',
+                            controllerText: _patronFahrenheitController,
+                            onChanged: _onFahrenheitPatronChanged,
+                            decimales: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Lectura IBC (°C)",
+                            validatorText: 'Favor de escribir la temperatura',
+                            controllerText: _ibcCelsiusController,
+                            onChanged: _onCelsiusIBCChanged,
+                            decimales: 2,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Lectura IBC (°F)",
+                            validatorText: 'Favor de escribir la temperatura',
+                            controllerText: _ibcFahrenheitController,
+                            onChanged: _onFahrenheitIBCChanged,
+                            decimales: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Error de medida (°C )",
+                            validatorText: '',
+                            controllerText: _errorCelsiusController,
+                            onChanged: _onCelsiusErrorChanged,
+                            decimales: 2,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Error de medida (°F )",
+                            validatorText: '',
+                            controllerText: _errorFahrenheitController,
+                            onChanged: _onFahrenheitErrorChanged,
+                            decimales: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Incertidumbre (°C )",
+                            validatorText: '',
+                            controllerText: _incertidumbreCelsiusController,
+                            onChanged: _onCelsiusIncertidumbreChanged,
+                            decimales: 2,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Incertidumbre (°F )",
+                            validatorText: '',
+                            controllerText: _incertidumbreFahrenheitController,
+                            onChanged: _onFahrenheitIncertidumbreChanged,
+                            decimales: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Table(
+                      border: TableBorder.symmetric(
+                        inside: const BorderSide(color: Colors.black, width: 1),
+                        outside: const BorderSide(
+                          color: Colors.black,
+                          width: 2,
+                        ),
+                      ),
+                      children: [
+                        TableRow(
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.tertiary,
+                          ),
+                          children: [
+                            tablaCalibracion.cabeceraTabla(
+                              context,
+                              'L. Patrón',
+                            ),
+                            tablaCalibracion.cabeceraTabla(
+                              context,
+                              'L. Patrón',
+                            ),
+                            tablaCalibracion.cabeceraTabla(context, 'L. IBC'),
+                            tablaCalibracion.cabeceraTabla(context, 'L. IBC'),
+                            tablaCalibracion.cabeceraTabla(context, 'Error'),
+                            tablaCalibracion.cabeceraTabla(context, 'Error'),
+                            tablaCalibracion.cabeceraTabla(
+                              context,
+                              'Incertidumbre',
+                            ),
+                            tablaCalibracion.cabeceraTabla(
+                              context,
+                              'Incertidumbre',
+                            ),
+                            tablaCalibracion.cabeceraTabla(context, 'Editar'),
+                            tablaCalibracion.cabeceraTabla(context, 'Borrar'),
+                          ],
+                        ),
+                        TableRow(
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.tertiary,
+                          ),
+                          children: [
+                            tablaCalibracion.cabeceraTabla(context, '°C'),
+                            tablaCalibracion.cabeceraTabla(context, '°F'),
+                            tablaCalibracion.cabeceraTabla(context, '°C'),
+                            tablaCalibracion.cabeceraTabla(context, '°F'),
+                            tablaCalibracion.cabeceraTabla(context, '°C'),
+                            tablaCalibracion.cabeceraTabla(context, '°F'),
+                            tablaCalibracion.cabeceraTabla(context, '°C'),
+                            tablaCalibracion.cabeceraTabla(context, '°F'),
+                            tablaCalibracion.cabeceraTabla(context, ''),
+                            tablaCalibracion.cabeceraTabla(context, ''),
+                          ],
+                        ),
+                        ...(_corridasRegistradasTemperatura.isNotEmpty
+                            ? _corridasRegistradasTemperatura
+                                  .map(
+                                    (corrida) => TableRow(
+                                      decoration: BoxDecoration(
+                                        color:
+                                            theme.colorScheme.tertiaryContainer,
+                                      ),
+                                      children: [
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.patronCelsius,
+                                            2,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.patronFahrenheit,
+                                            2,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.ibcCelsius,
+                                            2,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.ibcFahrenheit,
+                                            2,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.errorCelsius,
+                                            2,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.errorFahrenheit,
+                                            2,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.incertidumbreCelsius,
+                                            2,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            corrida.incertidumbreFahrenheit,
+                                            2,
+                                          ),
+                                        ),
+                                        tablaCalibracion.editarFilaTabla(context, () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              // This is an alert dialog that asks for confirmation to delete something.
+                                              return AlertDialog(
+                                                title: Text(
+                                                  "¿Quieres editar esta corrida de temperatura?",
+                                                ),
+                                                content: SingleChildScrollView(
+                                                  child: ListBody(
+                                                    children: <Widget>[
+                                                      Text(
+                                                        'Se cargaran los datos de la corrida de temperatura en los campos de entrada para su edición',
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                actions: [
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop(
+                                                        false,
+                                                      ); // Return false if cancelled
+                                                    },
+                                                    child: Text("Cancelar"),
+                                                  ),
+                                                  ElevatedButton(
+                                                    style: ButtonStyle(
+                                                      backgroundColor:
+                                                          WidgetStateProperty.all(
+                                                            theme
+                                                                .colorScheme
+                                                                .secondary,
+                                                          ),
+                                                    ),
+                                                    onPressed: () async {
+                                                      // Call a function that deletes the data when confirmed.
+                                                      setState(() {
+                                                        int
+                                                        index = _corridasRegistradasTemperatura
+                                                            .indexWhere(
+                                                              (c) =>
+                                                                  c.idCorrida ==
+                                                                  corrida
+                                                                      .idCorrida,
+                                                            );
+                                                        _corridaActualTemperatura =
+                                                            _corridasRegistradasTemperatura[index];
+                                                        _patronCelsiusController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActualTemperatura
+                                                                  .patronCelsius,
+                                                              2,
+                                                            );
+                                                        _patronFahrenheitController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActualTemperatura
+                                                                  .patronFahrenheit,
+                                                              2,
+                                                            );
+                                                        _ibcCelsiusController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActualTemperatura
+                                                                  .ibcCelsius,
+                                                              2,
+                                                            );
+                                                        _ibcFahrenheitController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _corridaActualTemperatura
+                                                                  .ibcFahrenheit,
+                                                              2,
+                                                            );
+                                                        editandoCorridaTemperatura =
+                                                            true;
+                                                        indiceCorridaEditandoTemperatura =
+                                                            index;
+                                                      });
+
+                                                      Navigator.of(
+                                                        context,
+                                                      ).pop(true);
+                                                    },
+                                                    child: Text(
+                                                      "Editar",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        }),
+                                        tablaCalibracion.borraFilaTabla(context, () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              // This is an alert dialog that asks for confirmation to delete something.
+                                              return AlertDialog(
+                                                title: Text(
+                                                  "¿Quieres quitar esta medición?",
+                                                ),
+                                                content: SingleChildScrollView(
+                                                  child: ListBody(
+                                                    children: <Widget>[
+                                                      Text(
+                                                        'Quitarás la medición de la tabla y del cálculo',
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                actions: [
+                                                  ElevatedButton(
+                                                    style: ButtonStyle(
+                                                      backgroundColor:
+                                                          WidgetStateProperty.all(
+                                                            theme
+                                                                .colorScheme
+                                                                .primary,
+                                                          ),
+                                                    ),
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop(
+                                                        false,
+                                                      ); // Return false if cancelled
+                                                    },
+                                                    child: Text("Cancelar"),
+                                                  ),
+                                                  ElevatedButton(
+                                                    style: ButtonStyle(
+                                                      backgroundColor:
+                                                          WidgetStateProperty.all(
+                                                            theme
+                                                                .colorScheme
+                                                                .secondary,
+                                                          ),
+                                                    ),
+                                                    onPressed: () async {
+                                                      // Call a function that deletes the data when confirmed.
+                                                      setState(() {
+                                                        int
+                                                        index = _corridasRegistradasTemperatura
+                                                            .indexWhere(
+                                                              (c) =>
+                                                                  c.idCorrida ==
+                                                                  corrida
+                                                                      .idCorrida,
+                                                            );
+                                                        _corridasRegistradasTemperatura
+                                                            .removeWhere(
+                                                              (c) =>
+                                                                  c.idCorrida ==
+                                                                  corrida
+                                                                      .idCorrida,
+                                                            );
+                                                        _listaCorridasTemperatura
+                                                            .removeAt(index);
+                                                      });
+
+                                                      Navigator.of(
+                                                        context,
+                                                      ).pop(true);
+                                                    },
+                                                    child: Text(
+                                                      "Quitar",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        }),
+                                      ],
+                                    ),
+                                  )
+                                  .toList()
+                            : [
+                                TableRow(
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.tertiaryContainer,
+                                  ),
+                                  children: List.generate(
+                                    10,
+                                    (index) => Padding(
+                                      padding: EdgeInsets.all(2.0),
+                                      child: Text(''),
+                                    ),
+                                  ),
+                                ),
+                              ]),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Center(
+                child: editandoCorridaTemperatura
+                    ? ElevatedButton(
+                        onPressed: _agregarCorridaTemperatura,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.secondary,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onSecondary,
+                        ),
+                        child: const Text('Agregar edición'),
+                      )
+                    : ElevatedButton(
+                        onPressed: _agregarCorridaTemperatura,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.secondary,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onSecondary,
+                        ),
+                        child: const Text('Agregar corrida'),
+                      ),
+              ),
+              SizedBox(height: 10),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _limpiaCorridaTemperatura,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  child: const Text('Limpiar corrida'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _seccionPresion(BuildContext context) {
+    final theme = Theme.of(context);
+    return Form(
+      key: _keySeccionPresion,
+      child: Container(
+        decoration: cajaFormulario.boxDecoration(context),
+        child: Padding(
+          padding: EdgeInsets.all(30),
+          child: Column(
+            children: <Widget>[
+              SizedBox(height: 15),
+              Container(
+                padding: EdgeInsets.all(10),
+                child: Center(
+                  child: Row(
+                    children: [
+                      Text(
+                        "Presión",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      _iconoAyudaSeccion(
+                        context,
+                        'Llena los campos adicionales de presión si aplica.',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText:
+                                "Condición de referencia kg/m³ antes calibración",
+                            validatorText:
+                                'Favor de escribir la condición de referencia',
+                            controllerText: _linealidadController,
+                            decimales: 3,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText:
+                                "Condición de referencia kg/m³ después calibración",
+                            validatorText:
+                                'Favor de escribir la condición de referencia',
+                            controllerText: _linealidadController,
+                            decimales: 3,
+                          ),
+                        ),
+                      ],
+                    ),
+                    _buildTextFormField(
+                      context,
+                      hintText: "Diferencia de densidad (kg/m³)",
+                      validatorText:
+                          'Favor de escribir la diferencia de densidad',
+                      controllerText: _observacionesController,
+                      decimales: 0,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _guardarCalibracion,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                  ),
+                  child: Text('Registrar'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _seccionDensimetro(BuildContext context) {
     final theme = Theme.of(context);
     return Form(
-      key: _keySeccionExtras,
+      key: _keySeccionDensimetro,
       child: Container(
         decoration: cajaFormulario.boxDecoration(context),
         child: Padding(
@@ -2073,8 +2887,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText: "Condición de referencia kg/m³ antes calibración",
-                            validatorText: 'Favor de escribir la condición de referencia',
+                            hintText:
+                                "Condición de referencia kg/m³ antes calibración",
+                            validatorText:
+                                'Favor de escribir la condición de referencia',
                             controllerText: _linealidadController,
                             decimales: 3,
                           ),
@@ -2083,18 +2899,21 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText: "Condición de referencia kg/m³ después calibración",
-                            validatorText: 'Favor de escribir la condición de referencia',
+                            hintText:
+                                "Condición de referencia kg/m³ después calibración",
+                            validatorText:
+                                'Favor de escribir la condición de referencia',
                             controllerText: _linealidadController,
                             decimales: 3,
                           ),
-                        )
+                        ),
                       ],
                     ),
                     _buildTextFormField(
                       context,
                       hintText: "Diferencia de densidad (kg/m³)",
-                      validatorText: 'Favor de escribir la diferencia de densidad',
+                      validatorText:
+                          'Favor de escribir la diferencia de densidad',
                       controllerText: _observacionesController,
                       decimales: 0,
                     ),
@@ -2117,5 +2936,25 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         ),
       ),
     );
+  }
+
+  Widget _buildSeccionPorTipoSensor(BuildContext context) {
+    if (equipoSeleccionado == null) {
+      return const SizedBox.shrink();
+    }
+
+    // Se chequea el tipo de sensor:
+    if (equipoSeleccionado!.idTipoSensor == '1') {
+      return _seccionCorridas(context);
+    } else if (equipoSeleccionado!.idTipoSensor == '2') {
+      return _seccionTemperatura(context);
+    } else if (equipoSeleccionado!.idTipoSensor == '3') {
+      return _seccionPresion(context);
+    } else if (equipoSeleccionado!.idTipoSensor == '4') {
+      return _seccionDensimetro(context);
+    } else {
+      // Si no coincide con ninguno
+      return const SizedBox.shrink();
+    }
   }
 }
