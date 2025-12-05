@@ -1,9 +1,28 @@
 import 'package:calibraciones/models/_corrida.dart';
+import 'package:calibraciones/models/_lectura_temperatura.dart';
 import 'package:calibraciones/models/_producto.dart';
 import 'package:calibraciones/services/corridas_service.dart';
 import 'package:calibraciones/services/producto_service.dart';
 import 'package:calibraciones/services/implementation/corrida_service_impl.dart';
 import 'package:calibraciones/services/implementation/producto_service_impl.dart';
+
+// 1. Clase Base (abstracta)
+abstract class DatosPorEquipo {
+  // Puedes dejarla vacía si solo funciona como contrato
+}
+
+// 2. Clases Derivadas
+class DatosCalibracionFlujo extends DatosPorEquipo {
+  // Asumiendo que Corrida ya existe
+  late List<Corrida> corridas;
+  DatosCalibracionFlujo(this.corridas);
+}
+
+class DatosCalibracionTemperatura extends DatosPorEquipo {
+  // La lista de lecturas es el dato específico de la calibración de temperatura
+  late List<LecturaTemperatura> lecturas;
+  DatosCalibracionTemperatura(this.lecturas);
+}
 
 class CalibracionEquipo {
   late int idCalibracionEquipo;
@@ -14,12 +33,14 @@ class CalibracionEquipo {
   late double reproducibilidad;
   late String observaciones;
   late String rutaCertificado;
-  late List<Corrida> corridas;
   //Referencias a otros objetos
   late String tagEquipo;
   late int idLaboratorioCalibracion;
   late int idUsuario;
   late Producto producto;
+
+  //Para cada tipo
+  late DatosPorEquipo datosEspecificos;
 
   CalibracionEquipo(
     this.idCalibracionEquipo,
@@ -30,11 +51,11 @@ class CalibracionEquipo {
     this.reproducibilidad,
     this.observaciones,
     this.rutaCertificado,
-    this.corridas,
     this.tagEquipo,
     this.idLaboratorioCalibracion,
     this.idUsuario,
     this.producto,
+    this.datosEspecificos,
   );
 
   //Otro constructor sin corridas
@@ -60,7 +81,7 @@ class CalibracionEquipo {
   double get getReproducibilidad => reproducibilidad;
   String get getObservaciones => observaciones;
   //String get getDocumentoCertificado => documentoCertificado;
-  List<Corrida> getCorridas() => corridas;
+  DatosPorEquipo get getDatosPorEquipo => datosEspecificos;
   String getTagEquipo() => tagEquipo;
   Producto getProducto() => producto;
 
@@ -96,8 +117,8 @@ class CalibracionEquipo {
     rutaCertificado = value;
   }
 
-  set setCorridas(List<Corrida> value) {
-    corridas = value;
+  set setDatosEspecificos(DatosPorEquipo value) {
+    datosEspecificos = value;
   }
 
   set setTagEquipo(String value) {
@@ -132,7 +153,7 @@ class CalibracionEquipo {
     );
   }
 
-  static Future<CalibracionEquipo> fromJsonAsync(
+  static Future<CalibracionEquipo> fromJsonFlujoAsync(
     Map<String, dynamic> calibracionJson,
   ) async {
     List<Corrida> corridas = [];
@@ -162,11 +183,11 @@ class CalibracionEquipo {
       (calibracionJson['reproducibilidad'] as num).toDouble(),
       calibracionJson['observaciones'] as String,
       calibracionJson['ruta_certificado'] as String,
-      corridas,
       calibracionJson['tag_equipo'] as String,
       calibracionJson['id_laboratorio_calibracion'] as int,
       calibracionJson['id_usuario'] as int,
       producto,
+      DatosCalibracionFlujo(corridas)
     );
   }
 

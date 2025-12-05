@@ -1,5 +1,5 @@
-class CorridaTemperatura {
-  late int idCorrida;
+class LecturaTemperatura {
+  late int idLectura;
   late double patronCelsius,
       patronFahrenheit,
       ibcCelsius,
@@ -10,8 +10,8 @@ class CorridaTemperatura {
       incertidumbreFahrenheit;
   late int idCalibracion;
 
-  CorridaTemperatura(
-    this.idCorrida,
+  LecturaTemperatura(
+    this.idLectura,
     this.patronCelsius,
     this.patronFahrenheit,
     this.ibcCelsius,
@@ -23,7 +23,7 @@ class CorridaTemperatura {
     this.idCalibracion,
   );
 
-  int get getIdCorrida => idCorrida;
+  int get getIdLectura=> idLectura;
   double get getPatronCelsius => patronCelsius;
   double get getPatronFahrenheit => patronFahrenheit;
   double get getIbcCelsius => ibcCelsius;
@@ -34,8 +34,8 @@ class CorridaTemperatura {
   double get getIncertidumbreFahrenheit => incertidumbreFahrenheit;
   int get getIdCalibracion => idCalibracion;
 
-  set setIdCorrida(int value) {
-    idCorrida = value;
+  set setIdLectura(int value) {
+    idLectura = value;
   }
 
   set setPatronCelsius(double value) {
@@ -74,32 +74,32 @@ class CorridaTemperatura {
     idCalibracion = value;
   }
 
-  factory CorridaTemperatura.fromJson(Map<String, dynamic> corridaJson) {
-    return CorridaTemperatura(
-      corridaJson['id_corrida'],
-      corridaJson['patron_celsius'],
-      corridaJson['patron_fahrenheit'],
-      corridaJson['ibc_celsius'],
-      corridaJson['ibc_fahrenheit'],
-      corridaJson['error_celsius'],
-      corridaJson['error_fahrenheit'],
-      corridaJson['incertidumbre_celsius'],
-      corridaJson['incertidumbre_fahrenheit'],
+  factory LecturaTemperatura.fromJson(Map<String, dynamic> corridaJson) {
+    return LecturaTemperatura(
+      corridaJson['id_lectura'],
+      corridaJson['patron_c'],
+      corridaJson['patron_f'],
+      corridaJson['ibc_c'],
+      corridaJson['ibc_f'],
+      corridaJson['error_c'],
+      corridaJson['error_f'],
+      corridaJson['incertidumbre_c'],
+      corridaJson['incertidumbre_f'],
       corridaJson['id_calibracion'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      //'id_corrida': idCorrida,
-      'patron_celsius': patronCelsius,
-      'patron_fahrenheit': patronFahrenheit,
-      'ibc_celsius': ibcCelsius,
-      'ibc_fahrenheit': ibcFahrenheit,
-      'error_celsius': errorCelsius,
-      'error_fahrenheit': errorFahrenheit,
-      'incertidumbre_celsius': incertidumbreCelsius,
-      'incertidumbre_fahrenheit': incertidumbreFahrenheit,
+      //'id_lectura': idCorrida,
+      'patron_c': patronCelsius,
+      'patron_f': patronFahrenheit,
+      'ibc_c': ibcCelsius,
+      'ibc_f': ibcFahrenheit,
+      'error_c': errorCelsius,
+      'error_f': errorFahrenheit,
+      'incertidumbre_c': incertidumbreCelsius,
+      'incertidumbre_f': incertidumbreFahrenheit,
       'id_calibracion': idCalibracion,
     };
   }

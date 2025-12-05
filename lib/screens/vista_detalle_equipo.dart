@@ -557,10 +557,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
       if (calibracionesVisibles[id] == true) {
         // 2. Mapeo: Convertir la lista de Corridas a una lista de FlSpot
         List<FlSpot> spots = [];
-
+        final datosFlujo = calibracion as DatosCalibracionFlujo;
         // Usamos el index (i) para el Eje X
-        for (int i = 0; i < calibracion.corridas.length; i++) {
-          final corrida = calibracion.corridas[i];
+        for (int i = 0; i < datosFlujo.corridas.length; i++) {
+          final corrida = datosFlujo.corridas[i];
 
           // Eje X: i + 1 (para que las corridas empiecen en el punto 1, no 0)
           // Eje Y: el valor de caudalM3Hr

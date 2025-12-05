@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:calibraciones/models/_calibracion_equipo.dart';
 import 'package:calibraciones/models/_corrida.dart';
+import 'package:calibraciones/models/_lectura_temperatura.dart';
 import 'package:calibraciones/services/calibracion_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -42,10 +43,23 @@ class CalibracionServiceImpl implements CalibracionService {
     //Busca id de calibracion
     int idCalibracionEquipo = response[0]['id_calibracion'];
 
-    List<Corrida> corridas = calibracionEquipo.getCorridas();
-    for (var corrida in corridas) {
-      corrida.setIdCalibracion = idCalibracionEquipo;
-      await supabase.from('corrida').insert(corrida.toJson());
+    if (calibracionEquipo.datosEspecificos is DatosCalibracionFlujo) {
+      final datosDeFlujo = calibracionEquipo.datosEspecificos as DatosCalibracionFlujo;
+
+      List<Corrida> corridas = datosDeFlujo.corridas;
+      for (var corrida in corridas) {
+        corrida.setIdCalibracion = idCalibracionEquipo;
+        await supabase.from('corrida').insert(corrida.toJson());
+      }
+    } else if (calibracionEquipo.datosEspecificos is DatosCalibracionTemperatura) {
+      final datosDeTemperatura =
+          calibracionEquipo.datosEspecificos as DatosCalibracionTemperatura;
+
+      List<LecturaTemperatura> lecturas = datosDeTemperatura.lecturas;
+      for (var lectura in lecturas) {
+        lectura.setIdCalibracion = idCalibracionEquipo;
+        await supabase.from('lectura_temperatura').insert(lectura.toJson());
+      }
     }
 
     await supabase.storage
@@ -77,7 +91,7 @@ class CalibracionServiceImpl implements CalibracionService {
 
       return await Future.wait(
         response.map<Future<CalibracionEquipo>>((calibracionJson) async {
-          return await CalibracionEquipo.fromJsonAsync(calibracionJson);
+          return await CalibracionEquipo.fromJsonFlujoAsync(calibracionJson);
         }).toList(),
       );
     } catch (e) {
@@ -98,7 +112,7 @@ class CalibracionServiceImpl implements CalibracionService {
 
       return await Future.wait(
         response.map<Future<CalibracionEquipo>>((calibracionJson) async {
-          return await CalibracionEquipo.fromJsonAsync(calibracionJson);
+          return await CalibracionEquipo.fromJsonFlujoAsync(calibracionJson);
         }).toList(),
       );
     } catch (e) {

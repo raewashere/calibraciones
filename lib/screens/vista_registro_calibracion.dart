@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:calibraciones/common/barrel/models.dart';
 import 'package:calibraciones/common/components/components.dart';
 import 'package:calibraciones/common/barrel/services.dart';
-import 'package:calibraciones/models/_corrida_temperatura.dart';
+import 'package:calibraciones/models/_lectura_temperatura.dart';
 import 'package:calibraciones/models/_producto.dart';
 import 'package:calibraciones/services/data_service.dart';
 import 'package:calibraciones/services/implementation/producto_service_impl.dart';
@@ -91,9 +91,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   late Corrida _corridaActual;
   late final List<Corrida> _corridasRegistradas = [];
 
-  final List _listaCorridasTemperatura = [];
-  late CorridaTemperatura _corridaActualTemperatura;
-  late final List<CorridaTemperatura> _corridasRegistradasTemperatura = [];
+  final List _listaLecturasTemperatura = [];
+  late LecturaTemperatura _lecturaActualTemperatura;
+  late final List<LecturaTemperatura> _lecturasRegistradasTemperatura = [];
 
   late CalibracionEquipo _calibracionEquipo;
 
@@ -103,51 +103,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   late Uint8List? fileBytes;
 
   bool editandoCorrida = false;
-  bool editandoCorridaTemperatura = false;
+  bool editandoLecturaTemperatura = false;
   int indiceCorridaEditando = -1;
   int indiceCorridaEditandoTemperatura = -1;
-
-  Future<void> _seleccionarFecha(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000), // fecha mínima
-      lastDate: DateTime(2100), // fecha máxima
-      locale: Locale("es", "ES"), // idioma español
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Theme.of(
-                context,
-              ).colorScheme.primary, // Color del encabezado y selección
-              onPrimary: Theme.of(
-                context,
-              ).colorScheme.onPrimary, // Texto en el encabezado
-              onSurface: Theme.of(
-                context,
-              ).colorScheme.onSurface, // Texto de días
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null) {
-      setState(() {
-        _fechaController.text = formato.format(picked);
-        selectedFecha = picked;
-        selectedFechaProxima = picked.add(
-          Duration(
-            days: equipoSeleccionado != null
-                ? equipoSeleccionado!.intervaloCalibracion
-                : 0,
-          ),
-        );
-        _fechaProximaController.text = formato.format(selectedFechaProxima);
-      });
-    }
-  }
 
   final FocusNode _focusNodeCaudal = FocusNode();
   final FocusNode _focusNodeTemperatura = FocusNode();
@@ -203,6 +161,49 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   static const double factorPulsos = 0.158987; // bbl → m³
 
   static const double factorPresion = 14.22334; // PSI → kg/cm²
+
+  Future<void> _seleccionarFecha(BuildContext context) async {
+    final theme = Theme.of(context);
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000), // fecha mínima
+      lastDate: DateTime(2100), // fecha máxima
+      locale: Locale("es", "ES"), // idioma español
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: theme.copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Theme.of(
+                context,
+              ).colorScheme.primary, // Color del encabezado y selección
+              onPrimary: Theme.of(
+                context,
+              ).colorScheme.onPrimary, // Texto en el encabezado
+              onSurface: Theme.of(
+                context,
+              ).colorScheme.onSurface, // Texto de días
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _fechaController.text = formato.format(picked);
+        selectedFecha = picked;
+        selectedFechaProxima = picked.add(
+          Duration(
+            days: equipoSeleccionado != null
+                ? equipoSeleccionado!.intervaloCalibracion
+                : 0,
+          ),
+        );
+        _fechaProximaController.text = formato.format(selectedFechaProxima);
+      });
+    }
+  }
 
   void _onCaudalM3Changed(String value) {
     if (_editingBbl) return; // evita recursividad
@@ -355,33 +356,35 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void _onCelsiusPatronChanged(String value) {
+    double celsius = double.tryParse(value) ?? 0;
     if (_editingFahrenheit) return; // evita recursividad
     setState(() => _editingCelsius = true);
     if (value.isNotEmpty) {
-      double celsius = double.tryParse(value) ?? 0;
       _patronFahrenheitController.text = convertidor.formatoMiles(
         Conversiones.celsiusToFahrenheit(celsius),
-        2,
+        3,
       );
     } else {
       _patronFahrenheitController.clear();
     }
     setState(() => _editingCelsius = false);
+    calcularErrorMedida();
   }
 
   void _onFahrenheitPatronChanged(String value) {
+    double fahrenheit = double.tryParse(value) ?? 0;
     if (_editingCelsius) return; // evita recursividad
     setState(() => _editingFahrenheit = true);
     if (value.isNotEmpty) {
-      double fahrenheit = double.tryParse(value) ?? 0;
       _patronCelsiusController.text = convertidor.formatoMiles(
         Conversiones.fahrenheitToCelsius(fahrenheit),
-        2,
+        3,
       );
     } else {
       _patronCelsiusController.clear();
     }
     setState(() => _editingFahrenheit = false);
+    calcularErrorMedida();
   }
 
   void _onCelsiusIBCChanged(String value) {
@@ -391,12 +394,13 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       double celsius = double.tryParse(value) ?? 0;
       _ibcFahrenheitController.text = convertidor.formatoMiles(
         Conversiones.celsiusToFahrenheit(celsius),
-        2,
+        3,
       );
     } else {
       _ibcFahrenheitController.clear();
     }
     setState(() => _editingCelsius = false);
+    calcularErrorMedida();
   }
 
   void _onFahrenheitIBCChanged(String value) {
@@ -406,42 +410,13 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       double fahrenheit = double.tryParse(value) ?? 0;
       _ibcCelsiusController.text = convertidor.formatoMiles(
         Conversiones.fahrenheitToCelsius(fahrenheit),
-        2,
+        3,
       );
     } else {
       _ibcCelsiusController.clear();
     }
     setState(() => _editingFahrenheit = false);
-  }
-
-  void _onCelsiusErrorChanged(String value) {
-    if (_editingFahrenheit) return; // evita recursividad
-    setState(() => _editingCelsius = true);
-    if (value.isNotEmpty) {
-      double celsius = double.tryParse(value) ?? 0;
-      _errorFahrenheitController.text = convertidor.formatoMiles(
-        Conversiones.celsiusToFahrenheit(celsius),
-        2,
-      );
-    } else {
-      _errorFahrenheitController.clear();
-    }
-    setState(() => _editingCelsius = false);
-  }
-
-  void _onFahrenheitErrorChanged(String value) {
-    if (_editingCelsius) return; // evita recursividad
-    setState(() => _editingFahrenheit = true);
-    if (value.isNotEmpty) {
-      double fahrenheit = double.tryParse(value) ?? 0;
-      _errorCelsiusController.text = convertidor.formatoMiles(
-        Conversiones.fahrenheitToCelsius(fahrenheit),
-        2,
-      );
-    } else {
-      _errorCelsiusController.clear();
-    }
-    setState(() => _editingFahrenheit = false);
+    calcularErrorMedida();
   }
 
   void _onCelsiusIncertidumbreChanged(String value) {
@@ -451,7 +426,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       double celsius = double.tryParse(value) ?? 0;
       _incertidumbreFahrenheitController.text = convertidor.formatoMiles(
         Conversiones.celsiusToFahrenheit(celsius),
-        2,
+        3,
       );
     } else {
       _incertidumbreFahrenheitController.clear();
@@ -466,12 +441,29 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       double fahrenheit = double.tryParse(value) ?? 0;
       _incertidumbreCelsiusController.text = convertidor.formatoMiles(
         Conversiones.fahrenheitToCelsius(fahrenheit),
-        2,
+        3,
       );
     } else {
       _incertidumbreCelsiusController.clear();
     }
     setState(() => _editingFahrenheit = false);
+  }
+
+  void calcularErrorMedida() {
+    double celsiusPatron = double.tryParse(_patronCelsiusController.text) ?? 0;
+    double celsiusIBC = double.tryParse(_ibcCelsiusController.text) ?? 0;
+    double errorCelsius = (celsiusPatron - celsiusIBC);
+
+    double fahrenheitPatron =
+        double.tryParse(_patronFahrenheitController.text) ?? 0;
+    double fahrenheitIBC = double.tryParse(_ibcFahrenheitController.text) ?? 0;
+    double errorFahrenheit = (fahrenheitPatron - fahrenheitIBC);
+
+    _errorCelsiusController.text = convertidor.formatoMiles(errorCelsius, 3);
+    _errorFahrenheitController.text = convertidor.formatoMiles(
+      errorFahrenheit,
+      3,
+    );
   }
 
   bool validarEmail(String email) {
@@ -518,7 +510,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                           padding: EdgeInsets.all(30),
                           child: Column(
                             children: <Widget>[
-                              SizedBox(height: 15),
                               Container(
                                 padding: EdgeInsets.all(10),
                                 child: Center(
@@ -713,7 +704,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                           padding: EdgeInsets.all(30),
                           child: Column(
                             children: <Widget>[
-                              SizedBox(height: 15),
                               Container(
                                 padding: EdgeInsets.all(10),
                                 child: Center(
@@ -838,7 +828,23 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                     SizedBox(height: 20),
                     _buildSeccionPorTipoSensor(context),
                     SizedBox(height: 20),
-                    _seccionExtras(context),
+                    _buildSeccionExtras(context),
+                    SizedBox(height: 20),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: _guardarCalibracion,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.secondary,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onSecondary,
+                        ),
+                        child: Text('Registrar'),
+                      ),
+                    ),
+                    SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -850,82 +856,121 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }
 
   void _guardarCalibracion() async {
-    if (_corridasRegistradas.isEmpty && _corridasRegistradas.length < 5) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        mensajes.error(context, 'Debe registrar al menos 5 corridas'),
-      );
-      return;
-    } else {
-      if (!_keySeccionEquipo.currentState!.validate() &&
-          !_keySeccionDatosCalibracion.currentState!.validate() &&
-          !_keySeccionExtras.currentState!.validate()) {
+    bool exito = false;
+    if (equipoSeleccionado?.getIdTipoSensor.toString() == '1') {
+      if (_corridasRegistradas.isEmpty && _corridasRegistradas.length < 1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          mensajes.error(context, 'Debe registrar al menos 5 corridas'),
+        );
         return;
-      }
-
-      _calibracionEquipo = CalibracionEquipo(
-        0,
-        _certificadoController.text,
-        selectedFecha,
-        selectedFechaProxima,
-        double.tryParse(_linealidadController.text) ?? 0,
-        double.tryParse(_reproducibilidadController.text) ?? 0,
-        _observacionesController.text,
-        '', // ruta certificado
-        _corridasRegistradas,
-        equipoSeleccionado!.getTagEquipo,
-        laboratorioSeleccionado!.getIdLaboratorioCalibracion,
-        0,
-        productoSeleccionado!,
-      );
-
-      bool exito = await calibracionService.registrarCalibracionEquipo(
-        direccionSeleccionada!.nombre,
-        subdireccionSeleccionada!.nombre,
-        gerenciaSeleccionada!.nombre,
-        instalacionSeleccionada!.nombreInstalacion,
-        patinMedicionSeleccionado!.getTagPatin,
-        trenMedicionSeleccionado!.tagTren,
-        _calibracionEquipo,
-        fileBytes!,
-      );
-
-      if (exito) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          mensajes.info(context, 'Calibración registrada con éxito'),
-        );
-        //limpiar formulario
-        setState(() {
-          _keySeccionEquipo.currentState!.reset();
-          _keySeccionDatosCalibracion.currentState!.reset();
-          _keySeccionCorridas.currentState!.reset();
-          _keySeccionExtras.currentState!.reset();
-          _laboratorioController.clear();
-          _productoController.clear();
-          _certificadoController.clear();
-          _archivoController.clear();
-          _fechaController.clear();
-          _fechaProximaController.clear();
-          _linealidadController.clear();
-          _reproducibilidadController.clear();
-          _observacionesController.clear();
-          _caudalM3Controller.clear();
-          _caudalBblController.clear();
-          _temperaturaCentigradosController.clear();
-          _presionController.clear();
-          _presionPSIController.clear();
-          _meterFactorController.clear();
-          _kFactorPulsosM3Controller.clear();
-          _kFactorPulsosBblController.clear();
-          _frecuenciaController.clear();
-          _repetibilidadController.clear();
-          _listaCorridas.clear();
-          _corridasRegistradas.clear();
-        });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          mensajes.error(context, 'Error al registrar la calibración'),
+        if (!_keySeccionEquipo.currentState!.validate() &&
+            !_keySeccionDatosCalibracion.currentState!.validate() &&
+            !_keySeccionExtras.currentState!.validate()) {
+          return;
+        }
+
+        final datosDeFlujo = DatosCalibracionFlujo(_corridasRegistradas);
+
+        _calibracionEquipo = CalibracionEquipo(
+          0,
+          _certificadoController.text,
+          selectedFecha,
+          selectedFechaProxima,
+          double.tryParse(_linealidadController.text) ?? 0,
+          double.tryParse(_reproducibilidadController.text) ?? 0,
+          _observacionesController.text,
+          '', // ruta certificado
+          equipoSeleccionado!.getTagEquipo,
+          laboratorioSeleccionado!.getIdLaboratorioCalibracion,
+          0,
+          productoSeleccionado!,
+          datosDeFlujo,
         );
       }
+    } else if (equipoSeleccionado?.getIdTipoSensor.toString() == '2') {
+      if (_lecturasRegistradasTemperatura.isEmpty &&
+          _lecturasRegistradasTemperatura.length < 1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          mensajes.error(context, 'Debe registrar al menos 1 lecturas'),
+        );
+        return;
+      } else {
+        if (!_keySeccionEquipo.currentState!.validate() &&
+            !_keySeccionDatosCalibracion.currentState!.validate()) {
+          return;
+        }
+
+        final datosDeTemperatura = DatosCalibracionTemperatura(
+          _lecturasRegistradasTemperatura,
+        );
+
+        _calibracionEquipo = CalibracionEquipo(
+          0,
+          _certificadoController.text,
+          selectedFecha,
+          selectedFechaProxima,
+          0,
+          0,
+          '',
+          '', // ruta certificado
+          equipoSeleccionado!.getTagEquipo,
+          laboratorioSeleccionado!.getIdLaboratorioCalibracion,
+          0,
+          productoSeleccionado!,
+          datosDeTemperatura,
+        );
+      }
+    } else if (equipoSeleccionado?.getIdTipoSensor.toString() == '3') {
+    } else if (equipoSeleccionado?.getIdTipoSensor.toString() == '4') {}
+
+    exito = await calibracionService.registrarCalibracionEquipo(
+      direccionSeleccionada!.nombre,
+      subdireccionSeleccionada!.nombre,
+      gerenciaSeleccionada!.nombre,
+      instalacionSeleccionada!.nombreInstalacion,
+      patinMedicionSeleccionado!.getTagPatin,
+      trenMedicionSeleccionado!.tagTren,
+      _calibracionEquipo,
+      fileBytes!,
+    );
+
+    if (exito) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        mensajes.info(context, 'Calibración registrada con éxito'),
+      );
+      //limpiar formulario
+      setState(() {
+        _keySeccionEquipo.currentState!.reset();
+        _keySeccionDatosCalibracion.currentState!.reset();
+        _laboratorioController.clear();
+        _productoController.clear();
+        _certificadoController.clear();
+        _archivoController.clear();
+        _fechaController.clear();
+        _fechaProximaController.clear();
+        _linealidadController.clear();
+        _reproducibilidadController.clear();
+        _observacionesController.clear();
+        _caudalM3Controller.clear();
+        _caudalBblController.clear();
+        _temperaturaCentigradosController.clear();
+        _presionController.clear();
+        _presionPSIController.clear();
+        _meterFactorController.clear();
+        _kFactorPulsosM3Controller.clear();
+        _kFactorPulsosBblController.clear();
+        _frecuenciaController.clear();
+        _repetibilidadController.clear();
+        _listaCorridas.clear();
+        _corridasRegistradas.clear();
+        _listaLecturasTemperatura.clear();
+        _lecturasRegistradasTemperatura.clear();
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        mensajes.error(context, 'Error al registrar la calibración'),
+      );
     }
   }
 
@@ -981,15 +1026,15 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     FocusScope.of(context).requestFocus(_focusNodeCaudal);
   }
 
-  void _agregarCorridaTemperatura() {
+  void _agregarLecturaTemperatura() {
     if (!_keySeccionTemperatura.currentState!.validate()) {
       return;
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      mensajes.info(context, 'Se  agregó una corrida de temperatura'),
+      mensajes.info(context, 'Se  agregó una lectura de temperatura'),
     );
-    _corridaActualTemperatura = CorridaTemperatura(
-      _listaCorridasTemperatura.length + 1,
+    _lecturaActualTemperatura = LecturaTemperatura(
+      _listaLecturasTemperatura.length + 1,
       double.tryParse(_patronCelsiusController.text.replaceAll(',', '')) ?? 0,
       double.tryParse(_patronFahrenheitController.text.replaceAll(',', '')) ??
           0,
@@ -1009,21 +1054,22 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     );
 
     setState(() {
-      if (editandoCorridaTemperatura &&
+      if (editandoLecturaTemperatura &&
           indiceCorridaEditandoTemperatura != -1) {
         // Si estamos editando, reemplazamos la corrida en el índice correspondiente
-        _corridasRegistradasTemperatura[indiceCorridaEditandoTemperatura] =
-            _corridaActualTemperatura;
-        _listaCorridasTemperatura[indiceCorridaEditandoTemperatura] =
-            _corridaActualTemperatura;
-        editandoCorridaTemperatura = false;
+        _lecturasRegistradasTemperatura[indiceCorridaEditandoTemperatura] =
+            _lecturaActualTemperatura;
+        _listaLecturasTemperatura[indiceCorridaEditandoTemperatura] =
+            _lecturaActualTemperatura;
+        editandoLecturaTemperatura = false;
         indiceCorridaEditandoTemperatura = -1;
       } else {
-        _listaCorridasTemperatura.add(_corridaActualTemperatura);
-        _corridasRegistradasTemperatura.add(_corridaActualTemperatura);
+        _listaLecturasTemperatura.add(_lecturaActualTemperatura);
+        _lecturasRegistradasTemperatura.add(_lecturaActualTemperatura);
       }
     });
     // dar focus después de limpiar
+    _limpiaLecturaTemperatura();
     FocusScope.of(context).requestFocus(_focusNodeTemperatura);
   }
 
@@ -1046,7 +1092,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     FocusScope.of(context).requestFocus(_focusNodeCaudal);
   }
 
-  void _limpiaCorridaTemperatura() {
+  void _limpiaLecturaTemperatura() {
     setState(() {
       _patronCelsiusController.clear();
       _patronFahrenheitController.clear();
@@ -1073,7 +1119,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     FocusNode? focusNode,
     ValueChanged<String>? onChanged,
     required int decimales,
+    bool? readOnly = false,
   }) {
+    final theme = Theme.of(context);
     return Container(
       padding: EdgeInsets.all(5),
       child: Focus(
@@ -1090,7 +1138,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           focusNode: focusNode,
           controller: controllerText,
           obscureText: obscureText,
-          style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          style: TextStyle(color: theme.colorScheme.primary),
           decoration: _inputDecoration(hintText),
           validator: (value) {
             if (value == null || value.isEmpty) {
@@ -1099,6 +1147,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
             return null;
           },
           onChanged: onChanged,
+          readOnly: readOnly!,
         ),
       ),
     );
@@ -1113,6 +1162,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     FocusNode? focusNode,
     required int tipoFecha,
   }) {
+    final theme = Theme.of(context);
     return Container(
       padding: EdgeInsets.all(5),
       child: TextFormField(
@@ -1120,12 +1170,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         readOnly: true,
         controller: controllerText,
         obscureText: obscureText,
-        style: TextStyle(color: Theme.of(context).colorScheme.primary),
+        style: TextStyle(color: theme.colorScheme.primary),
         decoration: InputDecoration(
           suffixIcon: Icon(Icons.calendar_today),
           hintText: hintText,
           label: Text(hintText),
-          hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
+          hintStyle: TextStyle(color: theme.colorScheme.surface),
           border: const OutlineInputBorder(),
         ),
         onTap: () => tipoFecha == 1 ? _seleccionarFecha(context) : null,
@@ -1147,6 +1197,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required ValueChanged<Direccion?> onChanged,
   }) {
     //future to list
+    final theme = Theme.of(context);
     return FutureBuilder<List<Direccion>>(
       future: items,
       builder: (context, snapshot) {
@@ -1160,7 +1211,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
             isExpanded: true,
             decoration: _inputDecoration(hintText),
             initialValue: value,
-            dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+            dropdownColor: theme.colorScheme.tertiaryContainer,
             items: direcciones.map((Direccion item) {
               return DropdownMenuItem<Direccion>(
                 value: item,
@@ -1187,11 +1238,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required Subdireccion? value,
     required ValueChanged<Subdireccion?> onChanged,
   }) {
+    final theme = Theme.of(context);
     return DropdownButtonFormField<Subdireccion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
-      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      dropdownColor: theme.colorScheme.tertiaryContainer,
       items: items.map((Subdireccion item) {
         return DropdownMenuItem<Subdireccion>(
           value: item,
@@ -1215,11 +1267,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required Gerencia? value,
     required ValueChanged<Gerencia?> onChanged,
   }) {
+    final theme = Theme.of(context);
     return DropdownButtonFormField<Gerencia>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
-      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      dropdownColor: theme.colorScheme.tertiaryContainer,
       items: items.map((Gerencia item) {
         return DropdownMenuItem<Gerencia>(
           value: item,
@@ -1243,11 +1296,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required Instalacion? value,
     required ValueChanged<Instalacion?> onChanged,
   }) {
+    final theme = Theme.of(context);
     return DropdownButtonFormField<Instalacion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
-      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      dropdownColor: theme.colorScheme.tertiaryContainer,
       items: items.map((Instalacion item) {
         return DropdownMenuItem<Instalacion>(
           value: item,
@@ -1271,11 +1325,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required PatinMedicion? value,
     required ValueChanged<PatinMedicion?> onChanged,
   }) {
+    final theme = Theme.of(context);
     return DropdownButtonFormField<PatinMedicion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
-      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      dropdownColor: theme.colorScheme.tertiaryContainer,
       items: items.map((PatinMedicion item) {
         return DropdownMenuItem<PatinMedicion>(
           value: item,
@@ -1299,11 +1354,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required TrenMedicion? value,
     required ValueChanged<TrenMedicion?> onChanged,
   }) {
+    final theme = Theme.of(context);
     return DropdownButtonFormField<TrenMedicion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
-      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      dropdownColor: theme.colorScheme.tertiaryContainer,
       items: items.map((TrenMedicion item) {
         return DropdownMenuItem<TrenMedicion>(
           value: item,
@@ -1327,11 +1383,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required Equipo? value,
     required ValueChanged<Equipo?> onChanged,
   }) {
+    final theme = Theme.of(context);
     return DropdownButtonFormField<Equipo>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
       initialValue: value,
-      dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+      dropdownColor: theme.colorScheme.tertiaryContainer,
       items: items.map((Equipo item) {
         return DropdownMenuItem<Equipo>(
           value: item,
@@ -1356,6 +1413,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required ValueChanged<LaboratorioCalibracion?> onChanged,
   }) {
     //future to list
+    final theme = Theme.of(context);
     return FutureBuilder<List<LaboratorioCalibracion>>(
       future: items,
       builder: (context, snapshot) {
@@ -1369,7 +1427,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
             isExpanded: true,
             decoration: _inputDecoration(hintText),
             initialValue: value,
-            dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+            dropdownColor: theme.colorScheme.tertiaryContainer,
             items: direcciones.map((LaboratorioCalibracion item) {
               return DropdownMenuItem<LaboratorioCalibracion>(
                 value: item,
@@ -1397,6 +1455,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required ValueChanged<Producto?> onChanged,
   }) {
     //future to list
+    final theme = Theme.of(context);
     return FutureBuilder<List<Producto>>(
       future: items,
       builder: (context, snapshot) {
@@ -1410,7 +1469,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
             isExpanded: true,
             decoration: _inputDecoration(hintText),
             initialValue: value,
-            dropdownColor: Theme.of(context).colorScheme.tertiaryContainer,
+            dropdownColor: theme.colorScheme.tertiaryContainer,
             items: direcciones.map((Producto item) {
               return DropdownMenuItem<Producto>(
                 value: item,
@@ -1478,6 +1537,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     bool obscureText = false,
     FocusNode? focusNode,
   }) {
+    final theme = Theme.of(context);
     return Container(
       padding: EdgeInsets.all(5),
       child: TextFormField(
@@ -1485,12 +1545,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         readOnly: true,
         controller: controllerText,
         obscureText: obscureText,
-        style: TextStyle(color: Theme.of(context).colorScheme.primary),
+        style: TextStyle(color: theme.colorScheme.primary),
         decoration: InputDecoration(
           suffixIcon: Icon(Icons.upload_file),
           hintText: hintText,
           label: Text(hintText),
-          hintStyle: TextStyle(color: Theme.of(context).colorScheme.surface),
+          hintStyle: TextStyle(color: theme.colorScheme.surface),
           border: const OutlineInputBorder(),
         ),
         onTap: () => _pickFileWeb(),
@@ -1532,7 +1592,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           padding: EdgeInsets.all(30),
           child: Column(
             children: <Widget>[
-              SizedBox(height: 15),
               Container(
                 padding: EdgeInsets.all(10),
                 child: Center(
@@ -2156,7 +2215,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           padding: EdgeInsets.all(30),
           child: Column(
             children: <Widget>[
-              SizedBox(height: 15),
               Container(
                 padding: EdgeInsets.all(10),
                 child: Center(
@@ -2166,7 +2224,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         "Extras",
                         style: TextStyle(
                           fontSize: 20,
-                          color: Theme.of(context).colorScheme.tertiary,
+                          color: theme.colorScheme.tertiary,
                         ),
                       ),
                       SizedBox(width: 10),
@@ -2180,7 +2238,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
               ),
               Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: theme.colorScheme.onPrimary,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
@@ -2219,17 +2277,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                   ],
                 ),
               ),
-              SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  onPressed: _guardarCalibracion,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
-                    foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                  ),
-                  child: Text('Registrar'),
-                ),
-              ),
             ],
           ),
         ),
@@ -2247,7 +2294,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           padding: EdgeInsets.all(30),
           child: Column(
             children: <Widget>[
-              SizedBox(height: 15),
               Container(
                 padding: EdgeInsets.all(10),
                 child: Center(
@@ -2257,7 +2303,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         "Temperatura",
                         style: TextStyle(
                           fontSize: 20,
-                          color: Theme.of(context).colorScheme.tertiary,
+                          color: theme.colorScheme.tertiary,
                         ),
                       ),
                       SizedBox(width: 10),
@@ -2271,7 +2317,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
               ),
               Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: theme.colorScheme.onPrimary,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
@@ -2286,7 +2332,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             controllerText: _patronCelsiusController,
                             focusNode: _focusNodeTemperatura,
                             onChanged: _onCelsiusPatronChanged,
-                            decimales: 2,
+                            decimales: 3,
                           ),
                         ),
                         const SizedBox(width: 12), // separación entre campos
@@ -2297,7 +2343,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             validatorText: 'Favor de escribir el caudal',
                             controllerText: _patronFahrenheitController,
                             onChanged: _onFahrenheitPatronChanged,
-                            decimales: 2,
+                            decimales: 3,
                           ),
                         ),
                       ],
@@ -2311,7 +2357,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             validatorText: 'Favor de escribir la temperatura',
                             controllerText: _ibcCelsiusController,
                             onChanged: _onCelsiusIBCChanged,
-                            decimales: 2,
+                            decimales: 3,
                           ),
                         ),
                         const SizedBox(width: 12), // separación entre campos
@@ -2322,7 +2368,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             validatorText: 'Favor de escribir la temperatura',
                             controllerText: _ibcFahrenheitController,
                             onChanged: _onFahrenheitIBCChanged,
-                            decimales: 2,
+                            decimales: 3,
                           ),
                         ),
                       ],
@@ -2335,8 +2381,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             hintText: "Error de medida (°C )",
                             validatorText: '',
                             controllerText: _errorCelsiusController,
-                            onChanged: _onCelsiusErrorChanged,
-                            decimales: 2,
+                            decimales: 3,
+                            readOnly: true,
                           ),
                         ),
                         const SizedBox(width: 12), // separación entre campos
@@ -2346,8 +2392,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             hintText: "Error de medida (°F )",
                             validatorText: '',
                             controllerText: _errorFahrenheitController,
-                            onChanged: _onFahrenheitErrorChanged,
-                            decimales: 2,
+                            decimales: 3,
+                            readOnly: true,
                           ),
                         ),
                       ],
@@ -2361,7 +2407,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             validatorText: '',
                             controllerText: _incertidumbreCelsiusController,
                             onChanged: _onCelsiusIncertidumbreChanged,
-                            decimales: 2,
+                            decimales: 3,
                           ),
                         ),
                         const SizedBox(width: 12), // separación entre campos
@@ -2372,7 +2418,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             validatorText: '',
                             controllerText: _incertidumbreFahrenheitController,
                             onChanged: _onFahrenheitIncertidumbreChanged,
-                            decimales: 2,
+                            decimales: 3,
                           ),
                         ),
                       ],
@@ -2433,10 +2479,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             tablaCalibracion.cabeceraTabla(context, ''),
                           ],
                         ),
-                        ...(_corridasRegistradasTemperatura.isNotEmpty
-                            ? _corridasRegistradasTemperatura
+                        ...(_lecturasRegistradasTemperatura.isNotEmpty
+                            ? _lecturasRegistradasTemperatura
                                   .map(
-                                    (corrida) => TableRow(
+                                    (lectura) => TableRow(
                                       decoration: BoxDecoration(
                                         color:
                                             theme.colorScheme.tertiaryContainer,
@@ -2445,57 +2491,57 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.patronCelsius,
-                                            2,
+                                            lectura.patronCelsius,
+                                            3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.patronFahrenheit,
-                                            2,
+                                            lectura.patronFahrenheit,
+                                            3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.ibcCelsius,
-                                            2,
+                                            lectura.ibcCelsius,
+                                            3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.ibcFahrenheit,
-                                            2,
+                                            lectura.ibcFahrenheit,
+                                            3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.errorCelsius,
-                                            2,
+                                            lectura.errorCelsius,
+                                            3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.errorFahrenheit,
-                                            2,
+                                            lectura.errorFahrenheit,
+                                            3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.incertidumbreCelsius,
-                                            2,
+                                            lectura.incertidumbreCelsius,
+                                            3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            corrida.incertidumbreFahrenheit,
-                                            2,
+                                            lectura.incertidumbreFahrenheit,
+                                            3,
                                           ),
                                         ),
                                         tablaCalibracion.editarFilaTabla(context, () {
@@ -2505,13 +2551,13 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                               // This is an alert dialog that asks for confirmation to delete something.
                                               return AlertDialog(
                                                 title: Text(
-                                                  "¿Quieres editar esta corrida de temperatura?",
+                                                  "¿Quieres editar esta lectura de temperatura?",
                                                 ),
                                                 content: SingleChildScrollView(
                                                   child: ListBody(
                                                     children: <Widget>[
                                                       Text(
-                                                        'Se cargaran los datos de la corrida de temperatura en los campos de entrada para su edición',
+                                                        'Se cargaran los datos de la lectura de temperatura en los campos de entrada para su edición',
                                                       ),
                                                     ],
                                                   ),
@@ -2538,44 +2584,72 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                       // Call a function that deletes the data when confirmed.
                                                       setState(() {
                                                         int
-                                                        index = _corridasRegistradasTemperatura
+                                                        index = _lecturasRegistradasTemperatura
                                                             .indexWhere(
-                                                              (c) =>
-                                                                  c.idCorrida ==
-                                                                  corrida
-                                                                      .idCorrida,
+                                                              (l) =>
+                                                                  l.idLectura ==
+                                                                  lectura
+                                                                      .idLectura,
                                                             );
-                                                        _corridaActualTemperatura =
-                                                            _corridasRegistradasTemperatura[index];
+                                                        _lecturaActualTemperatura =
+                                                            _lecturasRegistradasTemperatura[index];
                                                         _patronCelsiusController
                                                             .text = convertidor
                                                             .formatoMiles(
-                                                              _corridaActualTemperatura
+                                                              _lecturaActualTemperatura
                                                                   .patronCelsius,
-                                                              2,
+                                                              3,
                                                             );
                                                         _patronFahrenheitController
                                                             .text = convertidor
                                                             .formatoMiles(
-                                                              _corridaActualTemperatura
+                                                              _lecturaActualTemperatura
                                                                   .patronFahrenheit,
-                                                              2,
+                                                              3,
+                                                            );
+                                                        _errorCelsiusController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualTemperatura
+                                                                  .errorCelsius,
+                                                              3,
+                                                            );
+                                                        _errorFahrenheitController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualTemperatura
+                                                                  .errorFahrenheit,
+                                                              3,
                                                             );
                                                         _ibcCelsiusController
                                                             .text = convertidor
                                                             .formatoMiles(
-                                                              _corridaActualTemperatura
+                                                              _lecturaActualTemperatura
                                                                   .ibcCelsius,
-                                                              2,
+                                                              3,
                                                             );
                                                         _ibcFahrenheitController
                                                             .text = convertidor
                                                             .formatoMiles(
-                                                              _corridaActualTemperatura
+                                                              _lecturaActualTemperatura
                                                                   .ibcFahrenheit,
-                                                              2,
+                                                              3,
                                                             );
-                                                        editandoCorridaTemperatura =
+                                                        _incertidumbreCelsiusController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualTemperatura
+                                                                  .incertidumbreCelsius,
+                                                              3,
+                                                            );
+                                                        _incertidumbreFahrenheitController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualTemperatura
+                                                                  .incertidumbreFahrenheit,
+                                                              3,
+                                                            );
+                                                        editandoLecturaTemperatura =
                                                             true;
                                                         indiceCorridaEditandoTemperatura =
                                                             index;
@@ -2645,21 +2719,21 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                       // Call a function that deletes the data when confirmed.
                                                       setState(() {
                                                         int
-                                                        index = _corridasRegistradasTemperatura
+                                                        index = _lecturasRegistradasTemperatura
                                                             .indexWhere(
-                                                              (c) =>
-                                                                  c.idCorrida ==
-                                                                  corrida
-                                                                      .idCorrida,
+                                                              (l) =>
+                                                                  l.idLectura ==
+                                                                  lectura
+                                                                      .idLectura,
                                                             );
-                                                        _corridasRegistradasTemperatura
+                                                        _lecturasRegistradasTemperatura
                                                             .removeWhere(
-                                                              (c) =>
-                                                                  c.idCorrida ==
-                                                                  corrida
-                                                                      .idCorrida,
+                                                              (l) =>
+                                                                  l.idLectura ==
+                                                                  lectura
+                                                                      .idLectura,
                                                             );
-                                                        _listaCorridasTemperatura
+                                                        _listaLecturasTemperatura
                                                             .removeAt(index);
                                                       });
 
@@ -2704,9 +2778,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
               ),
               SizedBox(height: 20),
               Center(
-                child: editandoCorridaTemperatura
+                child: editandoLecturaTemperatura
                     ? ElevatedButton(
-                        onPressed: _agregarCorridaTemperatura,
+                        onPressed: _agregarLecturaTemperatura,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(
                             context,
@@ -2718,7 +2792,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         child: const Text('Agregar edición'),
                       )
                     : ElevatedButton(
-                        onPressed: _agregarCorridaTemperatura,
+                        onPressed: _agregarLecturaTemperatura,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(
                             context,
@@ -2727,18 +2801,18 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             context,
                           ).colorScheme.onSecondary,
                         ),
-                        child: const Text('Agregar corrida'),
+                        child: const Text('Agregar lectura'),
                       ),
               ),
               SizedBox(height: 10),
               Center(
                 child: ElevatedButton(
-                  onPressed: _limpiaCorridaTemperatura,
+                  onPressed: _limpiaLecturaTemperatura,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: theme.colorScheme.onPrimary,
                   ),
-                  child: const Text('Limpiar corrida'),
+                  child: const Text('Limpiar lectura'),
                 ),
               ),
             ],
@@ -2758,7 +2832,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           padding: EdgeInsets.all(30),
           child: Column(
             children: <Widget>[
-              SizedBox(height: 15),
               Container(
                 padding: EdgeInsets.all(10),
                 child: Center(
@@ -2768,7 +2841,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         "Presión",
                         style: TextStyle(
                           fontSize: 20,
-                          color: Theme.of(context).colorScheme.tertiary,
+                          color: theme.colorScheme.tertiary,
                         ),
                       ),
                       SizedBox(width: 10),
@@ -2782,7 +2855,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
               ),
               Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: theme.colorScheme.onPrimary,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
@@ -2823,17 +2896,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                       decimales: 0,
                     ),
                   ],
-                ),
-              ),
-              SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  onPressed: _guardarCalibracion,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
-                    foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                  ),
-                  child: Text('Registrar'),
                 ),
               ),
             ],
@@ -2853,7 +2915,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           padding: EdgeInsets.all(30),
           child: Column(
             children: <Widget>[
-              SizedBox(height: 15),
               Container(
                 padding: EdgeInsets.all(10),
                 child: Center(
@@ -2863,7 +2924,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         "Densímetro",
                         style: TextStyle(
                           fontSize: 20,
-                          color: Theme.of(context).colorScheme.tertiary,
+                          color: theme.colorScheme.tertiary,
                         ),
                       ),
                       SizedBox(width: 10),
@@ -2877,7 +2938,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
               ),
               Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: theme.colorScheme.onPrimary,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
@@ -2918,17 +2979,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                       decimales: 0,
                     ),
                   ],
-                ),
-              ),
-              SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  onPressed: _guardarCalibracion,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
-                    foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                  ),
-                  child: Text('Registrar'),
                 ),
               ),
             ],
@@ -2952,6 +3002,20 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       return _seccionPresion(context);
     } else if (equipoSeleccionado!.idTipoSensor == '4') {
       return _seccionDensimetro(context);
+    } else {
+      // Si no coincide con ninguno
+      return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildSeccionExtras(BuildContext context) {
+    if (equipoSeleccionado == null) {
+      return const SizedBox.shrink();
+    }
+
+    // Se chequea el tipo de sensor:
+    if (equipoSeleccionado!.idTipoSensor == '1') {
+      return _seccionExtras(context);
     } else {
       // Si no coincide con ninguno
       return const SizedBox.shrink();

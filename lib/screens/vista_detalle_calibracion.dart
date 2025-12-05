@@ -23,7 +23,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   final TablaCalibracion tablaCalibracion = TablaCalibracion();
   final Mensajes mensajes = Mensajes();
   DateFormat formato = DateFormat("dd/MM/yyyy");
-  late CalibracionEquipo calibracionEquipo;
+  late CalibracionEquipo calibracionEquipoFlujo;
   late LaboratorioCalibracion laboratorio;
   final LaboratorioCalibracionService laboratorioService =
       LaboratorioCalibracionServiceImpl();
@@ -64,7 +64,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
     _futureDirecciones = DataService().updateAndCacheData();
     rutaEquipo = buscarRutaAscendente(
       await _futureDirecciones,
-      calibracionEquipo.tagEquipo,
+      calibracionEquipoFlujo.tagEquipo,
     );
   }
 
@@ -79,7 +79,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
       final args = ModalRoute.of(context)!.settings.arguments;
       if (args != null) {
         // Asignación directa: No necesitamos setState() porque esto se ejecuta ANTES del primer build
-        calibracionEquipo = args as CalibracionEquipo;
+        calibracionEquipoFlujo = args as CalibracionEquipo;
         corridasAPuntos();
         graficaCorridas = GraficaCorridas(
           spotsKFactor: spotsKFactor,
@@ -104,7 +104,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
 
   Future<void> buscarEquipo() async {
     final resultado = await equipoService.obtenerEquipoPorId(
-      calibracionEquipo.tagEquipo,
+      calibracionEquipoFlujo.tagEquipo,
     );
     setState(() {
       equipo = resultado;
@@ -113,7 +113,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
 
   Future<void> buscarLaboratorio() async {
     final resultado = await laboratorioService.obtenerLaboratorioPorId(
-      calibracionEquipo.idLaboratorioCalibracion,
+      calibracionEquipoFlujo.idLaboratorioCalibracion,
     );
     setState(() {
       laboratorio = resultado;
@@ -121,11 +121,12 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   }
 
   void corridasAPuntos() {
-    spotsKFactor = calibracionEquipo.corridas
+    final datosFlujo = calibracionEquipoFlujo.datosEspecificos as DatosCalibracionFlujo;
+    spotsKFactor = datosFlujo.corridas
         .map((corrida) => FlSpot(corrida.caudalM3Hr, corrida.kFactorPulseM3))
         .toList();
 
-    spotsMeterFactor = calibracionEquipo.corridas
+    spotsMeterFactor = datosFlujo.corridas
         .map((corrida) => FlSpot(corrida.caudalM3Hr, corrida.meterFactor))
         .toList();
 
@@ -176,6 +177,9 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
 
   @override
   Widget build(BuildContext context) {
+
+    //Ver como corregir este
+    final datosFlujo = calibracionEquipoFlujo.datosEspecificos as DatosCalibracionFlujo;
     final colors = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: colors.surface,
@@ -230,11 +234,11 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     const SizedBox(height: 8),
                     _buildInfoRow(
                       "Certificado",
-                      calibracionEquipo.certificadoCalibracion,
+                      calibracionEquipoFlujo.certificadoCalibracion,
                     ),
                     _buildInfoRow(
                       "Fecha de calibración",
-                      formato.format(calibracionEquipo.fechaCalibracion),
+                      formato.format(calibracionEquipoFlujo.fechaCalibracion),
                     ),
                     _buildInfoRow("Laboratorio", laboratorio.nombre),
                     _buildInfoRow(
@@ -275,7 +279,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     ),
                     _buildInfoRow(
                       "Producto",
-                      calibracionEquipo.producto.producto,
+                      calibracionEquipoFlujo.producto.producto,
                     ),
                     const SizedBox(height: 12),
                     Center(
@@ -285,7 +289,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                             mensajes.info(context, 'Abriendo certificado...'),
                           );
                           abrirPdf(
-                            'https://zkviewvpmswfgpiwpoez.supabase.co/storage/v1/object/public/certificados/${calibracionEquipo.rutaCertificado}',
+                            'https://zkviewvpmswfgpiwpoez.supabase.co/storage/v1/object/public/certificados/${calibracionEquipoFlujo.rutaCertificado}',
                           );
                         },
                         icon: const Icon(Icons.picture_as_pdf),
@@ -326,7 +330,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     ),
                     const Divider(),
                     const SizedBox(height: 8),
-                    _buildInfoRow("TAG", calibracionEquipo.tagEquipo),
+                    _buildInfoRow("TAG", calibracionEquipoFlujo.tagEquipo),
                     _buildInfoRow(
                       "Tipo de sensor",
                       equipo.idTipoSensor.toString(),
@@ -445,8 +449,8 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                             tablaCalibracion.cabeceraTabla(context, '%'),
                           ],
                         ),
-                        ...(calibracionEquipo.corridas.isNotEmpty
-                            ? calibracionEquipo.corridas
+                        ...(datosFlujo.corridas.isNotEmpty
+                            ? datosFlujo.corridas
                                   .map(
                                     (corrida) => TableRow(
                                       decoration: BoxDecoration(
@@ -571,16 +575,16 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     const SizedBox(height: 8),
                     _buildInfoRow(
                       "Linealidad",
-                      '${calibracionEquipo.linealidad}%',
+                      '${calibracionEquipoFlujo.linealidad}%',
                     ),
                     _buildInfoRow(
                       "Reproducibilidad",
-                      '${calibracionEquipo.reproducibilidad}%',
+                      '${calibracionEquipoFlujo.reproducibilidad}%',
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      calibracionEquipo.observaciones.isNotEmpty
-                          ? calibracionEquipo.observaciones
+                      calibracionEquipoFlujo.observaciones.isNotEmpty
+                          ? calibracionEquipoFlujo.observaciones
                           : 'Ninguna',
                       style: TextStyle(fontSize: 16, color: colors.secondary),
                     ),
