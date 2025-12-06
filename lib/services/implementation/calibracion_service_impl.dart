@@ -91,7 +91,7 @@ class CalibracionServiceImpl implements CalibracionService {
 
       return await Future.wait(
         response.map<Future<CalibracionEquipo>>((calibracionJson) async {
-          return await CalibracionEquipo.fromJsonFlujoAsync(calibracionJson);
+          return await CalibracionEquipo.fromJsonAsync(calibracionJson);
         }).toList(),
       );
     } catch (e) {
@@ -112,7 +112,7 @@ class CalibracionServiceImpl implements CalibracionService {
 
       return await Future.wait(
         response.map<Future<CalibracionEquipo>>((calibracionJson) async {
-          return await CalibracionEquipo.fromJsonFlujoAsync(calibracionJson);
+          return await CalibracionEquipo.fromJsonAsync(calibracionJson);
         }).toList(),
       );
     } catch (e) {

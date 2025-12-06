@@ -3,6 +3,7 @@ import 'package:calibraciones/common/barrel/models.dart';
 import 'package:calibraciones/common/components/components.dart';
 import 'package:calibraciones/common/utils/conversiones.dart';
 import 'package:calibraciones/models/_ruta_equipo.dart';
+import 'package:calibraciones/screens/components/grafica_otros.dart';
 import 'package:calibraciones/services/data_service.dart';
 import 'package:calibraciones/services/equipo_service.dart';
 import 'package:calibraciones/services/implementation/equipo_service_impl.dart';
@@ -23,35 +24,36 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   final TablaCalibracion tablaCalibracion = TablaCalibracion();
   final Mensajes mensajes = Mensajes();
   DateFormat formato = DateFormat("dd/MM/yyyy");
-  late CalibracionEquipo calibracionEquipoFlujo;
+  late CalibracionEquipo calibracionEquipo;
   late LaboratorioCalibracion laboratorio;
   final LaboratorioCalibracionService laboratorioService =
       LaboratorioCalibracionServiceImpl();
   String nombreLaboratorio = '';
   late GraficaCorridas graficaCorridas;
+  late GraficaOtros graficaOtros;
   bool _isDataInitialized = false;
   late Equipo equipo;
   final EquipoService equipoService = EquipoServiceImpl();
 
-  List<FlSpot> spotsKFactor = [];
-  List<FlSpot> spotsMeterFactor = [];
-  double kFactorMinX = -10;
-  double kFactorMaxX = 2000;
-  double kFactorMinY = 0;
-  double kFactorMaxY = 1;
-  double kFactorMargenX = 0;
-  double kFactorMargenY = 0;
+  List<FlSpot> puntosG1 = [];
+  List<FlSpot> puntosG2 = [];
+  double minimoXG1 = -10;
+  double maximoXG1 = 2000;
+  double minimoYG1 = 0;
+  double maximoYG1 = 1;
+  double margenXG1 = 0;
+  double margenYG1 = 0;
 
-  double meterFactorMinX = 0;
-  double meterFactorMaxX = 2000;
-  double meterFactorMinY = 0;
-  double meterFactorMaxY = 1;
-  double meterMargenX = 0;
-  double meterMargenY = 0;
-
+  double minimoXG2 = -10;
+  double maximoXG2 = 2000;
+  double minimoYG2 = 0;
+  double maximoYG2 = 1;
+  double margenXG2 = 0;
+  double margenYG2 = 0;
   DataService dataService = DataService();
   late Future<List<Direccion>> _futureDirecciones;
   RutaEquipo? rutaEquipo;
+  int tipoDetalle = 0;
 
   @override
   void initState() {
@@ -64,7 +66,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
     _futureDirecciones = DataService().updateAndCacheData();
     rutaEquipo = buscarRutaAscendente(
       await _futureDirecciones,
-      calibracionEquipoFlujo.tagEquipo,
+      calibracionEquipo.tagEquipo,
     );
   }
 
@@ -79,20 +81,51 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
       final args = ModalRoute.of(context)!.settings.arguments;
       if (args != null) {
         // Asignación directa: No necesitamos setState() porque esto se ejecuta ANTES del primer build
-        calibracionEquipoFlujo = args as CalibracionEquipo;
-        corridasAPuntos();
-        graficaCorridas = GraficaCorridas(
-          spotsKFactor: spotsKFactor,
-          spotsMeterFactor: spotsMeterFactor,
-          kFactorMaxX: kFactorMaxX,
-          kFactorMinX: kFactorMinX,
-          kFactorMaxY: kFactorMaxY,
-          kFactorMinY: kFactorMinY,
-          meterFactorMaxX: meterFactorMaxX,
-          meterFactorMinX: meterFactorMinX,
-          meterFactorMaxY: meterFactorMaxY,
-          meterFactorMinY: meterFactorMinY,
-        );
+        calibracionEquipo = args as CalibracionEquipo;
+
+        if (calibracionEquipo.datosEspecificos is DatosCalibracionFlujo) {
+          corridasAPuntos();
+          graficaCorridas = GraficaCorridas(
+            spotsKFactor: puntosG1,
+            spotsMeterFactor: puntosG2,
+            kFactorMaxX: maximoXG1,
+            kFactorMinX: minimoXG1,
+            kFactorMaxY: maximoYG1,
+            kFactorMinY: minimoYG1,
+            meterFactorMaxX: maximoXG2,
+            meterFactorMinX: minimoXG2,
+            meterFactorMaxY: maximoYG2,
+            meterFactorMinY: minimoYG2,
+          );
+          tipoDetalle = 1;
+        } else if (calibracionEquipo.datosEspecificos
+            is DatosCalibracionTemperatura) {
+          lecturasAPuntos();
+          graficaOtros = GraficaOtros(
+            spots: puntosG1,
+            maximoX: maximoXG1,
+            minimoX: minimoXG1,
+            maximoY: maximoYG1,
+            minimoY: minimoYG1,
+            tipo: false,
+          );
+          tipoDetalle = 2;
+        } else if (calibracionEquipo.datosEspecificos
+            is DatosCalibracionPresion) {
+          lecturasAPuntos();
+          graficaOtros = GraficaOtros(
+            spots: puntosG1,
+            maximoX: maximoXG1,
+            minimoX: minimoXG1,
+            maximoY: maximoYG1,
+            minimoY: minimoYG1,
+            tipo: true,
+          );
+          tipoDetalle = 3;
+        } else {
+          // Manejo de caso inesperado
+          tipoDetalle = 4;
+        }
 
         buscarLaboratorio();
         buscarEquipo();
@@ -104,7 +137,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
 
   Future<void> buscarEquipo() async {
     final resultado = await equipoService.obtenerEquipoPorId(
-      calibracionEquipoFlujo.tagEquipo,
+      calibracionEquipo.tagEquipo,
     );
     setState(() {
       equipo = resultado;
@@ -113,7 +146,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
 
   Future<void> buscarLaboratorio() async {
     final resultado = await laboratorioService.obtenerLaboratorioPorId(
-      calibracionEquipoFlujo.idLaboratorioCalibracion,
+      calibracionEquipo.idLaboratorioCalibracion,
     );
     setState(() {
       laboratorio = resultado;
@@ -121,65 +154,92 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   }
 
   void corridasAPuntos() {
-    final datosFlujo = calibracionEquipoFlujo.datosEspecificos as DatosCalibracionFlujo;
-    spotsKFactor = datosFlujo.corridas
+    final datosFlujo =
+        calibracionEquipo.datosEspecificos as DatosCalibracionFlujo;
+    puntosG1 = datosFlujo.corridas
         .map((corrida) => FlSpot(corrida.caudalM3Hr, corrida.kFactorPulseM3))
         .toList();
 
-    spotsMeterFactor = datosFlujo.corridas
+    puntosG2 = datosFlujo.corridas
         .map((corrida) => FlSpot(corrida.caudalM3Hr, corrida.meterFactor))
         .toList();
 
     // 💡 Implementar manejo de lista vacía
-    if (spotsKFactor.isEmpty) {
-      kFactorMinX = 0;
-      kFactorMaxX = 2000;
-      kFactorMinY = 0;
-      kFactorMaxY = 1;
+    if (puntosG1.isEmpty) {
+      minimoXG1 = 0;
+      maximoXG1 = 2000;
+      minimoYG1 = 0;
+      maximoYG1 = 1;
       return; // Salir de la función
     }
 
     // Lógica de límites solo si hay datos
-    kFactorMinX = spotsKFactor
-        .map((spot) => spot.x)
-        .reduce((a, b) => a < b ? a : b);
+    minimoXG1 = puntosG1.map((spot) => spot.x).reduce((a, b) => a < b ? a : b);
     //Porcentaje simetrico
-    kFactorMargenX = (kFactorMinX * 0.15);
-    kFactorMinX = kFactorMinX - kFactorMargenX; // Un 10% menos para margen
-    kFactorMaxX = spotsKFactor
-        .map((spot) => spot.x)
-        .reduce((a, b) => a > b ? a : b);
-    kFactorMaxX = kFactorMaxX + kFactorMargenX; // Un 10% más para margen
-    kFactorMinY = spotsKFactor
-        .map((spot) => spot.y)
-        .reduce((a, b) => a < b ? a : b);
+    margenXG1 = (minimoXG1 * 0.15);
+    minimoXG1 = minimoXG1 - margenXG1; // Un 10% menos para margen
+    maximoXG1 = puntosG1.map((spot) => spot.x).reduce((a, b) => a > b ? a : b);
+    maximoXG1 = maximoXG1 + margenXG1; // Un 10% más para margen
+    minimoYG1 = puntosG1.map((spot) => spot.y).reduce((a, b) => a < b ? a : b);
 
     //Porcentaje simetrico
-    kFactorMargenY = (kFactorMinY * 0.001);
-    kFactorMinY = kFactorMinY - kFactorMargenY; // Un 15% menos para margen
-    kFactorMaxY = spotsKFactor
-        .map((spot) => spot.y)
-        .reduce((a, b) => a > b ? a : b);
-    kFactorMaxY = kFactorMaxY + kFactorMargenY; // Un 15% más para margen
+    margenYG1 = (minimoYG1 * 0.001);
+    minimoYG1 = minimoYG1 - margenYG1; // Un 15% menos para margen
+    maximoYG1 = puntosG1.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
+    maximoYG1 = maximoYG1 + margenYG1; // Un 15% más para margen
 
-    meterFactorMinX = kFactorMinX;
-    meterFactorMaxX = kFactorMaxX;
+    minimoXG2 = minimoXG1;
+    maximoXG2 = maximoXG1;
 
-    meterFactorMinY = spotsMeterFactor
-        .map((spot) => spot.y)
-        .reduce((a, b) => a < b ? a : b);
-    meterFactorMinY = meterFactorMinY - 0.001;
-    meterFactorMaxY = spotsMeterFactor
-        .map((spot) => spot.y)
-        .reduce((a, b) => a > b ? a : b);
-    meterFactorMaxY = meterFactorMaxY + 0.001;
+    minimoYG2 = puntosG2.map((spot) => spot.y).reduce((a, b) => a < b ? a : b);
+    minimoYG2 = minimoYG2 - 0.001;
+    maximoYG2 = puntosG2.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
+    maximoYG2 = maximoYG2 + 0.001;
+  }
+
+  void lecturasAPuntos() {
+    if (calibracionEquipo.datosEspecificos is DatosCalibracionTemperatura) {
+      final datos =
+          calibracionEquipo.datosEspecificos as DatosCalibracionTemperatura;
+      puntosG1 = datos.lecturas
+          .map((lectura) => FlSpot(lectura.ibcCelsius, lectura.errorCelsius))
+          .toList();
+    } else if (calibracionEquipo.datosEspecificos is DatosCalibracionPresion) {
+      final datos =
+          calibracionEquipo.datosEspecificos as DatosCalibracionPresion;
+      puntosG1 = datos.lecturas
+          .map((lectura) => FlSpot(lectura.ibcKgCm2, lectura.errorKgCm2))
+          .toList();
+    }
+
+    // 💡 Implementar manejo de lista vacía
+    if (puntosG1.isEmpty) {
+      minimoXG1 = 0;
+      maximoXG1 = 120;
+      minimoYG1 = -2;
+      maximoYG1 = 2;
+      return; // Salir de la función
+    }
+
+    // Lógica de límites solo si hay datos
+    minimoXG1 = puntosG1.map((spot) => spot.x).reduce((a, b) => a < b ? a : b);
+    //Porcentaje simetrico
+    margenXG1 = (minimoXG1 * 0.15);
+    minimoXG1 = minimoXG1 - margenXG1; // Un 10% menos para margen
+    maximoXG1 = puntosG1.map((spot) => spot.x).reduce((a, b) => a > b ? a : b);
+    maximoXG1 = maximoXG1 + margenXG1; // Un 10% más para margen
+    minimoYG1 = puntosG1.map((spot) => spot.y).reduce((a, b) => a < b ? a : b);
+
+    //Porcentaje simetrico
+    margenYG1 = (minimoYG1 * 0.001);
+    minimoYG1 = minimoYG1 - margenYG1; // Un 15% menos para margen
+    maximoYG1 = puntosG1.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
+    maximoYG1 = maximoYG1 + margenYG1; // Un 15% más para margen
   }
 
   @override
   Widget build(BuildContext context) {
-
     //Ver como corregir este
-    final datosFlujo = calibracionEquipoFlujo.datosEspecificos as DatosCalibracionFlujo;
     final colors = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: colors.surface,
@@ -234,11 +294,11 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     const SizedBox(height: 8),
                     _buildInfoRow(
                       "Certificado",
-                      calibracionEquipoFlujo.certificadoCalibracion,
+                      calibracionEquipo.certificadoCalibracion,
                     ),
                     _buildInfoRow(
                       "Fecha de calibración",
-                      formato.format(calibracionEquipoFlujo.fechaCalibracion),
+                      formato.format(calibracionEquipo.fechaCalibracion),
                     ),
                     _buildInfoRow("Laboratorio", laboratorio.nombre),
                     _buildInfoRow(
@@ -279,7 +339,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     ),
                     _buildInfoRow(
                       "Producto",
-                      calibracionEquipoFlujo.producto.producto,
+                      calibracionEquipo.producto.producto,
                     ),
                     const SizedBox(height: 12),
                     Center(
@@ -289,7 +349,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                             mensajes.info(context, 'Abriendo certificado...'),
                           );
                           abrirPdf(
-                            'https://zkviewvpmswfgpiwpoez.supabase.co/storage/v1/object/public/certificados/${calibracionEquipoFlujo.rutaCertificado}',
+                            'https://zkviewvpmswfgpiwpoez.supabase.co/storage/v1/object/public/certificados/${calibracionEquipo.rutaCertificado}',
                           );
                         },
                         icon: const Icon(Icons.picture_as_pdf),
@@ -330,7 +390,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     ),
                     const Divider(),
                     const SizedBox(height: 8),
-                    _buildInfoRow("TAG", calibracionEquipoFlujo.tagEquipo),
+                    _buildInfoRow("TAG", calibracionEquipo.tagEquipo),
                     _buildInfoRow(
                       "Tipo de sensor",
                       equipo.idTipoSensor.toString(),
@@ -357,197 +417,75 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
               ),
             ),
 
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Gráfica de corridas",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: colors.primary,
+            (tipoDetalle < 4 && tipoDetalle > 0)
+                ? Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            (tipoDetalle == 1)
+                                ? "Gráfica de corridas"
+                                : "Gráfica de lecturas",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: colors.primary,
+                            ),
+                          ),
+                          const Divider(),
+                          const SizedBox(height: 12),
+                          (tipoDetalle == 1) ? graficaCorridas : graficaOtros,
+                        ],
                       ),
                     ),
-                    const Divider(),
-                    const SizedBox(height: 12),
-                    graficaCorridas,
-                  ],
-                ),
-              ),
-            ),
+                  )
+                : const SizedBox.shrink(),
 
             const SizedBox(height: 16),
 
             // ======== TABLA DE CORRIDAS =========
-            Card(
-              color: colors.onPrimary,
-              elevation: 1,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Table(
-                      border: TableBorder.symmetric(
-                        inside: const BorderSide(color: Colors.black, width: 1),
-                        outside: const BorderSide(
-                          color: Colors.black,
-                          width: 2,
-                        ),
-                      ),
-                      children: [
-                        TableRow(
-                          decoration: BoxDecoration(color: colors.tertiary),
-                          children: [
-                            tablaCalibracion.cabeceraTabla(context, 'Caudal'),
-                            tablaCalibracion.cabeceraTabla(context, 'Caudal'),
-                            tablaCalibracion.cabeceraTabla(
-                              context,
-                              'Temperatura',
-                            ),
-                            tablaCalibracion.cabeceraTabla(context, 'Presión'),
-                            tablaCalibracion.cabeceraTabla(context, 'Meter'),
-                            tablaCalibracion.cabeceraTabla(
-                              context,
-                              'Frecuencia',
-                            ),
-                            tablaCalibracion.cabeceraTabla(context, 'K Factor'),
-                            tablaCalibracion.cabeceraTabla(context, 'K Factor'),
-                            tablaCalibracion.cabeceraTabla(
-                              context,
-                              'Repetibilidad',
-                            ),
-                          ],
-                        ),
-                        TableRow(
-                          decoration: BoxDecoration(color: colors.tertiary),
-                          children: [
-                            tablaCalibracion.cabeceraTabla(context, 'm³/hr'),
-                            tablaCalibracion.cabeceraTabla(context, 'bbl/hr'),
-                            tablaCalibracion.cabeceraTabla(context, '°C'),
-                            tablaCalibracion.cabeceraTabla(context, 'Kg/m2'),
-                            tablaCalibracion.cabeceraTabla(context, 'Factor'),
-                            tablaCalibracion.cabeceraTabla(context, 'Hz'),
-                            tablaCalibracion.cabeceraTabla(
-                              context,
-                              'Pulsos/m³',
-                            ),
-                            tablaCalibracion.cabeceraTabla(
-                              context,
-                              'Pulsos/bbl',
-                            ),
-                            tablaCalibracion.cabeceraTabla(context, '%'),
-                          ],
-                        ),
-                        ...(datosFlujo.corridas.isNotEmpty
-                            ? datosFlujo.corridas
-                                  .map(
-                                    (corrida) => TableRow(
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.tertiaryContainer,
-                                      ),
-                                      children: [
-                                        tablaCalibracion.celdaTabla(
-                                          context,
-                                          convertidor.formatoMiles(
-                                            corrida.caudalM3Hr,
-                                            2,
-                                          ),
-                                        ),
-                                        tablaCalibracion.celdaTabla(
-                                          context,
-                                          convertidor.formatoMiles(
-                                            corrida.caudalBblHr,
-                                            2,
-                                          ),
-                                        ),
-                                        tablaCalibracion.celdaTabla(
-                                          context,
-                                          convertidor.formatoMiles(
-                                            corrida.temperaturaC,
-                                            2,
-                                          ),
-                                        ),
-                                        tablaCalibracion.celdaTabla(
-                                          context,
-                                          convertidor.formatoMiles(
-                                            corrida.presionKgCm2,
-                                            2,
-                                          ),
-                                        ),
-                                        tablaCalibracion.celdaTabla(
-                                          context,
-                                          convertidor.formatoMiles(
-                                            corrida.meterFactor,
-                                            5,
-                                          ),
-                                        ),
-                                        tablaCalibracion.celdaTabla(
-                                          context,
-                                          convertidor.formatoMiles(
-                                            corrida.frecuenciaHz,
-                                            2,
-                                          ),
-                                        ),
-                                        tablaCalibracion.celdaTabla(
-                                          context,
-                                          convertidor.formatoMiles(
-                                            corrida.kFactorPulseM3,
-                                            3,
-                                          ),
-                                        ),
-                                        tablaCalibracion.celdaTabla(
-                                          context,
-                                          convertidor.formatoMiles(
-                                            corrida.kFactorPulseBbl,
-                                            3,
-                                          ),
-                                        ),
-                                        tablaCalibracion.celdaTabla(
-                                          context,
-                                          convertidor.formatoMiles(
-                                            corrida.repetibilidad,
-                                            3,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                  .toList()
-                            : [
-                                TableRow(
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.tertiaryContainer,
-                                  ),
-                                  children: List.generate(
-                                    9,
-                                    (index) => Padding(
-                                      padding: EdgeInsets.all(2.0),
-                                      child: Text(''),
-                                    ),
-                                  ),
-                                ),
-                              ]),
-                      ],
+            (tipoDetalle < 4 && tipoDetalle > 0)
+                ? Card(
+                    color: colors.onPrimary,
+                    elevation: 1,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ],
-                ),
-              ),
-            ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            (tipoDetalle == 1)
+                                ? "Tabla de Corridas"
+                                : (tipoDetalle == 2)
+                                ? "Tabla de Lecturas de Temperatura"
+                                : "Tabla de Lecturas de Presión",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: colors.primary,
+                            ),
+                          ),
+                          const Divider(),
+                          const SizedBox(height: 8),
+                          (tipoDetalle == 1)
+                              ? buildTablaCorridas(context)
+                              : (tipoDetalle == 2)
+                              ? buildTablaTemperatura(context)
+                              : buildTablaPresion(context),
+                        ],
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
 
             const SizedBox(height: 16),
 
@@ -575,16 +513,16 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     const SizedBox(height: 8),
                     _buildInfoRow(
                       "Linealidad",
-                      '${calibracionEquipoFlujo.linealidad}%',
+                      '${calibracionEquipo.linealidad}%',
                     ),
                     _buildInfoRow(
                       "Reproducibilidad",
-                      '${calibracionEquipoFlujo.reproducibilidad}%',
+                      '${calibracionEquipo.reproducibilidad}%',
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      calibracionEquipoFlujo.observaciones.isNotEmpty
-                          ? calibracionEquipoFlujo.observaciones
+                      calibracionEquipo.observaciones.isNotEmpty
+                          ? calibracionEquipo.observaciones
                           : 'Ninguna',
                       style: TextStyle(fontSize: 16, color: colors.secondary),
                     ),
@@ -624,5 +562,335 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
     } else {
       throw 'No se pudo abrir $url';
     }
+  }
+
+  Widget buildTablaCorridas(BuildContext context) {
+    final datosFlujo =
+        calibracionEquipo.datosEspecificos as DatosCalibracionFlujo;
+    final colors = Theme.of(context).colorScheme;
+    return Table(
+      border: TableBorder.symmetric(
+        inside: const BorderSide(color: Colors.black, width: 1),
+        outside: const BorderSide(color: Colors.black, width: 2),
+      ),
+      children: [
+        TableRow(
+          decoration: BoxDecoration(color: colors.tertiary),
+          children: [
+            tablaCalibracion.cabeceraTabla(context, 'Caudal'),
+            tablaCalibracion.cabeceraTabla(context, 'Caudal'),
+            tablaCalibracion.cabeceraTabla(context, 'Temperatura'),
+            tablaCalibracion.cabeceraTabla(context, 'Presión'),
+            tablaCalibracion.cabeceraTabla(context, 'Meter'),
+            tablaCalibracion.cabeceraTabla(context, 'Frecuencia'),
+            tablaCalibracion.cabeceraTabla(context, 'K Factor'),
+            tablaCalibracion.cabeceraTabla(context, 'K Factor'),
+            tablaCalibracion.cabeceraTabla(context, 'Repetibilidad'),
+          ],
+        ),
+        TableRow(
+          decoration: BoxDecoration(color: colors.tertiary),
+          children: [
+            tablaCalibracion.cabeceraTabla(context, 'm³/hr'),
+            tablaCalibracion.cabeceraTabla(context, 'bbl/hr'),
+            tablaCalibracion.cabeceraTabla(context, '°C'),
+            tablaCalibracion.cabeceraTabla(context, 'kg/cm²'),
+            tablaCalibracion.cabeceraTabla(context, 'Factor'),
+            tablaCalibracion.cabeceraTabla(context, 'Hz'),
+            tablaCalibracion.cabeceraTabla(context, 'Pulsos/m³'),
+            tablaCalibracion.cabeceraTabla(context, 'Pulsos/bbl'),
+            tablaCalibracion.cabeceraTabla(context, '%'),
+          ],
+        ),
+        ...(datosFlujo.corridas.isNotEmpty
+            ? datosFlujo.corridas
+                  .map(
+                    (corrida) => TableRow(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.tertiaryContainer,
+                      ),
+                      children: [
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(corrida.caudalM3Hr, 2),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(corrida.caudalBblHr, 2),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(corrida.temperaturaC, 2),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(corrida.presionKgCm2, 2),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(corrida.meterFactor, 5),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(corrida.frecuenciaHz, 2),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(corrida.kFactorPulseM3, 3),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(corrida.kFactorPulseBbl, 3),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(corrida.repetibilidad, 3),
+                        ),
+                      ],
+                    ),
+                  )
+                  .toList()
+            : [
+                TableRow(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                  ),
+                  children: List.generate(
+                    9,
+                    (index) =>
+                        Padding(padding: EdgeInsets.all(2.0), child: Text('')),
+                  ),
+                ),
+              ]),
+      ],
+    );
+  }
+
+  Widget buildTablaTemperatura(BuildContext context) {
+    final datosTemperatura =
+        calibracionEquipo.datosEspecificos as DatosCalibracionTemperatura;
+    final colors = Theme.of(context).colorScheme;
+    return Table(
+      border: TableBorder.symmetric(
+        inside: const BorderSide(color: Colors.black, width: 1),
+        outside: const BorderSide(color: Colors.black, width: 2),
+      ),
+      children: [
+        TableRow(
+          decoration: BoxDecoration(color: colors.tertiary),
+          children: [
+            tablaCalibracion.cabeceraTabla(context, 'L. Patrón'),
+            tablaCalibracion.cabeceraTabla(context, 'L. Patrón'),
+            tablaCalibracion.cabeceraTabla(context, 'L. IBC'),
+            tablaCalibracion.cabeceraTabla(context, 'L. IBC'),
+            tablaCalibracion.cabeceraTabla(context, 'Error'),
+            tablaCalibracion.cabeceraTabla(context, 'Error'),
+            tablaCalibracion.cabeceraTabla(context, 'Incertidumbre'),
+            tablaCalibracion.cabeceraTabla(context, 'Incertidumbre'),
+          ],
+        ),
+        TableRow(
+          decoration: BoxDecoration(color: colors.tertiary),
+          children: [
+            tablaCalibracion.cabeceraTabla(context, '°C'),
+            tablaCalibracion.cabeceraTabla(context, '°F'),
+            tablaCalibracion.cabeceraTabla(context, '°C'),
+            tablaCalibracion.cabeceraTabla(context, '°F'),
+            tablaCalibracion.cabeceraTabla(context, '°C'),
+            tablaCalibracion.cabeceraTabla(context, '°F'),
+            tablaCalibracion.cabeceraTabla(context, '°C'),
+            tablaCalibracion.cabeceraTabla(context, '°F'),
+          ],
+        ),
+        ...(datosTemperatura.lecturas.isNotEmpty
+            ? datosTemperatura.lecturas
+                  .map(
+                    (lectura) => TableRow(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.tertiaryContainer,
+                      ),
+                      children: [
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.patronCelsius, 3),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.patronFahrenheit, 3),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.ibcCelsius, 3),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.ibcFahrenheit, 3),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.errorCelsius, 3),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.errorFahrenheit, 3),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(
+                            lectura.incertidumbreCelsius,
+                            3,
+                          ),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(
+                            lectura.incertidumbreFahrenheit,
+                            3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                  .toList()
+            : [
+                TableRow(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                  ),
+                  children: List.generate(
+                    8,
+                    (index) =>
+                        Padding(padding: EdgeInsets.all(2.0), child: Text('')),
+                  ),
+                ),
+              ]),
+      ],
+    );
+  }
+
+  Widget buildTablaPresion(BuildContext context) {
+    final datosPresion =
+        calibracionEquipo.datosEspecificos as DatosCalibracionPresion;
+    final colors = Theme.of(context).colorScheme;
+    return Table(
+      border: TableBorder.symmetric(
+        inside: const BorderSide(color: Colors.black, width: 1),
+        outside: const BorderSide(color: Colors.black, width: 2),
+      ),
+      children: [
+        TableRow(
+          decoration: BoxDecoration(color: colors.tertiary),
+          children: [
+            tablaCalibracion.cabeceraTabla(context, 'Patrón'),
+            tablaCalibracion.cabeceraTabla(context, 'Patrón'),
+            tablaCalibracion.cabeceraTabla(context, 'Patrón'),
+            tablaCalibracion.cabeceraTabla(context, 'IBC'),
+            tablaCalibracion.cabeceraTabla(context, 'IBC'),
+            tablaCalibracion.cabeceraTabla(context, 'IBC'),
+            tablaCalibracion.cabeceraTabla(context, 'Error'),
+            tablaCalibracion.cabeceraTabla(context, 'Error'),
+            tablaCalibracion.cabeceraTabla(context, 'Error'),
+            tablaCalibracion.cabeceraTabla(context, 'Incer.'),
+            tablaCalibracion.cabeceraTabla(context, 'Incer.'),
+            tablaCalibracion.cabeceraTabla(context, 'Incer.'),
+          ],
+        ),
+        TableRow(
+          decoration: BoxDecoration(color: colors.tertiary),
+          children: [
+            tablaCalibracion.cabeceraTabla(context, 'kg/cm²'),
+            tablaCalibracion.cabeceraTabla(context, 'psi'),
+            tablaCalibracion.cabeceraTabla(context, 'kPa'),
+            tablaCalibracion.cabeceraTabla(context, 'kg/cm²'),
+            tablaCalibracion.cabeceraTabla(context, 'psi'),
+            tablaCalibracion.cabeceraTabla(context, 'kPa'),
+            tablaCalibracion.cabeceraTabla(context, 'kg/cm²'),
+            tablaCalibracion.cabeceraTabla(context, 'psi'),
+            tablaCalibracion.cabeceraTabla(context, 'kPa'),
+            tablaCalibracion.cabeceraTabla(context, 'kg/cm²'),
+            tablaCalibracion.cabeceraTabla(context, 'psi'),
+            tablaCalibracion.cabeceraTabla(context, 'kPa'),
+          ],
+        ),
+        ...(datosPresion.lecturas.isNotEmpty
+            ? datosPresion.lecturas
+                  .map(
+                    (lectura) => TableRow(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.tertiaryContainer,
+                      ),
+                      children: [
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.patronKgCm2, 2),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.patronPSI, 2),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.patronkPa, 2),
+                        ),
+
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.ibcKgCm2, 2),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.ibcPSI, 2),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.ibckPa, 2),
+                        ),
+
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.errorKgCm2, 2),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.errorPSI, 2),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.errorkPa, 2),
+                        ),
+
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(
+                            lectura.incertidumbreKgCm2,
+                            2,
+                          ),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.incertidumbrePSI, 2),
+                        ),
+                        tablaCalibracion.celdaTabla(
+                          context,
+                          convertidor.formatoMiles(lectura.incertidumbrekPa, 2),
+                        ),
+                      ],
+                    ),
+                  )
+                  .toList()
+            : [
+                TableRow(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                  ),
+                  children: List.generate(
+                    12,
+                    (index) =>
+                        Padding(padding: EdgeInsets.all(2.0), child: Text('')),
+                  ),
+                ),
+              ]),
+      ],
+    );
   }
 }

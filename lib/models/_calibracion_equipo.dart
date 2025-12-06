@@ -1,7 +1,12 @@
 import 'package:calibraciones/models/_corrida.dart';
 import 'package:calibraciones/models/_lectura_temperatura.dart';
 import 'package:calibraciones/models/_producto.dart';
+import 'package:calibraciones/models/_lectura_presion.dart';
 import 'package:calibraciones/services/corridas_service.dart';
+import 'package:calibraciones/services/implementation/lectura_presion_service_impl.dart';
+import 'package:calibraciones/services/implementation/lectura_temperatura_service_impl.dart';
+import 'package:calibraciones/services/lectura_presion_service.dart';
+import 'package:calibraciones/services/lectura_temperatura_service.dart';
 import 'package:calibraciones/services/producto_service.dart';
 import 'package:calibraciones/services/implementation/corrida_service_impl.dart';
 import 'package:calibraciones/services/implementation/producto_service_impl.dart';
@@ -22,6 +27,12 @@ class DatosCalibracionTemperatura extends DatosPorEquipo {
   // La lista de lecturas es el dato específico de la calibración de temperatura
   late List<LecturaTemperatura> lecturas;
   DatosCalibracionTemperatura(this.lecturas);
+}
+
+class DatosCalibracionPresion extends DatosPorEquipo {
+  // La lista de lecturas es el dato específico de la calibración de presión
+  late List<LecturaPresion> lecturas;
+  DatosCalibracionPresion(this.lecturas);
 }
 
 class CalibracionEquipo {
@@ -153,27 +164,62 @@ class CalibracionEquipo {
     );
   }
 
-  static Future<CalibracionEquipo> fromJsonFlujoAsync(
-    Map<String, dynamic> calibracionJson,
-  ) async {
-    List<Corrida> corridas = [];
-    Producto producto = Producto(0, "");
-    CorridasService corridaService = CorridasServiceImpl();
-    ProductosService productoService = ProductoServiceImpl();
+static Future<CalibracionEquipo> fromJsonAsync(
+  Map<String, dynamic> calibracionJson,
+) async {
+  // Inicialización de Servicios (Asumimos que están disponibles)
+  final CorridasService corridaService = CorridasServiceImpl();
+  final ProductosService productoService = ProductoServiceImpl();
+  // 🌟 Nuevo servicio específico para Temperatura (u otros tipos)
+  final LecturaTemperaturaService lecturaTemperaturaService = LecturaTemperaturaServiceImpl();
+  final LecturaPresionService lecturaPresionService = LecturaPresionServiceImpl();
+  
+  // 1. OBTENER INFORMACIÓN COMÚN
+  
+  // Identificar el tipo de equipo (¡CAMPO CLAVE! ASUMIDO EN EL JSON)
+  String tipoEquipo = calibracionJson['tag_equipo'] as String; // O el campo que definas
+  tipoEquipo = tipoEquipo.substring(0, tipoEquipo.indexOf('-')); // Extraer tipo antes del guion bajo
+  
+  // Obtener el Producto (dato común)
+  final Producto producto = await productoService.obtenerProductoPorId(
+    calibracionJson['producto'] as int,
+  );
+  
+  // 2. OBTENER Y CREAR DATOS ESPECÍFICOS (Polimorfismo)
+  
+  DatosPorEquipo? datosEspecificos;
+  
+  try {
+    switch (tipoEquipo) {
+      case 'FT':
+        List<Corrida> corridas = await corridaService.obtenerCorridaPorCalibracion(
+          calibracionJson['id_calibracion'],
+        );
+        // Instancia de la clase específica de Flujo
+        datosEspecificos = DatosCalibracionFlujo(corridas);
+        break;
 
-    try {
-      // 1. AWAIT: Esperamos a que la consulta termine y obtenga las corridas.
-      corridas = await corridaService.obtenerCorridaPorCalibracion(
-        calibracionJson['id_calibracion'],
-      );
+      case 'TIT':
+        List<LecturaTemperatura> lecturasTemperatura = await lecturaTemperaturaService.obtenerLecturaPorCalibracion(
+          calibracionJson['id_calibracion'],
+        );
+        // Instancia de la clase específica de Temperatura
+        datosEspecificos = DatosCalibracionTemperatura(lecturasTemperatura);
+        break;
 
-      producto = await productoService.obtenerProductoPorId(
-        calibracionJson['producto'] as int,
-      );
-    } catch (error) {
-      // Manejo de errores (por ejemplo, registrar el error y devolver una lista vacía)
-      corridas = []; // Asegura que se devuelve una lista vacía en caso de error
+      case 'PIT':
+        List<LecturaPresion> lecturasPresion = await lecturaPresionService.obtenerLecturaPorCalibracion(
+          calibracionJson['id_calibracion'],
+        );
+        datosEspecificos = DatosCalibracionPresion(lecturasPresion); // O un valor por defecto
+        break;
     }
+  } catch (error) {
+    // Manejo de errores en la carga de datos específicos
+    print('Error al cargar datos específicos para $tipoEquipo: $error');
+    datosEspecificos = null; // Asigna un objeto vacío
+  }
+
     return CalibracionEquipo(
       calibracionJson['id_calibracion'] as int,
       calibracionJson['certificado_calibracion'] as String,
@@ -187,9 +233,9 @@ class CalibracionEquipo {
       calibracionJson['id_laboratorio_calibracion'] as int,
       calibracionJson['id_usuario'] as int,
       producto,
-      DatosCalibracionFlujo(corridas)
+      datosEspecificos!,
     );
-  }
+}
 
   Map<String, dynamic> toJson() {
     return {
