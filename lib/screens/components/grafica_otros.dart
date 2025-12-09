@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -20,15 +19,24 @@ class GraficaOtros extends StatelessWidget {
     required this.tipo,
   });
 
+  // Función para crear la línea de referencia en Y = 0
+  HorizontalLine _getLineaCero(ColorScheme colors) {
+    return HorizontalLine(
+      y: 0,
+      color: colors.error, 
+      strokeWidth: 1.5,
+      dashArray: [8, 8],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
     return SizedBox(
-      height: 600,
+      height: 400,
       child: Column(
         children: <Widget>[
-          // 1. PRIMERA GRÁFICA (Toma la mitad del espacio disponible)
           Text(
             'IBC vs Error',
             style: TextStyle(
@@ -42,23 +50,20 @@ class GraficaOtros extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: LineChart(
                 LineChartData(
+                  // 🌟 AÑADIR LA LÍNEA DE REFERENCIA EN Y=0 🌟
                   extraLinesData: ExtraLinesData(
-                    horizontalLines: [_getLineaMediatemperatura(colors)],
-                    // Puedes dejar verticalLines vacía si no las necesitas
-                    // verticalLines: [],
+                    horizontalLines: [_getLineaCero(colors)],
                   ),
-                  // ... (Configuración general de la gráfica)
+                  
                   titlesData: FlTitlesData(
-                    // Títulos del Eje X (Flujo)
+                    // ... Títulos del Eje X (Bottom)
                     bottomTitles: AxisTitles(
-                      // Aumentamos el espacio reservado para el título del eje
                       axisNameSize: 35,
                       axisNameWidget: Padding(
-                        padding: const EdgeInsets.only(
-                          top: 8.0,
-                        ), // Reducido ligeramente
+                        padding: const EdgeInsets.only(top: 8.0),
                         child: Text(
-                          (tipo) ? 'Lectura IBC (ºC)':'Lectura IBC (ºkg/cm²)',
+                          // Aquí se invierte el orden del texto para que sea (IBC vs Unidad)
+                          (tipo) ? 'Lectura IBC (kg/cm²)' : 'Lectura IBC (ºC)', 
                           style: const TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -68,7 +73,6 @@ class GraficaOtros extends StatelessWidget {
                       ),
                       sideTitles: SideTitles(
                         showTitles: true,
-                        // Aumentamos el espacio reservado para las etiquetas numéricas
                         reservedSize: 50,
                         getTitlesWidget: (value, meta) {
                           final text = value.toStringAsFixed(0);
@@ -83,19 +87,18 @@ class GraficaOtros extends StatelessWidget {
                             ),
                           );
                         },
-                        interval: 15,
+                        interval: 5,
                       ),
                     ),
 
-                    // Títulos del Eje Y (K Factor)
-                    // EJE Y (K Factor)
+                    // ... Títulos del Eje Y (Left)
                     leftTitles: AxisTitles(
-                      // Aumentamos el espacio reservado para el título del eje
                       axisNameSize: 35,
                       axisNameWidget: Padding(
                         padding: EdgeInsets.only(right: 12.0),
                         child: Text(
-                          (tipo) ? 'Error (ºC)':'Error (ºkg/cm²)',
+                          // Aquí se invierte el orden del texto para que sea (Error vs Unidad)
+                          (tipo) ? 'Error (kg/cm²)' : 'Error (ºC)', 
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -105,13 +108,12 @@ class GraficaOtros extends StatelessWidget {
                       ),
                       sideTitles: SideTitles(
                         showTitles: true,
-                        // Aumentamos el espacio reservado para las etiquetas con decimales
                         reservedSize: 50,
                         getTitlesWidget: (value, meta) => Text(
                           value.toStringAsFixed(2),
                           style: const TextStyle(fontSize: 8),
                         ),
-                        interval: 20,
+                        interval: 0.010,
                       ),
                     ),
 
@@ -126,23 +128,26 @@ class GraficaOtros extends StatelessWidget {
                   // ... (Configuración de BorderData, etc.)
                   lineBarsData: [
                     LineChartBarData(
-                      // ... (Estilos de la línea)
                       color: colors.secondary,
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
                         color: colors.secondaryContainer,
+                        // El límite inferior debe ser 0 para colorear solo desde 0 hacia abajo
+                        // Esto crea un área bajo 0 y un área sobre 0.
+                        cutOffY: 0, 
+                        applyCutOffY: false,
                       ),
-                      spots:
-                          spots, // Usa la lista de puntos dinámica
+                      spots: spots, 
                     ),
                   ],
 
                   // LÍMITES DE LA GRÁFICA
-                  minX: minimoX, // El valor X del primer punto
-                  maxX: maximoX, // El valor X máximo
-                  minY: minimoY, // El valor Y mínimo (K Factor)
-                  maxY: maximoY, // El valor Y máximo
+                  minX: minimoX, 
+                  maxX: maximoX, 
+                  // Asegúrate de que 'minimoY' contenga el valor más negativo de tus datos.
+                  minY: minimoY, 
+                  maxY: maximoY, 
                 ),
                 duration: const Duration(milliseconds: 800),
                 curve: Curves.easeOutQuart,
@@ -152,116 +157,5 @@ class GraficaOtros extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  // Línea de Límite Inferior (LI)
-  HorizontalLine _getLimiteInferior(dynamic colors) {
-    double yValue =
-        _calcularPromedio(spots) -
-        2 * _calcularDesviacionEstandar(spots);
-    return HorizontalLine(
-      y: yValue,
-      color: colors.tertiary,
-      strokeWidth: 2,
-      dashArray: [5, 5], // Línea punteada
-      label: HorizontalLineLabel(
-        show: true,
-        alignment: Alignment.bottomRight,
-        padding: const EdgeInsets.only(right: 5),
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-          fontSize: 10,
-        ),
-        labelResolver: (line) => 'LI ${yValue.toStringAsFixed(5)}',
-      ),
-    );
-  }
-
-  // Línea de Límite Superior (LS)
-  HorizontalLine _getLimiteSuperior(dynamic colors) {
-    double yValue =
-        _calcularPromedio(spots) +
-        2 * _calcularDesviacionEstandar(spots);
-    return HorizontalLine(
-      y: yValue, // 💡 Define el valor Y de tu límite
-      color: colors.tertiary,
-      strokeWidth: 2,
-      dashArray: [5, 5], // Línea punteada
-      label: HorizontalLineLabel(
-        show: true,
-        alignment: Alignment.topRight,
-        padding: const EdgeInsets.only(right: 5),
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-          fontSize: 10,
-        ),
-        labelResolver: (line) => 'LS ${yValue.toStringAsFixed(5)}',
-      ),
-    );
-  }
-
-  // Línea de Valor Promedio (Media)
-  HorizontalLine _getLineaMedia(dynamic colors) {
-    double yValue = _calcularPromedio(spots);
-    return HorizontalLine(
-      y: yValue, // 💡 Define el valor Y de tu límite
-      color: colors.secondary,
-      strokeWidth: 2,
-      dashArray: [5, 5], // Línea punteada
-      label: HorizontalLineLabel(
-        show: true,
-        alignment: Alignment.topRight,
-        padding: const EdgeInsets.only(right: 5),
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-          fontSize: 10,
-        ),
-        labelResolver: (line) => 'AVG ${yValue.toStringAsFixed(5)}',
-      ),
-    );
-  }
-
-  HorizontalLine _getLineaMediatemperatura(dynamic colors) {
-    double yValue = _calcularPromedio(spots);
-    return HorizontalLine(
-      y: yValue, // 💡 Define el valor Y de tu límite
-      color: colors.secondary,
-      strokeWidth: 2,
-      dashArray: [5, 5], // Línea punteada
-      label: HorizontalLineLabel(
-        show: true,
-        alignment: Alignment.topRight,
-        padding: const EdgeInsets.only(right: 5),
-        style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-          fontSize: 10,
-        ),
-        labelResolver: (line) => 'AVG ${yValue.toStringAsFixed(2)}',
-      ),
-    );
-  }
-
-  //Calcular el valor promedio de Meter Factor
-  double _calcularPromedio(List<FlSpot> spots) {
-    if (spots.isEmpty) return 0.0;
-
-    double suma = spots.fold(0.0, (prev, spot) => prev + spot.y);
-    return suma / spots.length;
-  }
-
-  //Calcular desviación estándar de Meter Factor
-  double _calcularDesviacionEstandar(List<FlSpot> spots) {
-    if (spots.isEmpty) return 0.0;
-
-    double promedio = _calcularPromedio(spots);
-    double sumaDiferenciasCuadradas = spots.fold(
-      0.0,
-      (prev, spot) => prev + (spot.y - promedio) * (spot.y - promedio),
-    );
-    return sqrt((sumaDiferenciasCuadradas / spots.length));
   }
 }

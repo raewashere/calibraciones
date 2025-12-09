@@ -37,15 +37,17 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
 
   List<FlSpot> puntosG1 = [];
   List<FlSpot> puntosG2 = [];
-  double minimoXG1 = -10;
-  double maximoXG1 = 2000;
+  double minimoXG1 = 0;
+  double maximoXG1 = 0;
   double minimoYG1 = 0;
-  double maximoYG1 = 1;
+  double maximoYG1 = 0;
   double margenXG1 = 0;
   double margenYG1 = 0;
 
-  double minimoXG2 = -10;
-  double maximoXG2 = 2000;
+  double incertidumbreMaxima = 0;
+
+  double minimoXG2 = 0;
+  double maximoXG2 = 0;
   double minimoYG2 = 0;
   double maximoYG2 = 1;
   double margenXG2 = 0;
@@ -103,10 +105,10 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
           lecturasAPuntos();
           graficaOtros = GraficaOtros(
             spots: puntosG1,
-            maximoX: maximoXG1,
-            minimoX: minimoXG1,
-            maximoY: maximoYG1,
-            minimoY: minimoYG1,
+            maximoX: maximoXG1 + margenXG1,
+            minimoX: minimoXG1 - margenXG1,
+            maximoY: maximoYG1 + margenYG1,
+            minimoY: minimoYG1 - margenYG1,
             tipo: false,
           );
           tipoDetalle = 2;
@@ -115,10 +117,10 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
           lecturasAPuntos();
           graficaOtros = GraficaOtros(
             spots: puntosG1,
-            maximoX: maximoXG1,
-            minimoX: minimoXG1,
-            maximoY: maximoYG1,
-            minimoY: minimoYG1,
+            maximoX: maximoXG1 + margenXG1,
+            minimoX: minimoXG1 - margenXG1,
+            maximoY: maximoYG1 + margenYG1,
+            minimoY: minimoYG1 - margenYG1,
             tipo: true,
           );
           tipoDetalle = 3;
@@ -192,9 +194,11 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
     maximoXG2 = maximoXG1;
 
     minimoYG2 = puntosG2.map((spot) => spot.y).reduce((a, b) => a < b ? a : b);
-    minimoYG2 = minimoYG2 - 0.001;
     maximoYG2 = puntosG2.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
-    maximoYG2 = maximoYG2 + 0.001;
+    margenYG2 = (minimoYG2 * 0.05);
+    minimoYG2 = minimoYG2 - margenYG2;
+    margenYG2 = (maximoYG2 * 0.05);
+    maximoYG2 = maximoYG2 + margenYG2;
   }
 
   void lecturasAPuntos() {
@@ -204,37 +208,42 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
       puntosG1 = datos.lecturas
           .map((lectura) => FlSpot(lectura.ibcCelsius, lectura.errorCelsius))
           .toList();
+
+      incertidumbreMaxima = datos.lecturas
+          .map((lectura) => lectura.incertidumbreCelsius)
+          .reduce((a, b) => a > b ? a : b);
     } else if (calibracionEquipo.datosEspecificos is DatosCalibracionPresion) {
       final datos =
           calibracionEquipo.datosEspecificos as DatosCalibracionPresion;
       puntosG1 = datos.lecturas
           .map((lectura) => FlSpot(lectura.ibcKgCm2, lectura.errorKgCm2))
           .toList();
+      incertidumbreMaxima = datos.lecturas
+          .map((lectura) => lectura.incertidumbreKgCm2)
+          .reduce((a, b) => a > b ? a : b);
     }
 
     // 💡 Implementar manejo de lista vacía
-    if (puntosG1.isEmpty) {
-      minimoXG1 = 0;
-      maximoXG1 = 120;
-      minimoYG1 = -2;
-      maximoYG1 = 2;
-      return; // Salir de la función
-    }
+    //if (puntosG1.isEmpty) {
+    minimoXG1 = 0;
+    maximoXG1 = 120;
+    minimoYG1 = -0.1;
+    maximoYG1 = 0.1;
+    //  return; // Salir de la función
+    //}
 
     // Lógica de límites solo si hay datos
     minimoXG1 = puntosG1.map((spot) => spot.x).reduce((a, b) => a < b ? a : b);
-    //Porcentaje simetrico
-    margenXG1 = (minimoXG1 * 0.15);
-    minimoXG1 = minimoXG1 - margenXG1; // Un 10% menos para margen
     maximoXG1 = puntosG1.map((spot) => spot.x).reduce((a, b) => a > b ? a : b);
-    maximoXG1 = maximoXG1 + margenXG1; // Un 10% más para margen
-    minimoYG1 = puntosG1.map((spot) => spot.y).reduce((a, b) => a < b ? a : b);
+    margenXG1 = (maximoXG1 * 0.25);
+    //minimoXG1 = minimoXG1 - margenXG1;
+    //maximoXG1 = maximoXG1 + margenXG1;
 
-    //Porcentaje simetrico
-    margenYG1 = (minimoYG1 * 0.001);
-    minimoYG1 = minimoYG1 - margenYG1; // Un 15% menos para margen
-    maximoYG1 = puntosG1.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
-    maximoYG1 = maximoYG1 + margenYG1; // Un 15% más para margen
+    minimoYG1 = puntosG1.map((spot) => spot.y).reduce((a, b) => a < b ? a : b);
+    maximoYG1 = puntosG1.map((spot) => spot.y).reduce((a, b) => a.abs() > b.abs() ? a : b);
+    margenYG1 = (maximoYG1.abs() * 5);
+    //minimoYG1 = minimoYG1 - margenYG1;
+    //maximoYG1 = maximoYG1 + margenYG1;
   }
 
   @override
@@ -490,46 +499,11 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
             const SizedBox(height: 16),
 
             // ======== OBSERVACIONES =========
-            Card(
-              color: colors.onPrimary,
-              elevation: 1,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Observaciones",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: colors.primary,
-                      ),
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 8),
-                    _buildInfoRow(
-                      "Linealidad",
-                      '${calibracionEquipo.linealidad}%',
-                    ),
-                    _buildInfoRow(
-                      "Reproducibilidad",
-                      '${calibracionEquipo.reproducibilidad}%',
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      calibracionEquipo.observaciones.isNotEmpty
-                          ? calibracionEquipo.observaciones
-                          : 'Ninguna',
-                      style: TextStyle(fontSize: 16, color: colors.secondary),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            (tipoDetalle == 1)
+                ? buildObservaciones(context)
+                : (tipoDetalle == 2 || tipoDetalle == 3)
+                ? buildExtras(context)
+                : SizedBox.shrink(),
           ],
         ),
       ),
@@ -891,6 +865,80 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                 ),
               ]),
       ],
+    );
+  }
+
+  Widget buildObservaciones(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Card(
+      color: colors.onPrimary,
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Observaciones",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: colors.primary,
+              ),
+            ),
+            const Divider(),
+            const SizedBox(height: 8),
+            _buildInfoRow("Linealidad", '${calibracionEquipo.linealidad}%'),
+            _buildInfoRow(
+              "Reproducibilidad",
+              '${calibracionEquipo.reproducibilidad}%',
+            ),
+            const SizedBox(height: 8),
+            Text(
+              calibracionEquipo.observaciones.isNotEmpty
+                  ? calibracionEquipo.observaciones
+                  : 'Ninguna',
+              style: TextStyle(fontSize: 16, color: colors.secondary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildExtras(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Card(
+      color: colors.onPrimary,
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Extras",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: colors.primary,
+              ),
+            ),
+            const Divider(),
+            const SizedBox(height: 8),
+            _buildInfoRow(
+              "Error de medida máximo",
+              "${convertidor.formatoMiles(maximoYG1, 3)} ${equipo.magnitudIncertidumbre}",
+            ),
+            _buildInfoRow(
+              "Incertidumbre de medida máximo",
+              "${convertidor.formatoMiles(incertidumbreMaxima, 3)} ${equipo.magnitudIncertidumbre}",
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -6,7 +6,7 @@ class LecturaPresionServiceImpl extends LecturaPresionService {
   final SupabaseClient supabase = Supabase.instance.client;
 
   @override
-  Future<List<LecturaPresion>> obtenerLecturaPorCalibracion(int idCalibracion) async {
+  Future<List<LecturaPresion>> obtenerLecturaPorCalibracionPresion(int idCalibracion) async {
     try {
       final response = await supabase
           .from('lectura_presion')

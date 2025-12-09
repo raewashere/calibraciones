@@ -86,6 +86,23 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final TextEditingController _incertidumbreFahrenheitController =
       TextEditingController();
 
+  //Datos presion
+  final TextEditingController _patronKgCm2Controller = TextEditingController();
+  final TextEditingController _patronPSIController = TextEditingController();
+  final TextEditingController _patronKPAController = TextEditingController();
+  final TextEditingController _ibcKgCm2Controller = TextEditingController();
+  final TextEditingController _ibcPSIController = TextEditingController();
+  final TextEditingController _ibcKPAController = TextEditingController();
+  final TextEditingController _errorKgCm2Controller = TextEditingController();
+  final TextEditingController _errorPSIController = TextEditingController();
+  final TextEditingController _errorKPAController = TextEditingController();
+  final TextEditingController _incertidumbreKgCm2Controller =
+      TextEditingController();
+  final TextEditingController _incertidumbrePSIController =
+      TextEditingController();
+  final TextEditingController _incertidumbreKPAController =
+      TextEditingController();
+
   //Corridas flujo
   final List _listaCorridas = [];
   late Corrida _corridaActual;
@@ -109,6 +126,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
   final FocusNode _focusNodeCaudal = FocusNode();
   final FocusNode _focusNodeTemperatura = FocusNode();
+  final FocusNode _focusNodePresion = FocusNode();
+  final FocusNode _focusNodeDensidad = FocusNode();
 
   DireccionService direccionService = DireccionServiceImpl();
   LaboratorioCalibracionService laboratorioService =
@@ -464,6 +483,68 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       errorFahrenheit,
       3,
     );
+  }
+
+  //Conversiones de presión
+  void _onKgCm2PatronChanged(String value) {
+    if (_editingPresionPSI && _editingPresionKPa) return; // evita recursividad
+    setState(() => _editingPresion = true);
+    if (value.isNotEmpty) {
+      double kgcm2 = double.tryParse(value) ?? 0;
+      _patronPSIController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToPsi(kgcm2),
+        2,
+      );
+      _patronKPAController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToKPa(kgcm2),
+        2,
+      );
+    } else {
+      _patronPSIController.clear();
+      _patronKPAController.clear();
+    }
+    setState(() => _editingPresion = false);
+  }
+
+  void _onPSIPatronChanged(String value) {
+    if (_editingPresion && _editingPresionKPa) return; // evita recursividad
+    setState(() => _editingPresionPSI = true);
+    if (value.isNotEmpty) {
+      double psi = double.tryParse(value) ?? 0;
+      double kgcm2 = Conversiones.psiToKgCm2(psi);
+      _patronKgCm2Controller.text = convertidor.formatoMiles(
+        Conversiones.psiToKgCm2(psi),
+        2,
+      );
+      _patronKPAController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToKPa(kgcm2),
+        2,
+      );
+    } else {
+      _patronPSIController.clear();
+      _patronKPAController.clear();
+    }
+    setState(() => _editingPresionPSI = false);
+  }
+
+  void _onKPaPatronChanged(String value) {
+    if (_editingPresion && _editingPresionPSI) return; // evita recursividad
+    setState(() => _editingPresionKPa = true);
+    if (value.isNotEmpty) {
+      double kgcm2 = double.tryParse(value) ?? 0;
+      _patronPSIController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToPsi(kgcm2),
+        2,
+      );
+      _patronKPAController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToKPa(kgcm2),
+        2,
+      );
+    } else {
+      _patronPSIController.clear();
+      _patronKPAController.clear();
+    }
+    setState(() => _editingPresionKPa = false);
   }
 
   bool validarEmail(String email) {
@@ -2438,26 +2519,14 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             color: theme.colorScheme.tertiary,
                           ),
                           children: [
-                            tablaCalibracion.cabeceraTabla(
-                              context,
-                              'L. Patrón',
-                            ),
-                            tablaCalibracion.cabeceraTabla(
-                              context,
-                              'L. Patrón',
-                            ),
-                            tablaCalibracion.cabeceraTabla(context, 'L. IBC'),
-                            tablaCalibracion.cabeceraTabla(context, 'L. IBC'),
+                            tablaCalibracion.cabeceraTabla(context, 'Patrón'),
+                            tablaCalibracion.cabeceraTabla(context, 'Patrón'),
+                            tablaCalibracion.cabeceraTabla(context, 'IBC'),
+                            tablaCalibracion.cabeceraTabla(context, 'IBC'),
                             tablaCalibracion.cabeceraTabla(context, 'Error'),
                             tablaCalibracion.cabeceraTabla(context, 'Error'),
-                            tablaCalibracion.cabeceraTabla(
-                              context,
-                              'Incertidumbre',
-                            ),
-                            tablaCalibracion.cabeceraTabla(
-                              context,
-                              'Incertidumbre',
-                            ),
+                            tablaCalibracion.cabeceraTabla(context, 'Incer.'),
+                            tablaCalibracion.cabeceraTabla(context, 'Incer.'),
                             tablaCalibracion.cabeceraTabla(context, 'Editar'),
                             tablaCalibracion.cabeceraTabla(context, 'Borrar'),
                           ],
@@ -2847,7 +2916,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                       SizedBox(width: 10),
                       _iconoAyudaSeccion(
                         context,
-                        'Llena los campos adicionales de presión si aplica.',
+                        'Llena los campos adicionales de temperatura si aplica.',
                       ),
                     ],
                   ),
@@ -2865,11 +2934,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText:
-                                "Condición de referencia kg/m³ antes calibración",
+                            hintText: "Lectura Patrón (kg/cm²)",
                             validatorText:
-                                'Favor de escribir la condición de referencia',
-                            controllerText: _linealidadController,
+                                'Favor de escribir lectura de patrón',
+                            controllerText: _patronKgCm2Controller,
+                            focusNode: _focusNodePresion,
+                            onChanged: _onKgCm2PatronChanged,
                             decimales: 3,
                           ),
                         ),
@@ -2877,25 +2947,531 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText:
-                                "Condición de referencia kg/m³ después calibración",
+                            hintText: "Lectura Patrón (psi)",
                             validatorText:
-                                'Favor de escribir la condición de referencia',
-                            controllerText: _linealidadController,
+                                'Favor de escribir lectura de patrón',
+                            controllerText: _patronPSIController,
+                            onChanged: _onPSIPatronChanged,
+                            decimales: 3,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Lectura Patrón (kPa)",
+                            validatorText:
+                                'Favor de escribir lectura de patrón',
+                            controllerText: _patronKPAController,
+                            onChanged: _onKPaPatronChanged,
                             decimales: 3,
                           ),
                         ),
                       ],
                     ),
-                    _buildTextFormField(
-                      context,
-                      hintText: "Diferencia de densidad (kg/m³)",
-                      validatorText:
-                          'Favor de escribir la diferencia de densidad',
-                      controllerText: _observacionesController,
-                      decimales: 0,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Lectura IBC (kg/cm²)",
+                            validatorText:
+                                'Favor de escribir lectura de patrón',
+                            controllerText: _ibcKgCm2Controller,
+                            onChanged: _onCelsiusPatronChanged,
+                            decimales: 3,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Lectura IBC (psi)",
+                            validatorText:
+                                'Favor de escribir lectura de patrón',
+                            controllerText: _ibcPSIController,
+                            onChanged: _onFahrenheitPatronChanged,
+                            decimales: 3,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Lectura IBC (kPa)",
+                            validatorText:
+                                'Favor de escribir lectura de patrón',
+                            controllerText: _ibcKPAController,
+                            onChanged: _onFahrenheitPatronChanged,
+                            decimales: 3,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Error de medida (kg/cm²)",
+                            validatorText:
+                                'Favor de escribir lectura de patrón',
+                            controllerText: _errorKgCm2Controller,
+                            onChanged: _onCelsiusPatronChanged,
+                            decimales: 3,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Error de medida (psi)",
+                            validatorText:
+                                'Favor de escribir lectura de patrón',
+                            controllerText: _errorPSIController,
+                            onChanged: _onFahrenheitPatronChanged,
+                            decimales: 3,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Error de medida (kPa)",
+                            validatorText:
+                                'Favor de escribir lectura de patrón',
+                            controllerText: _errorKPAController,
+                            onChanged: _onFahrenheitPatronChanged,
+                            decimales: 3,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Incertidumbre (kg/cm²)",
+                            validatorText:
+                                'Favor de escribir lectura de patrón',
+                            controllerText: _incertidumbreKgCm2Controller,
+                            onChanged: _onCelsiusPatronChanged,
+                            decimales: 3,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Incertidumbre (psi)",
+                            validatorText:
+                                'Favor de escribir lectura de patrón',
+                            controllerText: _incertidumbrePSIController,
+                            onChanged: _onFahrenheitPatronChanged,
+                            decimales: 3,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Incertidumbre (kPa)",
+                            validatorText:
+                                'Favor de escribir lectura de patrón',
+                            controllerText: _incertidumbreKPAController,
+                            onChanged: _onFahrenheitPatronChanged,
+                            decimales: 3,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Table(
+                      border: TableBorder.symmetric(
+                        inside: const BorderSide(color: Colors.black, width: 1),
+                        outside: const BorderSide(
+                          color: Colors.black,
+                          width: 2,
+                        ),
+                      ),
+                      children: [
+                        TableRow(
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.tertiary,
+                          ),
+                          children: [
+                            tablaCalibracion.cabeceraTabla(context, 'Patrón'),
+                            tablaCalibracion.cabeceraTabla(context, 'Patrón'),
+                            tablaCalibracion.cabeceraTabla(context, 'Patrón'),
+                            tablaCalibracion.cabeceraTabla(context, 'IBC'),
+                            tablaCalibracion.cabeceraTabla(context, 'IBC'),
+                            tablaCalibracion.cabeceraTabla(context, 'IBC'),
+                            tablaCalibracion.cabeceraTabla(context, 'Error'),
+                            tablaCalibracion.cabeceraTabla(context, 'Error'),
+                            tablaCalibracion.cabeceraTabla(context, 'Error'),
+                            tablaCalibracion.cabeceraTabla(context, 'Incer.'),
+                            tablaCalibracion.cabeceraTabla(context, 'Incer.'),
+                            tablaCalibracion.cabeceraTabla(context, 'Incer.'),
+                            tablaCalibracion.cabeceraTabla(context, 'Editar'),
+                            tablaCalibracion.cabeceraTabla(context, 'Borrar'),
+                          ],
+                        ),
+                        TableRow(
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.tertiary,
+                          ),
+                          children: [
+                            tablaCalibracion.cabeceraTabla(context, 'kg/cm²'),
+                            tablaCalibracion.cabeceraTabla(context, 'psi'),
+                            tablaCalibracion.cabeceraTabla(context, 'kPa'),
+                            tablaCalibracion.cabeceraTabla(context, 'kg/cm²'),
+                            tablaCalibracion.cabeceraTabla(context, 'psi'),
+                            tablaCalibracion.cabeceraTabla(context, 'kPa'),
+                            tablaCalibracion.cabeceraTabla(context, 'kg/cm²'),
+                            tablaCalibracion.cabeceraTabla(context, 'psi'),
+                            tablaCalibracion.cabeceraTabla(context, 'kPa'),
+                            tablaCalibracion.cabeceraTabla(context, 'kg/cm²'),
+                            tablaCalibracion.cabeceraTabla(context, 'psi'),
+                            tablaCalibracion.cabeceraTabla(context, 'kPa'),
+                            tablaCalibracion.cabeceraTabla(context, ''),
+                            tablaCalibracion.cabeceraTabla(context, ''),
+                          ],
+                        ),
+                        ...(_lecturasRegistradasTemperatura.isNotEmpty
+                            ? _lecturasRegistradasTemperatura
+                                  .map(
+                                    (lectura) => TableRow(
+                                      decoration: BoxDecoration(
+                                        color:
+                                            theme.colorScheme.tertiaryContainer,
+                                      ),
+                                      children: [
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            lectura.patronCelsius,
+                                            3,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            lectura.patronFahrenheit,
+                                            3,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            lectura.ibcCelsius,
+                                            3,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            lectura.ibcFahrenheit,
+                                            3,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            lectura.errorCelsius,
+                                            3,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            lectura.errorFahrenheit,
+                                            3,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            lectura.incertidumbreCelsius,
+                                            3,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            lectura.incertidumbreFahrenheit,
+                                            3,
+                                          ),
+                                        ),
+                                        tablaCalibracion.editarFilaTabla(context, () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              // This is an alert dialog that asks for confirmation to delete something.
+                                              return AlertDialog(
+                                                title: Text(
+                                                  "¿Quieres editar esta lectura de temperatura?",
+                                                ),
+                                                content: SingleChildScrollView(
+                                                  child: ListBody(
+                                                    children: <Widget>[
+                                                      Text(
+                                                        'Se cargaran los datos de la lectura de temperatura en los campos de entrada para su edición',
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                actions: [
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop(
+                                                        false,
+                                                      ); // Return false if cancelled
+                                                    },
+                                                    child: Text("Cancelar"),
+                                                  ),
+                                                  ElevatedButton(
+                                                    style: ButtonStyle(
+                                                      backgroundColor:
+                                                          WidgetStateProperty.all(
+                                                            theme
+                                                                .colorScheme
+                                                                .secondary,
+                                                          ),
+                                                    ),
+                                                    onPressed: () async {
+                                                      // Call a function that deletes the data when confirmed.
+                                                      setState(() {
+                                                        int
+                                                        index = _lecturasRegistradasTemperatura
+                                                            .indexWhere(
+                                                              (l) =>
+                                                                  l.idLectura ==
+                                                                  lectura
+                                                                      .idLectura,
+                                                            );
+                                                        _lecturaActualTemperatura =
+                                                            _lecturasRegistradasTemperatura[index];
+                                                        _patronCelsiusController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualTemperatura
+                                                                  .patronCelsius,
+                                                              3,
+                                                            );
+                                                        _patronFahrenheitController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualTemperatura
+                                                                  .patronFahrenheit,
+                                                              3,
+                                                            );
+                                                        _errorCelsiusController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualTemperatura
+                                                                  .errorCelsius,
+                                                              3,
+                                                            );
+                                                        _errorFahrenheitController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualTemperatura
+                                                                  .errorFahrenheit,
+                                                              3,
+                                                            );
+                                                        _ibcCelsiusController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualTemperatura
+                                                                  .ibcCelsius,
+                                                              3,
+                                                            );
+                                                        _ibcFahrenheitController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualTemperatura
+                                                                  .ibcFahrenheit,
+                                                              3,
+                                                            );
+                                                        _incertidumbreCelsiusController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualTemperatura
+                                                                  .incertidumbreCelsius,
+                                                              3,
+                                                            );
+                                                        _incertidumbreFahrenheitController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualTemperatura
+                                                                  .incertidumbreFahrenheit,
+                                                              3,
+                                                            );
+                                                        editandoLecturaTemperatura =
+                                                            true;
+                                                        indiceCorridaEditandoTemperatura =
+                                                            index;
+                                                      });
+
+                                                      Navigator.of(
+                                                        context,
+                                                      ).pop(true);
+                                                    },
+                                                    child: Text(
+                                                      "Editar",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        }),
+                                        tablaCalibracion.borraFilaTabla(context, () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              // This is an alert dialog that asks for confirmation to delete something.
+                                              return AlertDialog(
+                                                title: Text(
+                                                  "¿Quieres quitar esta medición?",
+                                                ),
+                                                content: SingleChildScrollView(
+                                                  child: ListBody(
+                                                    children: <Widget>[
+                                                      Text(
+                                                        'Quitarás la medición de la tabla y del cálculo',
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                actions: [
+                                                  ElevatedButton(
+                                                    style: ButtonStyle(
+                                                      backgroundColor:
+                                                          WidgetStateProperty.all(
+                                                            theme
+                                                                .colorScheme
+                                                                .primary,
+                                                          ),
+                                                    ),
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop(
+                                                        false,
+                                                      ); // Return false if cancelled
+                                                    },
+                                                    child: Text("Cancelar"),
+                                                  ),
+                                                  ElevatedButton(
+                                                    style: ButtonStyle(
+                                                      backgroundColor:
+                                                          WidgetStateProperty.all(
+                                                            theme
+                                                                .colorScheme
+                                                                .secondary,
+                                                          ),
+                                                    ),
+                                                    onPressed: () async {
+                                                      // Call a function that deletes the data when confirmed.
+                                                      setState(() {
+                                                        int
+                                                        index = _lecturasRegistradasTemperatura
+                                                            .indexWhere(
+                                                              (l) =>
+                                                                  l.idLectura ==
+                                                                  lectura
+                                                                      .idLectura,
+                                                            );
+                                                        _lecturasRegistradasTemperatura
+                                                            .removeWhere(
+                                                              (l) =>
+                                                                  l.idLectura ==
+                                                                  lectura
+                                                                      .idLectura,
+                                                            );
+                                                        _listaLecturasTemperatura
+                                                            .removeAt(index);
+                                                      });
+
+                                                      Navigator.of(
+                                                        context,
+                                                      ).pop(true);
+                                                    },
+                                                    child: Text(
+                                                      "Quitar",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        }),
+                                      ],
+                                    ),
+                                  )
+                                  .toList()
+                            : [
+                                TableRow(
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.tertiaryContainer,
+                                  ),
+                                  children: List.generate(
+                                    14,
+                                    (index) => Padding(
+                                      padding: EdgeInsets.all(2.0),
+                                      child: Text(''),
+                                    ),
+                                  ),
+                                ),
+                              ]),
+                      ],
                     ),
                   ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Center(
+                child: editandoLecturaTemperatura
+                    ? ElevatedButton(
+                        onPressed: _agregarLecturaTemperatura,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.secondary,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onSecondary,
+                        ),
+                        child: const Text('Agregar edición'),
+                      )
+                    : ElevatedButton(
+                        onPressed: _agregarLecturaTemperatura,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.secondary,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onSecondary,
+                        ),
+                        child: const Text('Agregar lectura'),
+                      ),
+              ),
+              SizedBox(height: 10),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _limpiaLecturaTemperatura,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: theme.colorScheme.onPrimary,
+                  ),
+                  child: const Text('Limpiar lectura'),
                 ),
               ),
             ],

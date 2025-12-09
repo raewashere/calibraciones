@@ -6,16 +6,24 @@ class LecturaTemperaturaServiceImpl extends LecturaTemperaturaService {
   final SupabaseClient supabase = Supabase.instance.client;
 
   @override
-  Future<List<LecturaTemperatura>> obtenerLecturaPorCalibracion(int idCalibracion) async {
+  Future<List<LecturaTemperatura>> obtenerLecturaPorCalibracionTemperatura(
+    int idCalibracion,
+  ) async {
+    print('ID calibracion {$idCalibracion}');
+    if (idCalibracion == 88) {
+      print(idCalibracion);
+    }
     try {
       final response = await supabase
           .from('lectura_temperatura')
           .select()
           .eq('id_calibracion', idCalibracion);
       if (response.isNotEmpty) {
-        return (response as List).map((e) => LecturaTemperatura.fromJson(e)).toList();
+        return (response as List)
+            .map((e) => LecturaTemperatura.fromJson(e))
+            .toList();
       } else {
-        throw Exception('No se encontraron corridas');
+        throw Exception('No se encontraron lecturas temperatura');
       }
     } catch (e) {
       throw Exception('Error en la conexión: $e');

@@ -8,6 +8,10 @@ class CorridasServiceImpl extends CorridasService {
   @override
   Future<List<Corrida>> obtenerCorridaPorCalibracion(int idCalibracion) async {
     try {
+      print('ID calibracion {$idCalibracion}');
+      if(idCalibracion == 88){
+        print(idCalibracion);
+      }
       final response = await supabase
           .from('corrida')
           .select()
