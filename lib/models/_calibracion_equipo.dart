@@ -183,7 +183,7 @@ class CalibracionEquipo {
     tipoEquipo = tipoEquipo.substring(0, tipoEquipo.indexOf('-')).trim();
 
     print(
-      'Tipo de equipo extraído (limpio): [${tipoEquipo}]',
+      'Tipo de equipo extraído (limpio): [$tipoEquipo]',
     ); // Para depuración
 
     // Obtener el Producto (dato común)

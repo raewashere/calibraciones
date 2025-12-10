@@ -25,14 +25,14 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   final Mensajes mensajes = Mensajes();
   DateFormat formato = DateFormat("dd/MM/yyyy");
   late CalibracionEquipo calibracionEquipo;
-  late LaboratorioCalibracion laboratorio;
+  late LaboratorioCalibracion? laboratorio;
   final LaboratorioCalibracionService laboratorioService =
       LaboratorioCalibracionServiceImpl();
   String nombreLaboratorio = '';
   late GraficaCorridas graficaCorridas;
   late GraficaOtros graficaOtros;
   bool _isDataInitialized = false;
-  late Equipo equipo;
+  late Equipo? equipo;
   final EquipoService equipoService = EquipoServiceImpl();
 
   List<FlSpot> puntosG1 = [];
@@ -240,7 +240,9 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
     //maximoXG1 = maximoXG1 + margenXG1;
 
     minimoYG1 = puntosG1.map((spot) => spot.y).reduce((a, b) => a < b ? a : b);
-    maximoYG1 = puntosG1.map((spot) => spot.y).reduce((a, b) => a.abs() > b.abs() ? a : b);
+    maximoYG1 = puntosG1
+        .map((spot) => spot.y)
+        .reduce((a, b) => a.abs() > b.abs() ? a : b);
     margenYG1 = (maximoYG1.abs() * 5);
     //minimoYG1 = minimoYG1 - margenYG1;
     //maximoYG1 = maximoYG1 + margenYG1;
@@ -309,7 +311,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                       "Fecha de calibración",
                       formato.format(calibracionEquipo.fechaCalibracion),
                     ),
-                    _buildInfoRow("Laboratorio", laboratorio.nombre),
+                    _buildInfoRow("Laboratorio", laboratorio!.nombre ?? 'No disponible'),
                     _buildInfoRow(
                       "Dirección",
                       rutaEquipo != null
@@ -402,24 +404,24 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     _buildInfoRow("TAG", calibracionEquipo.tagEquipo),
                     _buildInfoRow(
                       "Tipo de sensor",
-                      equipo.idTipoSensor.toString(),
+                      equipo!.idTipoSensor.toString(),
                     ),
-                    _buildInfoRow("Estado", equipo.estado),
-                    _buildInfoRow("Marca", equipo.marca),
-                    _buildInfoRow("Modelo", equipo.modelo),
-                    _buildInfoRow("Tipo de medición", equipo.tipoMedicion),
+                    _buildInfoRow("Estado", equipo!.estado ?? 'No disponible'),
+                    _buildInfoRow("Marca", equipo!.marca ?? 'No disponible'),
+                    _buildInfoRow("Modelo", equipo!.modelo ?? 'No disponible'),
+                    _buildInfoRow("Tipo de medición", equipo!.tipoMedicion ?? 'No disponible'),
                     _buildInfoRow(
                       "Incertidumbre",
-                      '± ${equipo.incertidumbre} % ${equipo.magnitudIncertidumbre}',
+                      '± ${equipo!.incertidumbre ?? ''} % ${equipo!.magnitudIncertidumbre ?? ''}',
                     ),
                     //Redondeo de intervalo de calibracion a meses
                     _buildInfoRow(
                       "Intervalo de calibración",
-                      '${(equipo.intervaloCalibracion / 30).round()} meses',
+                      '${((equipo!.intervaloCalibracion ?? 0) / 30).round()} meses',
                     ),
                     _buildInfoRow(
                       "Intervalo de verificación",
-                      '${(equipo.intervaloVerificacion / 30).round()} meses',
+                      '${((equipo!.intervaloVerificacion ?? 0) / 30).round()} meses',
                     ),
                   ],
                 ),
@@ -930,11 +932,11 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
             const SizedBox(height: 8),
             _buildInfoRow(
               "Error de medida máximo",
-              "${convertidor.formatoMiles(maximoYG1, 3)} ${equipo.magnitudIncertidumbre}",
+              "${convertidor.formatoMiles(maximoYG1, 3)} ${equipo!.magnitudIncertidumbre ?? ''}",
             ),
             _buildInfoRow(
               "Incertidumbre de medida máximo",
-              "${convertidor.formatoMiles(incertidumbreMaxima, 3)} ${equipo.magnitudIncertidumbre}",
+              "${convertidor.formatoMiles(incertidumbreMaxima, 3)} ${equipo!.magnitudIncertidumbre ?? ''}",
             ),
           ],
         ),

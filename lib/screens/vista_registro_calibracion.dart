@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:calibraciones/common/barrel/models.dart';
 import 'package:calibraciones/common/components/components.dart';
 import 'package:calibraciones/common/barrel/services.dart';
+import 'package:calibraciones/models/_lectura_presion.dart';
 import 'package:calibraciones/models/_lectura_temperatura.dart';
 import 'package:calibraciones/models/_producto.dart';
 import 'package:calibraciones/services/data_service.dart';
@@ -108,9 +109,15 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   late Corrida _corridaActual;
   late final List<Corrida> _corridasRegistradas = [];
 
+  //Lecturas temperatura
   final List _listaLecturasTemperatura = [];
   late LecturaTemperatura _lecturaActualTemperatura;
   late final List<LecturaTemperatura> _lecturasRegistradasTemperatura = [];
+
+  //Lecturas presion
+  final List _listaLecturasPresion = [];
+  late LecturaPresion _lecturaActualPresion;
+  late final List<LecturaPresion> _lecturasRegistradasPresion = [];
 
   late CalibracionEquipo _calibracionEquipo;
 
@@ -121,8 +128,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
 
   bool editandoCorrida = false;
   bool editandoLecturaTemperatura = false;
+  bool editandoLecturaPresion = false;
   int indiceCorridaEditando = -1;
   int indiceCorridaEditandoTemperatura = -1;
+  int indiceCorridaEditandoPresion = -1;
 
   final FocusNode _focusNodeCaudal = FocusNode();
   final FocusNode _focusNodeTemperatura = FocusNode();
@@ -387,7 +396,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       _patronFahrenheitController.clear();
     }
     setState(() => _editingCelsius = false);
-    calcularErrorMedida();
+    calcularErrorTemperatura();
   }
 
   void _onFahrenheitPatronChanged(String value) {
@@ -403,7 +412,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       _patronCelsiusController.clear();
     }
     setState(() => _editingFahrenheit = false);
-    calcularErrorMedida();
+    calcularErrorTemperatura();
   }
 
   void _onCelsiusIBCChanged(String value) {
@@ -419,7 +428,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       _ibcFahrenheitController.clear();
     }
     setState(() => _editingCelsius = false);
-    calcularErrorMedida();
+    calcularErrorTemperatura();
   }
 
   void _onFahrenheitIBCChanged(String value) {
@@ -435,7 +444,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       _ibcCelsiusController.clear();
     }
     setState(() => _editingFahrenheit = false);
-    calcularErrorMedida();
+    calcularErrorTemperatura();
   }
 
   void _onCelsiusIncertidumbreChanged(String value) {
@@ -468,7 +477,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     setState(() => _editingFahrenheit = false);
   }
 
-  void calcularErrorMedida() {
+  void calcularErrorTemperatura() {
     double celsiusPatron = double.tryParse(_patronCelsiusController.text) ?? 0;
     double celsiusIBC = double.tryParse(_ibcCelsiusController.text) ?? 0;
     double errorCelsius = (celsiusPatron - celsiusIBC);
@@ -493,17 +502,18 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       double kgcm2 = double.tryParse(value) ?? 0;
       _patronPSIController.text = convertidor.formatoMiles(
         Conversiones.kgCm2ToPsi(kgcm2),
-        2,
+        3,
       );
       _patronKPAController.text = convertidor.formatoMiles(
         Conversiones.kgCm2ToKPa(kgcm2),
-        2,
+        3,
       );
     } else {
       _patronPSIController.clear();
       _patronKPAController.clear();
     }
     setState(() => _editingPresion = false);
+    calcularErrorPresion();
   }
 
   void _onPSIPatronChanged(String value) {
@@ -514,17 +524,18 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       double kgcm2 = Conversiones.psiToKgCm2(psi);
       _patronKgCm2Controller.text = convertidor.formatoMiles(
         Conversiones.psiToKgCm2(psi),
-        2,
+        3,
       );
       _patronKPAController.text = convertidor.formatoMiles(
         Conversiones.kgCm2ToKPa(kgcm2),
-        2,
+        3,
       );
     } else {
       _patronPSIController.clear();
       _patronKPAController.clear();
     }
     setState(() => _editingPresionPSI = false);
+    calcularErrorPresion();
   }
 
   void _onKPaPatronChanged(String value) {
@@ -534,17 +545,164 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       double kgcm2 = double.tryParse(value) ?? 0;
       _patronPSIController.text = convertidor.formatoMiles(
         Conversiones.kgCm2ToPsi(kgcm2),
-        2,
+        3,
       );
       _patronKPAController.text = convertidor.formatoMiles(
         Conversiones.kgCm2ToKPa(kgcm2),
-        2,
+        3,
       );
     } else {
       _patronPSIController.clear();
       _patronKPAController.clear();
     }
     setState(() => _editingPresionKPa = false);
+    calcularErrorPresion();
+  }
+
+  void _onKgCm2IBCChanged(String value) {
+    if (_editingPresionPSI && _editingPresionKPa) return; // evita recursividad
+    setState(() => _editingPresion = true);
+    if (value.isNotEmpty) {
+      double kgcm2 = double.tryParse(value) ?? 0;
+      _ibcPSIController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToPsi(kgcm2),
+        3,
+      );
+      _ibcKPAController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToKPa(kgcm2),
+        3,
+      );
+    } else {
+      _ibcPSIController.clear();
+      _ibcKPAController.clear();
+    }
+    setState(() => _editingPresion = false);
+    calcularErrorPresion();
+  }
+
+  void _onPSIIBCChanged(String value) {
+    if (_editingPresion && _editingPresionKPa) return; // evita recursividad
+    setState(() => _editingPresionPSI = true);
+    if (value.isNotEmpty) {
+      double psi = double.tryParse(value) ?? 0;
+      double kgcm2 = Conversiones.psiToKgCm2(psi);
+      _ibcKgCm2Controller.text = convertidor.formatoMiles(
+        Conversiones.psiToKgCm2(psi),
+        3,
+      );
+      _ibcKPAController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToKPa(kgcm2),
+        3,
+      );
+    } else {
+      _ibcKgCm2Controller.clear();
+      _ibcKPAController.clear();
+    }
+    setState(() => _editingPresionPSI = false);
+    calcularErrorPresion();
+  }
+
+  void _onKPaIBCChanged(String value) {
+    if (_editingPresion && _editingPresionPSI) return; // evita recursividad
+    setState(() => _editingPresionKPa = true);
+    if (value.isNotEmpty) {
+      double kgcm2 = double.tryParse(value) ?? 0;
+      _ibcPSIController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToPsi(kgcm2),
+        3,
+      );
+      _ibcKPAController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToKPa(kgcm2),
+        3,
+      );
+    } else {
+      _ibcPSIController.clear();
+      _ibcKPAController.clear();
+    }
+    setState(() => _editingPresionKPa = false);
+    calcularErrorPresion();
+  }
+
+  void calcularErrorPresion() {
+    double kgCm2Patron = double.tryParse(_patronKgCm2Controller.text) ?? 0;
+    double kgCm2IBC = double.tryParse(_ibcKgCm2Controller.text) ?? 0;
+    double errorKgCm2 = (kgCm2Patron - kgCm2IBC);
+
+    double psiPatron = double.tryParse(_patronPSIController.text) ?? 0;
+    double psiIBC = double.tryParse(_ibcPSIController.text) ?? 0;
+    double errorPsi = (psiPatron - psiIBC);
+
+    double kPaPatron = double.tryParse(_patronKPAController.text) ?? 0;
+    double kPaIBC = double.tryParse(_ibcKPAController.text) ?? 0;
+    double errorKPa = (kPaPatron - kPaIBC);
+
+    _errorKgCm2Controller.text = convertidor.formatoMiles(errorKgCm2, 3);
+    _errorPSIController.text = convertidor.formatoMiles(errorPsi, 3);
+    _errorKPAController.text = convertidor.formatoMiles(errorKPa, 3);
+  }
+
+  void _onKgCm2IncertidumbreChanged(String value) {
+    if (_editingPresionPSI && _editingPresionKPa) return; // evita recursividad
+    setState(() => _editingPresion = true);
+    if (value.isNotEmpty) {
+      double kgcm2 = double.tryParse(value) ?? 0;
+      _incertidumbrePSIController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToPsi(kgcm2),
+        3,
+      );
+      _incertidumbreKPAController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToKPa(kgcm2),
+        3,
+      );
+    } else {
+      _incertidumbrePSIController.clear();
+      _incertidumbreKPAController.clear();
+    }
+    setState(() => _editingPresion = false);
+    calcularErrorPresion();
+  }
+
+  void _onPSIIncertidumbreChanged(String value) {
+    if (_editingPresion && _editingPresionKPa) return; // evita recursividad
+    setState(() => _editingPresionPSI = true);
+    if (value.isNotEmpty) {
+      double psi = double.tryParse(value) ?? 0;
+      double kgcm2 = Conversiones.psiToKgCm2(psi);
+      _incertidumbreKgCm2Controller.text = convertidor.formatoMiles(
+        Conversiones.psiToKgCm2(psi),
+        3,
+      );
+      _incertidumbreKPAController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToKPa(kgcm2),
+        3,
+      );
+    } else {
+      _incertidumbreKgCm2Controller.clear();
+      _incertidumbreKPAController.clear();
+    }
+    setState(() => _editingPresionPSI = false);
+    calcularErrorPresion();
+  }
+
+  void _onKPaIncertidumbreChanged(String value) {
+    if (_editingPresion && _editingPresionPSI) return; // evita recursividad
+    setState(() => _editingPresionKPa = true);
+    if (value.isNotEmpty) {
+      double kgcm2 = double.tryParse(value) ?? 0;
+      _incertidumbrePSIController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToPsi(kgcm2),
+        3,
+      );
+      _incertidumbreKPAController.text = convertidor.formatoMiles(
+        Conversiones.kgCm2ToKPa(kgcm2),
+        3,
+      );
+    } else {
+      _incertidumbrePSIController.clear();
+      _incertidumbreKPAController.clear();
+    }
+    setState(() => _editingPresionKPa = false);
+    calcularErrorPresion();
   }
 
   bool validarEmail(String email) {
@@ -1003,6 +1161,38 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         );
       }
     } else if (equipoSeleccionado?.getIdTipoSensor.toString() == '3') {
+      if (_lecturasRegistradasPresion.isEmpty &&
+          _lecturasRegistradasPresion.length < 1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          mensajes.error(context, 'Debe registrar al menos 1 lecturas'),
+        );
+        return;
+      } else {
+        if (!_keySeccionEquipo.currentState!.validate() &&
+            !_keySeccionDatosCalibracion.currentState!.validate()) {
+          return;
+        }
+
+        final datosDePresion = DatosCalibracionPresion(
+          _lecturasRegistradasPresion,
+        );
+
+        _calibracionEquipo = CalibracionEquipo(
+          0,
+          _certificadoController.text,
+          selectedFecha,
+          selectedFechaProxima,
+          0,
+          0,
+          '',
+          '', // ruta certificado
+          equipoSeleccionado!.getTagEquipo,
+          laboratorioSeleccionado!.getIdLaboratorioCalibracion,
+          0,
+          productoSeleccionado!,
+          datosDePresion,
+        );
+      }
     } else if (equipoSeleccionado?.getIdTipoSensor.toString() == '4') {}
 
     exito = await calibracionService.registrarCalibracionEquipo(
@@ -1024,29 +1214,18 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       setState(() {
         _keySeccionEquipo.currentState!.reset();
         _keySeccionDatosCalibracion.currentState!.reset();
-        _laboratorioController.clear();
-        _productoController.clear();
-        _certificadoController.clear();
-        _archivoController.clear();
-        _fechaController.clear();
-        _fechaProximaController.clear();
-        _linealidadController.clear();
-        _reproducibilidadController.clear();
-        _observacionesController.clear();
-        _caudalM3Controller.clear();
-        _caudalBblController.clear();
-        _temperaturaCentigradosController.clear();
-        _presionController.clear();
-        _presionPSIController.clear();
-        _meterFactorController.clear();
-        _kFactorPulsosM3Controller.clear();
-        _kFactorPulsosBblController.clear();
-        _frecuenciaController.clear();
-        _repetibilidadController.clear();
-        _listaCorridas.clear();
+        direccionSeleccionada = null;
+        subdireccionSeleccionada = null;
+        gerenciaSeleccionada = null;
+        instalacionSeleccionada = null;
+        patinMedicionSeleccionado = null;
+        trenMedicionSeleccionado = null;
+        equipoSeleccionado = null;
+        laboratorioSeleccionado = null;
+        productoSeleccionado = null;
         _corridasRegistradas.clear();
-        _listaLecturasTemperatura.clear();
         _lecturasRegistradasTemperatura.clear();
+        _lecturasRegistradasPresion.clear();
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1154,6 +1333,55 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     FocusScope.of(context).requestFocus(_focusNodeTemperatura);
   }
 
+  void _agregarLecturaPresion() {
+    if (!_keySeccionPresion.currentState!.validate()) {
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(mensajes.info(context, 'Se  agregó una lectura de presión'));
+    _lecturaActualPresion = LecturaPresion(
+      _listaLecturasPresion.length + 1,
+      double.tryParse(_patronKgCm2Controller.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_patronPSIController.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_patronKPAController.text.replaceAll(',', '')) ?? 0,
+
+      double.tryParse(_ibcKgCm2Controller.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_ibcPSIController.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_ibcKPAController.text.replaceAll(',', '')) ?? 0,
+
+      double.tryParse(_errorKgCm2Controller.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_errorPSIController.text.replaceAll(',', '')) ?? 0,
+      double.tryParse(_errorKPAController.text.replaceAll(',', '')) ?? 0,
+
+      double.tryParse(_incertidumbreKgCm2Controller.text.replaceAll(',', '')) ??
+          0,
+      double.tryParse(_incertidumbrePSIController.text.replaceAll(',', '')) ??
+          0,
+      double.tryParse(_incertidumbreKPAController.text.replaceAll(',', '')) ??
+          0,
+      0,
+    );
+
+    setState(() {
+      if (editandoLecturaPresion && indiceCorridaEditandoPresion != -1) {
+        // Si estamos editando, reemplazamos la corrida en el índice correspondiente
+        _lecturasRegistradasPresion[indiceCorridaEditandoPresion] =
+            _lecturaActualPresion;
+        _listaLecturasPresion[indiceCorridaEditandoPresion] =
+            _lecturaActualPresion;
+        editandoLecturaPresion = false;
+        indiceCorridaEditandoPresion = -1;
+      } else {
+        _listaLecturasPresion.add(_lecturaActualPresion);
+        _lecturasRegistradasPresion.add(_lecturaActualPresion);
+      }
+    });
+    // dar focus después de limpiar
+    _limpiaLecturaPresion();
+    FocusScope.of(context).requestFocus(_focusNodePresion);
+  }
+
   void _limpiaCorrida() {
     setState(() {
       _caudalM3Controller.clear();
@@ -1186,6 +1414,29 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     });
 
     FocusScope.of(context).requestFocus(_focusNodeTemperatura);
+  }
+
+  void _limpiaLecturaPresion() {
+    setState(() {
+      _patronKgCm2Controller.clear();
+      _patronPSIController.clear();
+      _patronKPAController.clear();
+
+      _ibcKgCm2Controller.clear();
+      _ibcPSIController.clear();
+      _ibcKPAController.clear();
+
+      _errorKgCm2Controller.clear();
+      _errorPSIController.clear();
+      _errorKPAController.clear();
+
+      _incertidumbreKgCm2Controller.clear();
+      _incertidumbrePSIController.clear();
+      _incertidumbreKPAController.clear();
+      _incertidumbrePSIController.clear();
+    });
+
+    FocusScope.of(context).requestFocus(_focusNodePresion);
   }
 
   InputDecoration _inputDecoration(String label) =>
@@ -2975,10 +3226,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                           child: _buildTextFormField(
                             context,
                             hintText: "Lectura IBC (kg/cm²)",
-                            validatorText:
-                                'Favor de escribir lectura de patrón',
+                            validatorText: 'Favor de escribir lectura de IBC',
                             controllerText: _ibcKgCm2Controller,
-                            onChanged: _onCelsiusPatronChanged,
+                            onChanged: _onKgCm2IBCChanged,
                             decimales: 3,
                           ),
                         ),
@@ -2987,10 +3237,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                           child: _buildTextFormField(
                             context,
                             hintText: "Lectura IBC (psi)",
-                            validatorText:
-                                'Favor de escribir lectura de patrón',
+                            validatorText: 'Favor de escribir lectura de IBC',
                             controllerText: _ibcPSIController,
-                            onChanged: _onFahrenheitPatronChanged,
+                            onChanged: _onPSIIBCChanged,
                             decimales: 3,
                           ),
                         ),
@@ -2999,10 +3248,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                           child: _buildTextFormField(
                             context,
                             hintText: "Lectura IBC (kPa)",
-                            validatorText:
-                                'Favor de escribir lectura de patrón',
+                            validatorText: 'Favor de escribir lectura de IBC',
                             controllerText: _ibcKPAController,
-                            onChanged: _onFahrenheitPatronChanged,
+                            onChanged: _onKgCm2IncertidumbreChanged,
                             decimales: 3,
                           ),
                         ),
@@ -3014,11 +3262,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                           child: _buildTextFormField(
                             context,
                             hintText: "Error de medida (kg/cm²)",
-                            validatorText:
-                                'Favor de escribir lectura de patrón',
+                            validatorText: '',
                             controllerText: _errorKgCm2Controller,
-                            onChanged: _onCelsiusPatronChanged,
                             decimales: 3,
+                            readOnly: true,
                           ),
                         ),
                         const SizedBox(width: 12), // separación entre campos
@@ -3026,11 +3273,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                           child: _buildTextFormField(
                             context,
                             hintText: "Error de medida (psi)",
-                            validatorText:
-                                'Favor de escribir lectura de patrón',
+                            validatorText: '',
                             controllerText: _errorPSIController,
-                            onChanged: _onFahrenheitPatronChanged,
                             decimales: 3,
+                            readOnly: true,
                           ),
                         ),
                         const SizedBox(width: 12), // separación entre campos
@@ -3038,11 +3284,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                           child: _buildTextFormField(
                             context,
                             hintText: "Error de medida (kPa)",
-                            validatorText:
-                                'Favor de escribir lectura de patrón',
+                            validatorText: '',
                             controllerText: _errorKPAController,
-                            onChanged: _onFahrenheitPatronChanged,
                             decimales: 3,
+                            readOnly: true,
                           ),
                         ),
                       ],
@@ -3054,9 +3299,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             context,
                             hintText: "Incertidumbre (kg/cm²)",
                             validatorText:
-                                'Favor de escribir lectura de patrón',
+                                'Favor de escribir lectura de incertidumbre',
                             controllerText: _incertidumbreKgCm2Controller,
-                            onChanged: _onCelsiusPatronChanged,
+                            onChanged: _onKgCm2IncertidumbreChanged,
                             decimales: 3,
                           ),
                         ),
@@ -3066,9 +3311,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             context,
                             hintText: "Incertidumbre (psi)",
                             validatorText:
-                                'Favor de escribir lectura de patrón',
+                                'Favor de escribir lectura de incertidumbre',
                             controllerText: _incertidumbrePSIController,
-                            onChanged: _onFahrenheitPatronChanged,
+                            onChanged: _onPSIIncertidumbreChanged,
                             decimales: 3,
                           ),
                         ),
@@ -3078,9 +3323,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             context,
                             hintText: "Incertidumbre (kPa)",
                             validatorText:
-                                'Favor de escribir lectura de patrón',
+                                'Favor de escribir lectura de incertidumbre',
                             controllerText: _incertidumbreKPAController,
-                            onChanged: _onFahrenheitPatronChanged,
+                            onChanged: _onKPaIncertidumbreChanged,
                             decimales: 3,
                           ),
                         ),
@@ -3138,8 +3383,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             tablaCalibracion.cabeceraTabla(context, ''),
                           ],
                         ),
-                        ...(_lecturasRegistradasTemperatura.isNotEmpty
-                            ? _lecturasRegistradasTemperatura
+                        ...(_lecturasRegistradasPresion.isNotEmpty
+                            ? _lecturasRegistradasPresion
                                   .map(
                                     (lectura) => TableRow(
                                       decoration: BoxDecoration(
@@ -3150,56 +3395,84 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            lectura.patronCelsius,
+                                            lectura.patronKgCm2,
                                             3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            lectura.patronFahrenheit,
+                                            lectura.patronPSI,
                                             3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            lectura.ibcCelsius,
+                                            lectura.patronkPa,
                                             3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            lectura.ibcFahrenheit,
+                                            lectura.ibcKgCm2,
                                             3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            lectura.errorCelsius,
+                                            lectura.ibcPSI,
                                             3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            lectura.errorFahrenheit,
+                                            lectura.ibckPa,
                                             3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            lectura.incertidumbreCelsius,
+                                            lectura.errorKgCm2,
                                             3,
                                           ),
                                         ),
                                         tablaCalibracion.celdaTabla(
                                           context,
                                           convertidor.formatoMiles(
-                                            lectura.incertidumbreFahrenheit,
+                                            lectura.errorPSI,
+                                            3,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            lectura.errorkPa,
+                                            3,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            lectura.incertidumbreKgCm2,
+                                            3,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            lectura.incertidumbrePSI,
+                                            3,
+                                          ),
+                                        ),
+                                        tablaCalibracion.celdaTabla(
+                                          context,
+                                          convertidor.formatoMiles(
+                                            lectura.incertidumbrekPa,
                                             3,
                                           ),
                                         ),
@@ -3210,13 +3483,13 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                               // This is an alert dialog that asks for confirmation to delete something.
                                               return AlertDialog(
                                                 title: Text(
-                                                  "¿Quieres editar esta lectura de temperatura?",
+                                                  "¿Quieres editar esta lectura de presión?",
                                                 ),
                                                 content: SingleChildScrollView(
                                                   child: ListBody(
                                                     children: <Widget>[
                                                       Text(
-                                                        'Se cargaran los datos de la lectura de temperatura en los campos de entrada para su edición',
+                                                        'Se cargaran los datos de la lectura de presión en los campos de entrada para su edición',
                                                       ),
                                                     ],
                                                   ),
@@ -3243,74 +3516,102 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                       // Call a function that deletes the data when confirmed.
                                                       setState(() {
                                                         int
-                                                        index = _lecturasRegistradasTemperatura
+                                                        index = _lecturasRegistradasPresion
                                                             .indexWhere(
                                                               (l) =>
                                                                   l.idLectura ==
                                                                   lectura
                                                                       .idLectura,
                                                             );
-                                                        _lecturaActualTemperatura =
-                                                            _lecturasRegistradasTemperatura[index];
-                                                        _patronCelsiusController
+                                                        _lecturaActualPresion =
+                                                            _lecturasRegistradasPresion[index];
+                                                        _patronKgCm2Controller
                                                             .text = convertidor
                                                             .formatoMiles(
-                                                              _lecturaActualTemperatura
-                                                                  .patronCelsius,
+                                                              _lecturaActualPresion
+                                                                  .patronKgCm2,
                                                               3,
                                                             );
-                                                        _patronFahrenheitController
+                                                        _patronPSIController
                                                             .text = convertidor
                                                             .formatoMiles(
-                                                              _lecturaActualTemperatura
-                                                                  .patronFahrenheit,
+                                                              _lecturaActualPresion
+                                                                  .patronPSI,
                                                               3,
                                                             );
-                                                        _errorCelsiusController
+                                                        _patronKPAController
                                                             .text = convertidor
                                                             .formatoMiles(
-                                                              _lecturaActualTemperatura
-                                                                  .errorCelsius,
+                                                              _lecturaActualPresion
+                                                                  .patronkPa,
                                                               3,
                                                             );
-                                                        _errorFahrenheitController
+                                                        _ibcKgCm2Controller
                                                             .text = convertidor
                                                             .formatoMiles(
-                                                              _lecturaActualTemperatura
-                                                                  .errorFahrenheit,
+                                                              _lecturaActualPresion
+                                                                  .ibcKgCm2,
                                                               3,
                                                             );
-                                                        _ibcCelsiusController
+                                                        _ibcPSIController
                                                             .text = convertidor
                                                             .formatoMiles(
-                                                              _lecturaActualTemperatura
-                                                                  .ibcCelsius,
+                                                              _lecturaActualPresion
+                                                                  .ibcPSI,
                                                               3,
                                                             );
-                                                        _ibcFahrenheitController
+                                                        _ibcKPAController
                                                             .text = convertidor
                                                             .formatoMiles(
-                                                              _lecturaActualTemperatura
-                                                                  .ibcFahrenheit,
+                                                              _lecturaActualPresion
+                                                                  .ibckPa,
                                                               3,
                                                             );
-                                                        _incertidumbreCelsiusController
+                                                        _errorKgCm2Controller
                                                             .text = convertidor
                                                             .formatoMiles(
-                                                              _lecturaActualTemperatura
-                                                                  .incertidumbreCelsius,
+                                                              _lecturaActualPresion
+                                                                  .errorKgCm2,
                                                               3,
                                                             );
-                                                        _incertidumbreFahrenheitController
+                                                        _errorPSIController
                                                             .text = convertidor
                                                             .formatoMiles(
-                                                              _lecturaActualTemperatura
-                                                                  .incertidumbreFahrenheit,
+                                                              _lecturaActualPresion
+                                                                  .errorPSI,
                                                               3,
                                                             );
-                                                        editandoLecturaTemperatura =
+                                                        _errorKPAController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualPresion
+                                                                  .errorkPa,
+                                                              3,
+                                                            );
+                                                        _incertidumbreKgCm2Controller
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualPresion
+                                                                  .incertidumbreKgCm2,
+                                                              3,
+                                                            );
+                                                        _incertidumbrePSIController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualPresion
+                                                                  .incertidumbrePSI,
+                                                              3,
+                                                            );
+                                                        _incertidumbreKPAController
+                                                            .text = convertidor
+                                                            .formatoMiles(
+                                                              _lecturaActualPresion
+                                                                  .incertidumbrekPa,
+                                                              3,
+                                                            );
+                                                        editandoLecturaPresion =
                                                             true;
-                                                        indiceCorridaEditandoTemperatura =
+                                                        indiceCorridaEditandoPresion =
                                                             index;
                                                       });
 
@@ -3378,21 +3679,21 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                                       // Call a function that deletes the data when confirmed.
                                                       setState(() {
                                                         int
-                                                        index = _lecturasRegistradasTemperatura
+                                                        index = _lecturasRegistradasPresion
                                                             .indexWhere(
                                                               (l) =>
                                                                   l.idLectura ==
                                                                   lectura
                                                                       .idLectura,
                                                             );
-                                                        _lecturasRegistradasTemperatura
+                                                        _lecturasRegistradasPresion
                                                             .removeWhere(
                                                               (l) =>
                                                                   l.idLectura ==
                                                                   lectura
                                                                       .idLectura,
                                                             );
-                                                        _listaLecturasTemperatura
+                                                        _listaLecturasPresion
                                                             .removeAt(index);
                                                       });
 
@@ -3437,9 +3738,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
               ),
               SizedBox(height: 20),
               Center(
-                child: editandoLecturaTemperatura
+                child: editandoLecturaPresion
                     ? ElevatedButton(
-                        onPressed: _agregarLecturaTemperatura,
+                        onPressed: _agregarLecturaPresion,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(
                             context,
@@ -3451,7 +3752,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         child: const Text('Agregar edición'),
                       )
                     : ElevatedButton(
-                        onPressed: _agregarLecturaTemperatura,
+                        onPressed: _agregarLecturaPresion,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(
                             context,
@@ -3466,7 +3767,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
               SizedBox(height: 10),
               Center(
                 child: ElevatedButton(
-                  onPressed: _limpiaLecturaTemperatura,
+                  onPressed: _limpiaLecturaPresion,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.colorScheme.primary,
                     foregroundColor: theme.colorScheme.onPrimary,

@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:calibraciones/models/_calibracion_equipo.dart';
 import 'package:calibraciones/models/_corrida.dart';
+import 'package:calibraciones/models/_lectura_presion.dart';
 import 'package:calibraciones/models/_lectura_temperatura.dart';
 import 'package:calibraciones/services/calibracion_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -44,14 +45,16 @@ class CalibracionServiceImpl implements CalibracionService {
     int idCalibracionEquipo = response[0]['id_calibracion'];
 
     if (calibracionEquipo.datosEspecificos is DatosCalibracionFlujo) {
-      final datosDeFlujo = calibracionEquipo.datosEspecificos as DatosCalibracionFlujo;
+      final datosDeFlujo =
+          calibracionEquipo.datosEspecificos as DatosCalibracionFlujo;
 
       List<Corrida> corridas = datosDeFlujo.corridas;
       for (var corrida in corridas) {
         corrida.setIdCalibracion = idCalibracionEquipo;
         await supabase.from('corrida').insert(corrida.toJson());
       }
-    } else if (calibracionEquipo.datosEspecificos is DatosCalibracionTemperatura) {
+    } else if (calibracionEquipo.datosEspecificos
+        is DatosCalibracionTemperatura) {
       final datosDeTemperatura =
           calibracionEquipo.datosEspecificos as DatosCalibracionTemperatura;
 
@@ -59,6 +62,15 @@ class CalibracionServiceImpl implements CalibracionService {
       for (var lectura in lecturas) {
         lectura.setIdCalibracion = idCalibracionEquipo;
         await supabase.from('lectura_temperatura').insert(lectura.toJson());
+      }
+    } else if (calibracionEquipo.datosEspecificos is DatosCalibracionPresion) {
+      final datosDePresion =
+          calibracionEquipo.datosEspecificos as DatosCalibracionPresion;
+
+      List<LecturaPresion> lecturas = datosDePresion.lecturas;
+      for (var lectura in lecturas) {
+        lectura.setIdCalibracion = idCalibracionEquipo;
+        await supabase.from('lectura_presion').insert(lectura.toJson());
       }
     }
 
