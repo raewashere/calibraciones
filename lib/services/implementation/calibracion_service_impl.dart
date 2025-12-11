@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:calibraciones/models/_calibracion_equipo.dart';
 import 'package:calibraciones/models/_corrida.dart';
+import 'package:calibraciones/models/_lectura_densidad.dart';
 import 'package:calibraciones/models/_lectura_presion.dart';
 import 'package:calibraciones/models/_lectura_temperatura.dart';
 import 'package:calibraciones/services/calibracion_service.dart';
@@ -72,6 +73,15 @@ class CalibracionServiceImpl implements CalibracionService {
         lectura.setIdCalibracion = idCalibracionEquipo;
         await supabase.from('lectura_presion').insert(lectura.toJson());
       }
+    }
+    else{
+      final datosDeDensidad =
+          calibracionEquipo.datosEspecificos as DatosCalibracionDensidad;
+
+      LecturaDensidad lectura = datosDeDensidad.lectura;
+      
+        lectura.setIdCalibracion = idCalibracionEquipo;
+        await supabase.from('lectura_densidad').insert(lectura.toJson());
     }
 
     await supabase.storage

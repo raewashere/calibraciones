@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:calibraciones/common/barrel/models.dart';
 import 'package:calibraciones/common/components/components.dart';
 import 'package:calibraciones/common/barrel/services.dart';
+import 'package:calibraciones/models/_lectura_densidad.dart';
 import 'package:calibraciones/models/_lectura_presion.dart';
 import 'package:calibraciones/models/_lectura_temperatura.dart';
 import 'package:calibraciones/models/_producto.dart';
@@ -102,6 +103,33 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final TextEditingController _incertidumbrePSIController =
       TextEditingController();
   final TextEditingController _incertidumbreKPAController =
+      TextEditingController();
+
+  //Datos densidad
+  final TextEditingController _patronOperacionController =
+      TextEditingController();
+  final TextEditingController _patronReferenciaController =
+      TextEditingController();
+  final TextEditingController _ibcOperacionController = TextEditingController();
+  final TextEditingController _ibcReferenciaController =
+      TextEditingController();
+  final TextEditingController _errorReferenciaController =
+      TextEditingController();
+  final TextEditingController _incertidumbreReferenciaController =
+      TextEditingController();
+  final TextEditingController _patronCorregidoOperacionController =
+      TextEditingController();
+  final TextEditingController _patronCorregidoReferenciaController =
+      TextEditingController();
+  final TextEditingController _ibcCorregidoOperacionController =
+      TextEditingController();
+  final TextEditingController _ibcCorregidoReferenciaController =
+      TextEditingController();
+  final TextEditingController _errorCorregidoReferenciaController =
+      TextEditingController();
+  final TextEditingController _incertidumbreCorregidoReferenciaController =
+      TextEditingController();
+  final TextEditingController _factorCorreccionController =
       TextEditingController();
 
   //Corridas flujo
@@ -705,6 +733,32 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     calcularErrorPresion();
   }
 
+  void calcularErrorDensidad(String value) {
+    double patronReferencia =
+        double.tryParse(_patronReferenciaController.text) ?? 0;
+    double ibcReferencia = double.tryParse(_ibcReferenciaController.text) ?? 0;
+    double errorReferencia = (ibcReferencia - patronReferencia);
+
+    _errorReferenciaController.text = convertidor.formatoMiles(
+      errorReferencia,
+      3,
+    );
+  }
+
+  void calcularErrorDensidadCorregido(String value) {
+    double patronReferenciaCorregido =
+        double.tryParse(_patronCorregidoReferenciaController.text) ?? 0;
+    double ibcReferenciaCorregido =
+        double.tryParse(_ibcCorregidoReferenciaController.text) ?? 0;
+    double errorReferencia =
+        (ibcReferenciaCorregido - patronReferenciaCorregido);
+
+    _errorCorregidoReferenciaController.text = convertidor.formatoMiles(
+      errorReferencia,
+      3,
+    );
+  }
+
   bool validarEmail(String email) {
     final RegExp regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     return regex.hasMatch(email);
@@ -1193,44 +1247,114 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
           datosDePresion,
         );
       }
-    } else if (equipoSeleccionado?.getIdTipoSensor.toString() == '4') {}
+    } else if (equipoSeleccionado?.getIdTipoSensor.toString() == '4') {
+      if (!_keySeccionEquipo.currentState!.validate() &&
+          !_keySeccionDatosCalibracion.currentState!.validate() &&
+          !_keySeccionDensimetro.currentState!.validate()) {
+        return;
+      }
 
-    exito = await calibracionService.registrarCalibracionEquipo(
-      direccionSeleccionada!.nombre,
-      subdireccionSeleccionada!.nombre,
-      gerenciaSeleccionada!.nombre,
-      instalacionSeleccionada!.nombreInstalacion,
-      patinMedicionSeleccionado!.getTagPatin,
-      trenMedicionSeleccionado!.tagTren,
-      _calibracionEquipo,
-      fileBytes!,
-    );
+      LecturaDensidad lecturaDensidad = LecturaDensidad(
+        0,
+        double.tryParse(_patronOperacionController.text.replaceAll(',', '')) ??
+            0,
+        double.tryParse(_patronReferenciaController.text.replaceAll(',', '')) ??
+            0,
+        double.tryParse(_ibcOperacionController.text.replaceAll(',', '')) ?? 0,
+        double.tryParse(_ibcReferenciaController.text.replaceAll(',', '')) ?? 0,
+        double.tryParse(_errorReferenciaController.text.replaceAll(',', '')) ??
+            0,
+        double.tryParse(
+              _incertidumbreReferenciaController.text.replaceAll(',', ''),
+            ) ??
+            0,
+        double.tryParse(
+              _patronCorregidoOperacionController.text.replaceAll(',', ''),
+            ) ??
+            0,
+        double.tryParse(
+              _patronCorregidoReferenciaController.text.replaceAll(',', ''),
+            ) ??
+            0,
+        double.tryParse(
+              _ibcCorregidoOperacionController.text.replaceAll(',', ''),
+            ) ??
+            0,
+        double.tryParse(
+              _ibcCorregidoReferenciaController.text.replaceAll(',', ''),
+            ) ??
+            0,
+        double.tryParse(
+              _errorCorregidoReferenciaController.text.replaceAll(',', ''),
+            ) ??
+            0,
+        double.tryParse(
+              _incertidumbreCorregidoReferenciaController.text.replaceAll(
+                ',',
+                '',
+              ),
+            ) ??
+            0,
+        double.tryParse(_factorCorreccionController.text.replaceAll(',', '')) ??
+            0,
+        0,
+      );
 
-    if (exito) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        mensajes.info(context, 'Calibración registrada con éxito'),
+      final datosDeDensidad = DatosCalibracionDensidad(lecturaDensidad);
+
+      _calibracionEquipo = CalibracionEquipo(
+        0,
+        _certificadoController.text,
+        selectedFecha,
+        selectedFechaProxima,
+        0,
+        0,
+        '',
+        '', // ruta certificado
+        equipoSeleccionado!.getTagEquipo,
+        laboratorioSeleccionado!.getIdLaboratorioCalibracion,
+        0,
+        productoSeleccionado!,
+        datosDeDensidad,
       );
-      //limpiar formulario
-      setState(() {
-        _keySeccionEquipo.currentState!.reset();
-        _keySeccionDatosCalibracion.currentState!.reset();
-        direccionSeleccionada = null;
-        subdireccionSeleccionada = null;
-        gerenciaSeleccionada = null;
-        instalacionSeleccionada = null;
-        patinMedicionSeleccionado = null;
-        trenMedicionSeleccionado = null;
-        equipoSeleccionado = null;
-        laboratorioSeleccionado = null;
-        productoSeleccionado = null;
-        _corridasRegistradas.clear();
-        _lecturasRegistradasTemperatura.clear();
-        _lecturasRegistradasPresion.clear();
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        mensajes.error(context, 'Error al registrar la calibración'),
+
+      exito = await calibracionService.registrarCalibracionEquipo(
+        direccionSeleccionada!.nombre,
+        subdireccionSeleccionada!.nombre,
+        gerenciaSeleccionada!.nombre,
+        instalacionSeleccionada!.nombreInstalacion,
+        patinMedicionSeleccionado!.getTagPatin,
+        trenMedicionSeleccionado!.tagTren,
+        _calibracionEquipo,
+        fileBytes!,
       );
+
+      if (exito) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          mensajes.info(context, 'Calibración registrada con éxito'),
+        );
+        //limpiar formulario
+        setState(() {
+          _keySeccionEquipo.currentState!.reset();
+          _keySeccionDatosCalibracion.currentState!.reset();
+          direccionSeleccionada = null;
+          subdireccionSeleccionada = null;
+          gerenciaSeleccionada = null;
+          instalacionSeleccionada = null;
+          patinMedicionSeleccionado = null;
+          trenMedicionSeleccionado = null;
+          equipoSeleccionado = null;
+          laboratorioSeleccionado = null;
+          productoSeleccionado = null;
+          _corridasRegistradas.clear();
+          _lecturasRegistradasTemperatura.clear();
+          _lecturasRegistradasPresion.clear();
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          mensajes.error(context, 'Error al registrar la calibración'),
+        );
+      }
     }
   }
 
@@ -3820,16 +3944,23 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                 ),
                 child: Column(
                   children: <Widget>[
+                    Text(
+                      "Antes corrección",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: theme.colorScheme.tertiary,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
                     Row(
                       children: [
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText:
-                                "Condición de referencia kg/m³ antes calibración",
+                            hintText: "Patrón Operación (kg/m³)",
                             validatorText:
                                 'Favor de escribir la condición de referencia',
-                            controllerText: _linealidadController,
+                            controllerText: _patronOperacionController,
                             decimales: 3,
                           ),
                         ),
@@ -3837,23 +3968,171 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText:
-                                "Condición de referencia kg/m³ después calibración",
+                            hintText: "Patrón Referencia (kg/m³)",
                             validatorText:
                                 'Favor de escribir la condición de referencia',
-                            controllerText: _linealidadController,
+                            controllerText: _patronReferenciaController,
+                            decimales: 3,
+                            onChanged: calcularErrorDensidad,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "IBC Operación (kg/m³)",
+                            validatorText:
+                                'Favor de escribir la lectura IBC en operación',
+                            controllerText: _ibcOperacionController,
+                            decimales: 3,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "IBC Referencia (kg/m³)",
+                            validatorText:
+                                'Favor de escribir la lectura IBC en referencia',
+                            controllerText: _ibcReferenciaController,
+                            decimales: 3,
+                            onChanged: calcularErrorDensidad,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Error medida referencia (kg/m³)",
+                            validatorText:
+                                'Favor de escribir la lectura IBC en operación',
+                            controllerText: _errorReferenciaController,
+                            decimales: 3,
+                            readOnly: true
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Incertidumbre (kg/m³)",
+                            validatorText: 'Favor de escribir la incertidumbre',
+                            controllerText: _incertidumbreReferenciaController,
                             decimales: 3,
                           ),
                         ),
                       ],
                     ),
-                    _buildTextFormField(
-                      context,
-                      hintText: "Diferencia de densidad (kg/m³)",
-                      validatorText:
-                          'Favor de escribir la diferencia de densidad',
-                      controllerText: _observacionesController,
-                      decimales: 0,
+                    const SizedBox(width: 12),
+                    const Divider(),
+                    const SizedBox(width: 12),
+                    Text(
+                      "Después corrección",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: theme.colorScheme.tertiary,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Patrón Operación (kg/m³)",
+                            validatorText:
+                                'Favor de escribir la condición de referencia',
+                            controllerText: _patronCorregidoOperacionController,
+                            decimales: 3,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Patrón Referencia (kg/m³)",
+                            validatorText:
+                                'Favor de escribir la condición de referencia',
+                            controllerText:
+                                _patronCorregidoReferenciaController,
+                            decimales: 3,
+                            onChanged: calcularErrorDensidadCorregido,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "IBC Operación (kg/m³)",
+                            validatorText:
+                                'Favor de escribir la lectura IBC en operación',
+                            controllerText: _ibcCorregidoOperacionController,
+                            decimales: 3,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "IBC Referencia (kg/m³)",
+                            validatorText:
+                                'Favor de escribir la lectura IBC en referencia',
+                            controllerText: _ibcCorregidoReferenciaController,
+                            decimales: 3,
+                            onChanged: calcularErrorDensidadCorregido,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Error medida referencia (kg/m³)",
+                            validatorText: '',
+                            controllerText: _errorCorregidoReferenciaController,
+                            decimales: 3,
+                            readOnly: true,
+                          ),
+                        ),
+                        const SizedBox(width: 12), // separación entre campos
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Incertidumbre (kg/m³)",
+                            validatorText: 'Favor de escribir la incertidumbre',
+                            controllerText:
+                                _incertidumbreCorregidoReferenciaController,
+                            decimales: 3,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 12),
+                    const Divider(),
+                    const SizedBox(width: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextFormField(
+                            context,
+                            hintText: "Factor de corrección",
+                            validatorText: '',
+                            controllerText: _factorCorreccionController,
+                            decimales: 5,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

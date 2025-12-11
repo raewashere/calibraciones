@@ -1,10 +1,13 @@
 import 'package:calibraciones/models/_corrida.dart';
+import 'package:calibraciones/models/_lectura_densidad.dart';
 import 'package:calibraciones/models/_lectura_temperatura.dart';
 import 'package:calibraciones/models/_producto.dart';
 import 'package:calibraciones/models/_lectura_presion.dart';
 import 'package:calibraciones/services/corridas_service.dart';
+import 'package:calibraciones/services/implementation/lectura_densidad_impl.dart';
 import 'package:calibraciones/services/implementation/lectura_presion_service_impl.dart';
 import 'package:calibraciones/services/implementation/lectura_temperatura_service_impl.dart';
+import 'package:calibraciones/services/lectura_densidad_service.dart';
 import 'package:calibraciones/services/lectura_presion_service.dart';
 import 'package:calibraciones/services/lectura_temperatura_service.dart';
 import 'package:calibraciones/services/producto_service.dart';
@@ -33,6 +36,12 @@ class DatosCalibracionPresion extends DatosPorEquipo {
   // La lista de lecturas es el dato específico de la calibración de presión
   late List<LecturaPresion> lecturas;
   DatosCalibracionPresion(this.lecturas);
+}
+
+class DatosCalibracionDensidad extends DatosPorEquipo {
+  // La lista de lecturas es el dato específico de la calibración de presión
+  late LecturaDensidad lectura;
+  DatosCalibracionDensidad(this.lectura);
 }
 
 class CalibracionEquipo {
@@ -174,6 +183,8 @@ class CalibracionEquipo {
         LecturaTemperaturaServiceImpl();
     final LecturaPresionService lecturaPresionService =
         LecturaPresionServiceImpl();
+    final LecturaDensidadService lecturaDensidadService =
+        LecturaDensidadServiceImpl();
 
     // 1. OBTENER INFORMACIÓN COMÚN
 
@@ -182,9 +193,7 @@ class CalibracionEquipo {
 
     tipoEquipo = tipoEquipo.substring(0, tipoEquipo.indexOf('-')).trim();
 
-    print(
-      'Tipo de equipo extraído (limpio): [$tipoEquipo]',
-    ); // Para depuración
+    print('Tipo de equipo extraído (limpio): [$tipoEquipo]'); // Para depuración
 
     // Obtener el Producto (dato común)
     final Producto producto = await productoService.obtenerProductoPorId(
@@ -217,7 +226,13 @@ class CalibracionEquipo {
         datosEspecificos = DatosCalibracionPresion(
           lecturasPresion,
         ); // O un valor por defecto
-      } else {}
+      } else {
+        LecturaDensidad lecturaDensidad = await lecturaDensidadService
+            .obtenerLecturaPorCalibracionDensidad(
+              calibracionJson['id_calibracion'],
+            );
+        datosEspecificos = DatosCalibracionDensidad(lecturaDensidad);
+      }
       /* switch (tipoEquipo) {
         case 'FT':
 
