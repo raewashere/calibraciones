@@ -311,7 +311,10 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                       "Fecha de calibración",
                       formato.format(calibracionEquipo.fechaCalibracion),
                     ),
-                    _buildInfoRow("Laboratorio", laboratorio!.nombre ?? 'No disponible'),
+                    _buildInfoRow(
+                      "Laboratorio",
+                      laboratorio!.nombre ?? 'No disponible',
+                    ),
                     _buildInfoRow(
                       "Dirección",
                       rutaEquipo != null
@@ -404,12 +407,15 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                     _buildInfoRow("TAG", calibracionEquipo.tagEquipo),
                     _buildInfoRow(
                       "Tipo de sensor",
-                      equipo!.idTipoSensor.toString(),
+                      equipo!.tipoSensor.toString(),
                     ),
                     _buildInfoRow("Estado", equipo!.estado ?? 'No disponible'),
                     _buildInfoRow("Marca", equipo!.marca ?? 'No disponible'),
                     _buildInfoRow("Modelo", equipo!.modelo ?? 'No disponible'),
-                    _buildInfoRow("Tipo de medición", equipo!.tipoMedicion ?? 'No disponible'),
+                    _buildInfoRow(
+                      "Tipo de medición",
+                      equipo!.tipoMedicion ?? 'No disponible',
+                    ),
                     _buildInfoRow(
                       "Incertidumbre",
                       '± ${equipo!.incertidumbre ?? ''} % ${equipo!.magnitudIncertidumbre ?? ''}',
@@ -505,6 +511,8 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                 ? buildObservaciones(context)
                 : (tipoDetalle == 2 || tipoDetalle == 3)
                 ? buildExtras(context)
+                : (tipoDetalle == 4)
+                ? buildDatosDensidad(context)
                 : SizedBox.shrink(),
           ],
         ),
@@ -867,6 +875,188 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                 ),
               ]),
       ],
+    );
+  }
+
+  Widget buildDatosDensidad(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final datosEspecificos =
+        calibracionEquipo!.datosEspecificos as DatosCalibracionDensidad;
+    final unidad = equipo!.magnitudIncertidumbre ?? 'kg/m³';
+
+    // Función auxiliar para construir una celda de texto
+    DataCell _buildCell(double value, {TextStyle? style}) {
+      return DataCell(
+        Text(
+          "${convertidor.formatoMiles(value, 3)} $unidad",
+          style: style ?? const TextStyle(fontSize: 14),
+        ),
+      );
+    }
+
+    // Función auxiliar (simulando la que usaría el usuario para las filas de datos)
+    DataRow _buildDataRow(
+      String label,
+      double valueBefore,
+      double valueAfter, {
+      bool isKeyMetric = false,
+    }) {
+      final labelStyle = isKeyMetric
+          ? const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.deepOrange,
+            )
+          : const TextStyle();
+
+      final valueStyle = isKeyMetric
+          ? const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)
+          : const TextStyle(fontSize: 14);
+
+      return DataRow(
+        cells: [
+          DataCell(Text(label.replaceAll('**', ''), style: labelStyle)),
+          DataCell(
+            Text(
+              "${convertidor.formatoMiles(valueBefore, 3)} $unidad",
+              style: valueStyle,
+            ),
+          ),
+          DataCell(
+            Text(
+              "${convertidor.formatoMiles(valueAfter, 3)} $unidad",
+              style: valueStyle.copyWith(
+                color: isKeyMetric ? colors.secondary : null,
+              ), // Color del tema
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Lista de DataRow para construir la tabla
+    final List<DataRow> rows = [
+      _buildDataRow(
+        "Patrón operación",
+        datosEspecificos.lectura.patronOperacion,
+        datosEspecificos.lectura.patronCorregidoOperacion,
+      ),
+      _buildDataRow(
+        "Patrón referencia",
+        datosEspecificos.lectura.patronReferencia,
+        datosEspecificos.lectura.patronCorregidoReferencia,
+      ),
+      _buildDataRow(
+        "IBC operación",
+        datosEspecificos.lectura.ibcOperacion,
+        datosEspecificos.lectura.ibcCorregidoOperacion,
+      ),
+      _buildDataRow(
+        "IBC referencia",
+        datosEspecificos.lectura.ibcReferencia,
+        datosEspecificos.lectura.ibcCorregidoReferencia,
+      ),
+      // Resaltar métricas clave
+      _buildDataRow(
+        "**Error medida**",
+        datosEspecificos.lectura.errorReferencia,
+        datosEspecificos.lectura.errorCorregidoReferencia,
+        isKeyMetric: true,
+      ),
+      _buildDataRow(
+        "**Incertidumbre**",
+        datosEspecificos.lectura.incertidumbreReferencia,
+        datosEspecificos.lectura.incertidumbreCorregidoReferencia,
+        isKeyMetric: true,
+      ),
+    ];
+
+    return Card(
+      color: colors.onPrimary,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Lecturas de Densidad",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: colors.primary,
+              ),
+            ),
+            const Divider(),
+            const SizedBox(height: 8),
+
+            // El widget DataTable
+            SizedBox(
+              width: double.infinity,
+              child: DataTable(
+                columnSpacing: 16.0,
+                dataRowMinHeight: 30.0,
+                dataRowMaxHeight: 40.0,
+                headingRowColor: MaterialStateProperty.all(
+                  colors.surfaceVariant.withOpacity(0.5),
+                ),
+                columns: const [
+                  DataColumn(
+                    label: Text(
+                      "Concepto",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Antes Corrección",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Después Corrección",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+                rows: rows,
+              ),
+            ),
+
+            // --- Aquí se agrega el Factor de Corrección ---
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 8),
+
+            // Mostrar el Factor de Corrección de forma destacada
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Factor de Corrección Aplicado:",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: colors.tertiary,
+                  ),
+                ),
+                Text(
+                  convertidor.formatoMiles(
+                    datosEspecificos.lectura.factorCorreccion,
+                    6,
+                  ), // Muestra más decimales para un factor
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: colors.primary,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
