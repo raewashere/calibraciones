@@ -1151,7 +1151,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   void _guardarCalibracion() async {
     bool exito = false;
     if (equipoSeleccionado?.getIdTipoSensor.toString() == '1') {
-      if (_corridasRegistradas.isEmpty && _corridasRegistradas.length < 1) {
+      if (_corridasRegistradas.isEmpty && _corridasRegistradas.length < 5) {
         ScaffoldMessenger.of(context).showSnackBar(
           mensajes.error(context, 'Debe registrar al menos 5 corridas'),
         );
@@ -1183,9 +1183,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       }
     } else if (equipoSeleccionado?.getIdTipoSensor.toString() == '2') {
       if (_lecturasRegistradasTemperatura.isEmpty &&
-          _lecturasRegistradasTemperatura.length < 1) {
+          _lecturasRegistradasTemperatura.length < 5) {
         ScaffoldMessenger.of(context).showSnackBar(
-          mensajes.error(context, 'Debe registrar al menos 1 lecturas'),
+          mensajes.error(context, 'Debe registrar al menos 5 lecturas'),
         );
         return;
       } else {
@@ -1216,9 +1216,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       }
     } else if (equipoSeleccionado?.getIdTipoSensor.toString() == '3') {
       if (_lecturasRegistradasPresion.isEmpty &&
-          _lecturasRegistradasPresion.length < 1) {
+          _lecturasRegistradasPresion.length < 5) {
         ScaffoldMessenger.of(context).showSnackBar(
-          mensajes.error(context, 'Debe registrar al menos 1 lecturas'),
+          mensajes.error(context, 'Debe registrar al menos 5 lecturas'),
         );
         return;
       } else {
@@ -1317,44 +1317,44 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         productoSeleccionado!,
         datosDeDensidad,
       );
+    }
 
-      exito = await calibracionService.registrarCalibracionEquipo(
-        direccionSeleccionada!.nombre,
-        subdireccionSeleccionada!.nombre,
-        gerenciaSeleccionada!.nombre,
-        instalacionSeleccionada!.nombreInstalacion,
-        patinMedicionSeleccionado!.getTagPatin,
-        trenMedicionSeleccionado!.tagTren,
-        _calibracionEquipo,
-        fileBytes!,
+    exito = await calibracionService.registrarCalibracionEquipo(
+      direccionSeleccionada!.nombre,
+      subdireccionSeleccionada!.nombre,
+      gerenciaSeleccionada!.nombre,
+      instalacionSeleccionada!.nombreInstalacion,
+      patinMedicionSeleccionado!.getTagPatin,
+      trenMedicionSeleccionado!.tagTren,
+      _calibracionEquipo,
+      fileBytes!,
+    );
+
+    if (exito) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        mensajes.info(context, 'Calibración registrada con éxito'),
       );
-
-      if (exito) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          mensajes.info(context, 'Calibración registrada con éxito'),
-        );
-        //limpiar formulario
-        setState(() {
-          _keySeccionEquipo.currentState!.reset();
-          _keySeccionDatosCalibracion.currentState!.reset();
-          direccionSeleccionada = null;
-          subdireccionSeleccionada = null;
-          gerenciaSeleccionada = null;
-          instalacionSeleccionada = null;
-          patinMedicionSeleccionado = null;
-          trenMedicionSeleccionado = null;
-          equipoSeleccionado = null;
-          laboratorioSeleccionado = null;
-          productoSeleccionado = null;
-          _corridasRegistradas.clear();
-          _lecturasRegistradasTemperatura.clear();
-          _lecturasRegistradasPresion.clear();
-        });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          mensajes.error(context, 'Error al registrar la calibración'),
-        );
-      }
+      //limpiar formulario
+      setState(() {
+        _keySeccionEquipo.currentState!.reset();
+        _keySeccionDatosCalibracion.currentState!.reset();
+        direccionSeleccionada = null;
+        subdireccionSeleccionada = null;
+        gerenciaSeleccionada = null;
+        instalacionSeleccionada = null;
+        patinMedicionSeleccionado = null;
+        trenMedicionSeleccionado = null;
+        equipoSeleccionado = null;
+        laboratorioSeleccionado = null;
+        productoSeleccionado = null;
+        _corridasRegistradas.clear();
+        _lecturasRegistradasTemperatura.clear();
+        _lecturasRegistradasPresion.clear();
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        mensajes.error(context, 'Error al registrar la calibración'),
+      );
     }
   }
 
@@ -4014,7 +4014,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                                 'Favor de escribir la lectura IBC en operación',
                             controllerText: _errorReferenciaController,
                             decimales: 3,
-                            readOnly: true
+                            readOnly: true,
                           ),
                         ),
                         const SizedBox(width: 12), // separación entre campos

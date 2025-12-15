@@ -31,9 +31,10 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   String nombreLaboratorio = '';
   late GraficaCorridas graficaCorridas;
   late GraficaOtros graficaOtros;
-  bool _isDataInitialized = false;
   late Equipo? equipo;
   final EquipoService equipoService = EquipoServiceImpl();
+
+  bool _isLoading = true;
 
   List<FlSpot> puntosG1 = [];
   List<FlSpot> puntosG2 = [];
@@ -60,10 +61,60 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   @override
   void initState() {
     super.initState();
-    recuperaJSON();
   }
 
-  void recuperaJSON() async {
+  // 💡 USAMOS didChangeDependencies
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // 1. Carga de argumentos SÍNCRONA (solo si aún estamos cargando)
+    if (_isLoading) {
+      final args = ModalRoute.of(context)!.settings.arguments;
+      if (args != null) {
+        calibracionEquipo = args as CalibracionEquipo;
+
+        // 2. Ejecutar la carga ASÍNCRONA
+        _cargarDatosIniciales();
+      }
+    }
+  }
+
+  Future<void> _cargarDatosIniciales() async {
+    // 💡 Ejecución Asíncrona: Esperamos a que ambos se completen.
+    await Future.wait([
+      recuperaJSON(),
+      buscarLaboratorio(), // Estas funciones ahora solo hacen el fetch, sin setState
+      buscarEquipo(),
+    ]);
+
+    // 3. Después de que los argumentos y la carga asíncrona están listos,
+    //    procedemos al procesamiento de datos y graficación.
+    _procesarDatosYGraficas();
+
+    // 4. Finalmente, marcamos que la carga ha terminado.
+    setState(() {
+      _isLoading = false; // Detenemos la carga
+    });
+  }
+
+  Future<void> buscarEquipo() async {
+    final resultado = await equipoService.obtenerEquipoPorId(
+      calibracionEquipo.tagEquipo,
+    );
+    // Asignación directa, el setState() final se hace en _cargarDatosIniciales
+    equipo = resultado;
+  }
+
+  Future<void> buscarLaboratorio() async {
+    final resultado = await laboratorioService.obtenerLaboratorioPorId(
+      calibracionEquipo.idLaboratorioCalibracion,
+    );
+    // Asignación directa, el setState() final se hace en _cargarDatosIniciales
+    laboratorio = resultado;
+  }
+
+  Future<void> recuperaJSON() async {
     // Aquí puedes implementar la lógica para recuperar el JSON si es necesario
     _futureDirecciones = DataService().updateAndCacheData();
     rutaEquipo = buscarRutaAscendente(
@@ -72,87 +123,53 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
     );
   }
 
-  // 💡 USAMOS didChangeDependencies
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void _procesarDatosYGraficas() {
+    // Toda la lógica de inicialización de `corridasAPuntos()`, `lecturasAPuntos()` y `graficaOtros`
+    // que estaba en didChangeDependencies, va aquí.
+    // ...
 
-    // 💡 IMPORTANTE: Nos aseguramos de inicializar los datos UNA SOLA VEZ
-    // (ya que didChangeDependencies puede ser llamado varias veces).
-    if (!_isDataInitialized) {
-      final args = ModalRoute.of(context)!.settings.arguments;
-      if (args != null) {
-        // Asignación directa: No necesitamos setState() porque esto se ejecuta ANTES del primer build
-        calibracionEquipo = args as CalibracionEquipo;
+    if (calibracionEquipo.datosEspecificos is DatosCalibracionFlujo) {
+      corridasAPuntos();
+      graficaCorridas = GraficaCorridas(
+        spotsKFactor: puntosG1,
+        spotsMeterFactor: puntosG2,
+        kFactorMaxX: maximoXG1,
+        kFactorMinX: minimoXG1,
+        kFactorMaxY: maximoYG1,
+        kFactorMinY: minimoYG1,
+        meterFactorMaxX: maximoXG2,
+        meterFactorMinX: minimoXG2,
+        meterFactorMaxY: maximoYG2,
+        meterFactorMinY: minimoYG2,
+      );
+      tipoDetalle = 1;
+    } else if (calibracionEquipo.datosEspecificos
+        is DatosCalibracionTemperatura) {
+      lecturasAPuntos();
+      graficaOtros = GraficaOtros(
+        spots: puntosG1,
+        maximoX: maximoXG1 + margenXG1,
+        minimoX: minimoXG1 - margenXG1,
+        maximoY: maximoYG1 + margenYG1,
+        minimoY: minimoYG1 - margenYG1,
+        tipo: false,
+      );
 
-        if (calibracionEquipo.datosEspecificos is DatosCalibracionFlujo) {
-          corridasAPuntos();
-          graficaCorridas = GraficaCorridas(
-            spotsKFactor: puntosG1,
-            spotsMeterFactor: puntosG2,
-            kFactorMaxX: maximoXG1,
-            kFactorMinX: minimoXG1,
-            kFactorMaxY: maximoYG1,
-            kFactorMinY: minimoYG1,
-            meterFactorMaxX: maximoXG2,
-            meterFactorMinX: minimoXG2,
-            meterFactorMaxY: maximoYG2,
-            meterFactorMinY: minimoYG2,
-          );
-          tipoDetalle = 1;
-        } else if (calibracionEquipo.datosEspecificos
-            is DatosCalibracionTemperatura) {
-          lecturasAPuntos();
-          graficaOtros = GraficaOtros(
-            spots: puntosG1,
-            maximoX: maximoXG1 + margenXG1,
-            minimoX: minimoXG1 - margenXG1,
-            maximoY: maximoYG1 + margenYG1,
-            minimoY: minimoYG1 - margenYG1,
-            tipo: false,
-          );
-          tipoDetalle = 2;
-        } else if (calibracionEquipo.datosEspecificos
-            is DatosCalibracionPresion) {
-          lecturasAPuntos();
-          graficaOtros = GraficaOtros(
-            spots: puntosG1,
-            maximoX: maximoXG1 + margenXG1,
-            minimoX: minimoXG1 - margenXG1,
-            maximoY: maximoYG1 + margenYG1,
-            minimoY: minimoYG1 - margenYG1,
-            tipo: true,
-          );
-          tipoDetalle = 3;
-        } else {
-          // Manejo de caso inesperado
-          tipoDetalle = 4;
-        }
-
-        buscarLaboratorio();
-        buscarEquipo();
-
-        _isDataInitialized = true; // Marcamos como inicializado
-      }
+      tipoDetalle = 2;
+    } else if (calibracionEquipo.datosEspecificos is DatosCalibracionPresion) {
+      lecturasAPuntos();
+      graficaOtros = GraficaOtros(
+        spots: puntosG1,
+        maximoX: maximoXG1 + margenXG1,
+        minimoX: minimoXG1 - margenXG1,
+        maximoY: maximoYG1 + margenYG1,
+        minimoY: minimoYG1 - margenYG1,
+        tipo: true,
+      );
+      tipoDetalle = 3;
+    } else {
+      tipoDetalle = 4;
     }
-  }
-
-  Future<void> buscarEquipo() async {
-    final resultado = await equipoService.obtenerEquipoPorId(
-      calibracionEquipo.tagEquipo,
-    );
-    setState(() {
-      equipo = resultado;
-    });
-  }
-
-  Future<void> buscarLaboratorio() async {
-    final resultado = await laboratorioService.obtenerLaboratorioPorId(
-      calibracionEquipo.idLaboratorioCalibracion,
-    );
-    setState(() {
-      laboratorio = resultado;
-    });
   }
 
   void corridasAPuntos() {
@@ -252,6 +269,11 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   Widget build(BuildContext context) {
     //Ver como corregir este
     final colors = Theme.of(context).colorScheme;
+    if (_isLoading) {
+      // 💡 Muestra un indicador de carga si los datos no están listos
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
