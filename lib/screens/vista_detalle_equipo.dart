@@ -940,6 +940,33 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
       );
     } else {
       if (equipo.idTipoSensor == 2 || equipo.idTipoSensor == 3) {
+        if (_futureCalibraciones.isEmpty) {
+          return Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Gráfica de desviación",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: colors.primary,
+                    ),
+                  ),
+                  const Divider(),
+                  const SizedBox(height: 12),
+                  const Text("No hay calibraciones"),
+                ],
+              ),
+            ),
+          );
+        }
         return Container(
           decoration: BoxDecoration(
             color: colors.surface,
@@ -1093,16 +1120,8 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                         },
                       ),
                     ),
-                    minX: if (calibracion.datosEspecificos is DatosCalibracionTemperatura) {
-                      _futureCalibraciones.last.datosEspecificos.lecturas.first.ibcCelsius
-                    } else{
-                      _futureCalibraciones.last.datosEspecificos.lecturas.first.ibcKgCm2
-                    },
-                    maxX: if (calibracion.datosEspecificos is DatosCalibracionTemperatura) {
-                      _futureCalibraciones.last.datosEspecificos.lecturas.last.ibcCelsius
-                    } else {
-                      _futureCalibraciones.last.datosEspecificos.lecturas.last.ibcKgCm2
-                    },
+                    minX: valorMinX() ,
+                    maxX: valorMaxX(),
                     minY: -0.1,
                     maxY: 0.1,
                   ),
@@ -1320,4 +1339,59 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
       }
     }
   }
+
+  double valorMinX() {
+    final datos = _futureCalibraciones.first.datosEspecificos;
+
+    if (datos is DatosCalibracionTemperatura) {
+      final lecturas = datos.lecturas;
+
+      if (lecturas.isEmpty) return 0.0;
+
+      return lecturas
+          .map((l) => l.ibcCelsius.toDouble())
+          .reduce((a, b) => a < b ? a : b) - 5;
+    }
+
+    if (datos is DatosCalibracionPresion) {
+      final lecturas = datos.lecturas;
+
+      if (lecturas.isEmpty) return 0.0;
+
+      return lecturas
+          .map((l) => l.ibcKgCm2.toDouble())
+          .reduce((a, b) => a < b ? a : b) - 5;
+    }
+
+    return 0.0;
+  }
+
+
+  double valorMaxX() {
+    final datos = _futureCalibraciones.last.datosEspecificos;
+
+    if (datos is DatosCalibracionTemperatura) {
+      final lecturas = datos.lecturas;
+
+      if (lecturas.isEmpty) return 0.0;
+
+      return lecturas
+          .map((l) => l.ibcCelsius.toDouble())
+          .reduce((a, b) => a > b ? a : b) + 5;
+    }
+
+    if (datos is DatosCalibracionPresion) {
+      final lecturas = datos.lecturas;
+
+      if (lecturas.isEmpty) return 0.0;
+
+      return lecturas
+          .map((l) => l.ibcKgCm2.toDouble())
+          .reduce((a, b) => a > b ? a : b) + 5;
+    }
+
+    return 0.0;
+  }
+
+
 }
