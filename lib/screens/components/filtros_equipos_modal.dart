@@ -72,32 +72,29 @@ class _FiltrosEquiposModalState extends State<FiltrosEquiposModal> {
               child: Wrap(
                 // Wrap para tener varios filtros horizontales
                 spacing: 8.0,
-                children: _listaTipoSensores.map(
-                  (TipoSensor opcion) {
-                    // 2. Crear el FilterChip
-                    return FilterChip(
-                      label: Text(opcion.nombreTipoSensor),
-                      selected: _opcionesSensoresSeleccionadas.contains(
-                        opcion,
-                      ), // 3. Leer estado
-                      // 4. Lógica de selección/deselección
-                      onSelected: (bool selected) {
-                        setState(() {
-                          if (selected) {
-                            _opcionesSensoresSeleccionadas.add(
-                              opcion,
-                            ); // Agregar si se selecciona
-                          } else {
-                            _opcionesSensoresSeleccionadas.remove(
-                              opcion,
-                            ); // Remover si se deselecciona
-                          }
-                          // Opcional: print(_opcionesSensoresSeleccionadas);
-                        });
-                      },
-                    );
-                  },
-                ).toList(), // 5. Convertir el Iterable resultante a List<Widget>
+                children: _listaTipoSensores.map((TipoSensor opcion) {
+                  // 2. Crear el FilterChip
+                  return FilterChip(
+                    label: Text(opcion.nombreTipoSensor),
+                    selected: _opcionesSensoresSeleccionadas.contains(
+                      opcion,
+                    ), // 3. Leer estado
+                    // 4. Lógica de selección/deselección
+                    onSelected: (bool selected) {
+                      setState(() {
+                        if (selected) {
+                          _opcionesSensoresSeleccionadas.add(
+                            opcion,
+                          ); // Agregar si se selecciona
+                        } else {
+                          _opcionesSensoresSeleccionadas.remove(
+                            opcion,
+                          ); // Remover si se deselecciona
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
               ),
             ),
             const SizedBox(width: 10),
@@ -107,32 +104,25 @@ class _FiltrosEquiposModalState extends State<FiltrosEquiposModal> {
               child: Wrap(
                 // Wrap para tener varios filtros horizontales
                 spacing: 8.0,
-                children: _listaEstados.map(
-                  (String opcion) {
-                    // 2. Crear el FilterChip
-                    return FilterChip(
-                      label: Text(opcion),
-                      selected: _opcionesEstadoSeleccionados.contains(
-                        opcion,
-                      ), // 3. Leer estado
-                      // 4. Lógica de selección/deselección
-                      onSelected: (bool selected) {
-                        setState(() {
-                          if (selected) {
-                            _opcionesEstadoSeleccionados.add(
-                              opcion,
-                            ); // Agregar si se selecciona
-                          } else {
-                            _opcionesEstadoSeleccionados.remove(
-                              opcion,
-                            ); // Remover si se deselecciona
-                          }
-                          // Opcional: print(_opcionesSensoresSeleccionadas);
-                        });
-                      },
-                    );
-                  },
-                ).toList(), // 5. Convertir el Iterable resultante a List<Widget>
+                children: _listaEstados.map((String opcion) {
+                  // 2. Crear el FilterChip
+                  return FilterChip(
+                    label: Text(opcion),
+                    selected: _opcionesEstadoSeleccionados.contains(
+                      opcion,
+                    ), // 3. Leer estado
+                    // 4. Lógica de selección/deselección
+                    onSelected: (bool selected) {
+                      setState(() {
+                        if (selected) {
+                          _opcionesEstadoSeleccionados.add(opcion);
+                        } else {
+                          _opcionesEstadoSeleccionados.remove(opcion);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
               ),
             ),
             const SizedBox(width: 10),

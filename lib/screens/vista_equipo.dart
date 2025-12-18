@@ -22,7 +22,6 @@ class _VistaEquipoState extends State<VistaEquipo> {
   List<DtoEquipo> equipos = [];
   bool _isLoading = true;
 
-
   @override
   void initState() {
     super.initState();
@@ -260,9 +259,7 @@ class _VistaEquipoState extends State<VistaEquipo> {
           final cumpleSensor =
               sensoresFiltro.isEmpty ||
               sensoresFiltro.any(
-                (sensor) =>
-                    sensor.nombreTipoSensor.toLowerCase() ==
-                    equipo.tipoSensor.toLowerCase(),
+                (sensor) => sensor.idTipoSensor == equipo.idTipoSensor,
               );
           final cumpleEstado =
               estadosFiltro.isEmpty ||

@@ -34,14 +34,19 @@ LimitesGrafica calcularLimitesGrafica({
   for (var calibracion in todasLasCalibraciones) {
     int id = calibracion.idCalibracionEquipo;
     if (calibracionesVisibles[id] == true) {
-      final datosFlujo = calibracion as DatosCalibracionFlujo;
-      if (datosFlujo.corridas.length > maxCorridas) {
-        maxCorridas = datosFlujo.corridas.length;
-      }
-      for (int i = 0; i < datosFlujo.corridas.length; i++) {
-        final corrida = datosFlujo.corridas[i];
-        // Usando caudalM3Hr como Eje X
-        todosLosPuntos.add(FlSpot(corrida.caudalM3Hr, yValueSelector(corrida)));
+      if (calibracion.datosEspecificos is DatosCalibracionFlujo) {
+        final datosFlujo =
+            calibracion.datosEspecificos as DatosCalibracionFlujo;
+        if (datosFlujo.corridas.length > maxCorridas) {
+          maxCorridas = datosFlujo.corridas.length;
+        }
+        for (int i = 0; i < datosFlujo.corridas.length; i++) {
+          final corrida = datosFlujo.corridas[i];
+          // Usando caudalM3Hr como Eje X
+          todosLosPuntos.add(
+            FlSpot(corrida.caudalM3Hr, yValueSelector(corrida)),
+          );
+        }
       }
     }
   }

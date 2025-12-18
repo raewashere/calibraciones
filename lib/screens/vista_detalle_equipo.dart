@@ -25,13 +25,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
   final TablaCalibracion tablaCalibracion = TablaCalibracion();
   final Mensajes mensajes = Mensajes();
   DateFormat formato = DateFormat("dd/MM/yy");
-  //late CalibracionEquipo calibracionEquipo;
   late LaboratorioCalibracion laboratorio;
   final LaboratorioCalibracionService laboratorioService =
       LaboratorioCalibracionServiceImpl();
   String nombreLaboratorio = '';
-  //late GraficaCorridas graficaCorridas;
-  bool _isDataInitialized = false;
   late DtoEquipo equipo;
   late Equipo equipoCompleto;
   final EquipoService equipoService = EquipoServiceImpl();
@@ -78,13 +75,43 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
 
   final Map<int, bool> _calibracionesSeleccionadas = {};
 
+  bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
-    recuperaJSON();
   }
 
-  void recuperaJSON() async {
+  // 💡 USAMOS didChangeDependencies
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // 1. Carga de argumentos SÍNCRONA (solo si aún estamos cargando)
+    if (_isLoading) {
+      final args = ModalRoute.of(context)!.settings.arguments;
+      if (args != null) {
+        equipo = args as DtoEquipo;
+
+        // 2. Ejecutar la carga ASÍNCRONA
+        _cargarDatosIniciales();
+      }
+    }
+  }
+
+  Future<void> _cargarDatosIniciales() async {
+    // 💡 Ejecución Asíncrona: Esperamos a que ambos se completen.
+    await Future.wait([
+      recuperaJSON(),
+      buscarEquipo(),
+      buscarCalibracionesEquipo(),
+    ]);
+    setState(() {
+      _isLoading = false; // Detenemos la carga
+    });
+  }
+
+  Future<void> recuperaJSON() async {
     // Aquí puedes implementar la lógica para recuperar el JSON si es necesario
     _futureDirecciones = DataService().updateAndCacheData();
     rutaEquipo = buscarRutaAscendente(
@@ -93,43 +120,9 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
     );
   }
 
-  // 💡 USAMOS didChangeDependencies
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // 💡 IMPORTANTE: Nos aseguramos de inicializar los datos UNA SOLA VEZ
-    // (ya que didChangeDependencies puede ser llamado varias veces).
-    if (!_isDataInitialized) {
-      final args = ModalRoute.of(context)!.settings.arguments;
-      if (args != null) {
-        // Asignación directa: No necesitamos setState() porque esto se ejecuta ANTES del primer build
-        equipo = args as DtoEquipo;
-        //corridasAPuntos();
-        /*graficaCorridas = GraficaCorridas(
-          spotsKFactor: spotsKFactor,
-          spotsMeterFactor: spotsMeterFactor,
-          kFactorMaxX: kFactorMaxX,
-          kFactorMinX: kFactorMinX,
-          kFactorMaxY: kFactorMaxY,
-          kFactorMinY: kFactorMinY,
-          meterFactorMaxX: meterFactorMaxX,
-          meterFactorMinX: meterFactorMinX,
-          meterFactorMaxY: meterFactorMaxY,
-          meterFactorMinY: meterFactorMinY,
-        );*/
-        buscarEquipo();
-        buscarCalibracionesEquipo();
-        _isDataInitialized = true; // Marcamos como inicializado
-      }
-    }
-  }
-
   Future<void> buscarEquipo() async {
     final resultado = await equipoService.obtenerEquipoPorId(equipo.tagEquipo);
-    setState(() {
-      equipoCompleto = resultado;
-    });
+    equipoCompleto = resultado;
   }
 
   Future<void> buscarCalibracionesEquipo() async {
@@ -137,15 +130,16 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
     final List<CalibracionEquipo> todasLasCalibraciones =
         await calibracionService.obtenerCalibracionesEquipo(equipo.tagEquipo);
 
+    // 2. Guardar la lista COMPLETA de calibraciones del equipo.
+    _futureCalibraciones = todasLasCalibraciones;
+
+    print('TODAS LAS CALIBRACIONES: ${todasLasCalibraciones.length}');
+
     // Usamos el Set para extraer productos únicos, como ya lo ajustamos.
-    final Set<Producto> productosUnicos = todasLasCalibraciones
-        .map((c) => c.producto)
-        .toSet();
-
-    setState(() {
-      // 2. Guardar la lista COMPLETA de calibraciones del equipo.
-      _futureCalibraciones = todasLasCalibraciones;
-
+    if (equipo.idTipoSensor == 1) {
+      final Set<Producto> productosUnicos = todasLasCalibraciones
+          .map((c) => c.producto)
+          .toSet();
       // 3. Guardar la lista ÚNICA de productos disponibles.
       _listaProductos = productosUnicos.toList();
 
@@ -155,10 +149,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
       } else {
         productoSeleccionado = null;
       }
+    }
 
-      // Opcional: Limpiar las selecciones de checkboxes antiguas
-      _calibracionesSeleccionadas.clear();
-    });
+    // Opcional: Limpiar las selecciones de checkboxes antiguas
+    _calibracionesSeleccionadas.clear();
   }
 
   @override
@@ -189,238 +183,135 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
         ),
       ),
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // ======== INFORMACIÓN GENERAL =========
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Información del equipo",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: colors.primary,
-                      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // ======== INFORMACIÓN GENERAL =========
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    const Divider(),
-                    const SizedBox(height: 8),
-                    _buildInfoRow("TAG", equipo.tagEquipo),
-                    _buildInfoRow(
-                      "Tipo de sensor",
-                      equipoCompleto.idTipoSensor.toString(),
-                    ),
-                    _buildInfoRow("Estado", equipoCompleto.estado),
-                    _buildInfoRow("Marca", equipoCompleto.marca),
-                    _buildInfoRow("Modelo", equipoCompleto.modelo),
-                    _buildInfoRow(
-                      "Tipo de medición",
-                      equipoCompleto.tipoMedicion,
-                    ),
-                    _buildInfoRow(
-                      "Incertidumbre",
-                      '± ${equipoCompleto.incertidumbre} % ${equipoCompleto.magnitudIncertidumbre}',
-                    ),
-                    //Redondeo de intervalo de calibracion a meses
-                    _buildInfoRow(
-                      "Intervalo de calibración",
-                      '${(equipoCompleto.intervaloCalibracion / 30).round()} meses',
-                    ),
-                    _buildInfoRow(
-                      "Intervalo de verificación",
-                      '${(equipoCompleto.intervaloVerificacion / 30).round()} meses',
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Ubicación del equipo",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: colors.primary,
-                      ),
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 8),
-                    _buildInfoRow(
-                      "Dirección",
-                      rutaEquipo != null
-                          ? rutaEquipo!.direccion.nombre
-                          : 'No disponible',
-                    ),
-                    _buildInfoRow(
-                      "Subdirección",
-                      rutaEquipo != null
-                          ? rutaEquipo!.subdireccion.nombre
-                          : 'No disponible',
-                    ),
-                    _buildInfoRow(
-                      "Gerencia",
-                      rutaEquipo != null
-                          ? rutaEquipo!.gerencia.nombre
-                          : 'No disponible',
-                    ),
-                    _buildInfoRow(
-                      "Instalación",
-                      rutaEquipo != null
-                          ? rutaEquipo!.instalacion.nombreInstalacion
-                          : 'No disponible',
-                    ),
-                    _buildInfoRow(
-                      "Patín de medición",
-                      rutaEquipo != null
-                          ? rutaEquipo!.patin.nombrePatin
-                          : 'No disponible',
-                    ),
-                    _buildInfoRow(
-                      "Tren de medición",
-                      rutaEquipo != null
-                          ? rutaEquipo!.tren.tagTren
-                          : 'No disponible',
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Gráfica de desviación",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: colors.primary,
-                      ),
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 12),
-                    _buildDropdownButtonProducto(
-                      context,
-                      hintText: "Producto",
-                      items: _listaProductos,
-                      value: productoSeleccionado,
-                      onChanged: (value) {
-                        // Limpiamos las selecciones anteriores
-                        // Comentar en caso de querer mantener las selecciones
-                        _calibracionesSeleccionadas.clear();
-
-                        setState(() {
-                          productoSeleccionado = value;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    _buildCalibrationsCheckboxes(),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      height: 400,
-                      child: LineChart(
-                        LineChartData(
-                          // LLamada a la nueva función de transformación
-                          lineBarsData: generarCurvasCorridas(
-                            _futureCalibraciones,
-                            _calibracionesSeleccionadas,
-                          ),
-
-                          // Configuración de los ejes (TitlesData)
-                          titlesData: FlTitlesData(
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 30,
-                                getTitlesWidget: (value, meta) {
-                                  final text = value.toStringAsFixed(0);
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
-                                    child: Text(
-                                      text,
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                interval: 15, // Mostrar cada número entero
-                              ),
-                            ),
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                // Aumentamos el espacio reservado para las etiquetas con decimales
-                                reservedSize: 50,
-                                getTitlesWidget: (value, meta) => Text(
-                                  value.toStringAsFixed(2),
-                                  style: const TextStyle(fontSize: 8),
-                                ),
-                                interval: 0.02,
-                              ),
-                            ),
-                            topTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            rightTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Información del equipo",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: colors.primary,
                             ),
                           ),
-                          // ... otras configuraciones del gráfico (Grid, Border, etc.)
-                          gridData: const FlGridData(show: true),
-                          borderData: FlBorderData(show: true),
-
-                          /*minX: 1,
-                          maxX: 5, // Si asumes que todas tienen 5 corridas*/
-                          minX: _currentMinX, // El valor X del primer punto
-                          maxX: _currentMaxX, // El valor X máximo
-                          minY: _currentMinY, // El valor Y mínimo (K Factor)
-                          maxY: _currentMaxY, // El valor Y máximo
-                        ),
+                          const Divider(),
+                          const SizedBox(height: 8),
+                          _buildInfoRow("TAG", equipo.tagEquipo),
+                          _buildInfoRow(
+                            "Tipo de sensor",
+                            equipoCompleto.getTipoSensor,
+                          ),
+                          _buildInfoRow("Estado", equipoCompleto.estado),
+                          _buildInfoRow("Marca", equipoCompleto.marca),
+                          _buildInfoRow("Modelo", equipoCompleto.modelo),
+                          _buildInfoRow(
+                            "Tipo de medición",
+                            equipoCompleto.tipoMedicion,
+                          ),
+                          _buildInfoRow(
+                            "Incertidumbre",
+                            '± ${equipoCompleto.incertidumbre} % ${equipoCompleto.magnitudIncertidumbre}',
+                          ),
+                          //Redondeo de intervalo de calibracion a meses
+                          _buildInfoRow(
+                            "Intervalo de calibración",
+                            '${(equipoCompleto.intervaloCalibracion / 30).round()} meses',
+                          ),
+                          _buildInfoRow(
+                            "Intervalo de verificación",
+                            '${(equipoCompleto.intervaloVerificacion / 30).round()} meses',
+                          ),
+                        ],
                       ),
                     ),
-                    // graficaCorridas,
-                  ],
-                ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Ubicación del equipo",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: colors.primary,
+                            ),
+                          ),
+                          const Divider(),
+                          const SizedBox(height: 8),
+                          _buildInfoRow(
+                            "Dirección",
+                            rutaEquipo != null
+                                ? rutaEquipo!.direccion.nombre
+                                : 'No disponible',
+                          ),
+                          _buildInfoRow(
+                            "Subdirección",
+                            rutaEquipo != null
+                                ? rutaEquipo!.subdireccion.nombre
+                                : 'No disponible',
+                          ),
+                          _buildInfoRow(
+                            "Gerencia",
+                            rutaEquipo != null
+                                ? rutaEquipo!.gerencia.nombre
+                                : 'No disponible',
+                          ),
+                          _buildInfoRow(
+                            "Instalación",
+                            rutaEquipo != null
+                                ? rutaEquipo!.instalacion.nombreInstalacion
+                                : 'No disponible',
+                          ),
+                          _buildInfoRow(
+                            "Patín de medición",
+                            rutaEquipo != null
+                                ? rutaEquipo!.patin.nombrePatin
+                                : 'No disponible',
+                          ),
+                          _buildInfoRow(
+                            "Tren de medición",
+                            rutaEquipo != null
+                                ? rutaEquipo!.tren.tagTren
+                                : 'No disponible',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  _buildGraficoHistorico(context),
+
+                  const SizedBox(height: 16),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
     );
   }
 
@@ -557,14 +448,17 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
       if (calibracionesVisibles[id] == true) {
         // 2. Mapeo: Convertir la lista de Corridas a una lista de FlSpot
         List<FlSpot> spots = [];
-        final datosFlujo = calibracion as DatosCalibracionFlujo;
-        // Usamos el index (i) para el Eje X
-        for (int i = 0; i < datosFlujo.corridas.length; i++) {
-          final corrida = datosFlujo.corridas[i];
+        if (calibracion.datosEspecificos is DatosCalibracionFlujo) {
+          final datosFlujo =
+              calibracion.datosEspecificos as DatosCalibracionFlujo;
+          // Usamos el index (i) para el Eje X
+          for (int i = 0; i < datosFlujo.corridas.length; i++) {
+            final corrida = datosFlujo.corridas[i];
 
-          // Eje X: i + 1 (para que las corridas empiecen en el punto 1, no 0)
-          // Eje Y: el valor de caudalM3Hr
-          spots.add(FlSpot(corrida.caudalM3Hr, corrida.meterFactor));
+            // Eje X: i + 1 (para que las corridas empiecen en el punto 1, no 0)
+            // Eje Y: el valor de caudalM3Hr
+            spots.add(FlSpot(corrida.caudalM3Hr, corrida.meterFactor));
+          }
         }
 
         // 3. Generación de la Curva (LineChartBarData)
@@ -624,5 +518,312 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
       _currentMaxY = limites.maxY;
       // maxCorridas puede ser útil si el Eje X es el índice de corrida.
     });
+  }
+
+  List<LineChartBarData> generarCurvaDensidad(
+    List<CalibracionEquipo> todasLasCalibraciones,
+  ) {
+    List<LineChartBarData> lineBarsData = [];
+
+    for (var calibracion in todasLasCalibraciones) {
+      int id = calibracion.idCalibracionEquipo;
+
+      List<FlSpot> spots = [];
+      if (calibracion.datosEspecificos is DatosCalibracionDensidad) {
+        final datosDensidad =
+            calibracion.datosEspecificos as DatosCalibracionDensidad;
+        // Usamos el index (i) para el Eje X
+        spots.add(
+          FlSpot(spots.length + 1, datosDensidad.lectura.factorCorreccion),
+        );
+      }
+
+      // 3. Generación de la Curva (LineChartBarData)
+      lineBarsData.add(
+        LineChartBarData(
+          spots: spots,
+          isCurved: true,
+          color:
+              coloresPuntos[id %
+                  coloresPuntos.length], // Ejemplo de color dinámico
+          barWidth: 3,
+          dotData: FlDotData(
+            show: true,
+            getDotPainter: (spot, percent, barData, index) {
+              return FlDotCirclePainter(
+                radius: 5,
+                color: coloresPuntosSombras[id % coloresPuntosSombras.length],
+              );
+            },
+          ),
+        ),
+      );
+    }
+
+    return lineBarsData;
+  }
+
+  Widget _buildGraficoHistorico(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    if (equipo.idTipoSensor == 1) {
+      if (_futureCalibraciones.isEmpty) {
+        return Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Gráfica de desviación",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: colors.primary,
+                  ),
+                ),
+                const Divider(),
+                const SizedBox(height: 12),
+                const Text("No hay calibraciones"),
+              ],
+            ),
+          ),
+        );
+      }
+      return Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Gráfica de desviación",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: colors.primary,
+                ),
+              ),
+              const Divider(),
+              const SizedBox(height: 12),
+              _buildDropdownButtonProducto(
+                context,
+                hintText: "Producto",
+                items: _listaProductos,
+                value: productoSeleccionado,
+                onChanged: (value) {
+                  // Limpiamos las selecciones anteriores
+                  // Comentar en caso de querer mantener las selecciones
+                  _calibracionesSeleccionadas.clear();
+
+                  setState(() {
+                    productoSeleccionado = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildCalibrationsCheckboxes(),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 400,
+                child: LineChart(
+                  LineChartData(
+                    // LLamada a la nueva función de transformación
+                    lineBarsData: generarCurvasCorridas(
+                      _futureCalibraciones,
+                      _calibracionesSeleccionadas,
+                    ),
+
+                    // Configuración de los ejes (TitlesData)
+                    titlesData: FlTitlesData(
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 30,
+                          getTitlesWidget: (value, meta) {
+                            final text = value.toStringAsFixed(0);
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Text(
+                                text,
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            );
+                          },
+                          interval: 15, // Mostrar cada número entero
+                        ),
+                      ),
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          // Aumentamos el espacio reservado para las etiquetas con decimales
+                          reservedSize: 50,
+                          getTitlesWidget: (value, meta) => Text(
+                            value.toStringAsFixed(2),
+                            style: const TextStyle(fontSize: 8),
+                          ),
+                          interval: 0.02,
+                        ),
+                      ),
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                    ),
+                    // ... otras configuraciones del gráfico (Grid, Border, etc.)
+                    gridData: const FlGridData(show: true),
+                    borderData: FlBorderData(show: true),
+
+                    /*minX: 1,
+                          maxX: 5, // Si asumes que todas tienen 5 corridas*/
+                    minX: _currentMinX, // El valor X del primer punto
+                    maxX: _currentMaxX, // El valor X máximo
+                    minY: _currentMinY, // El valor Y mínimo (K Factor)
+                    maxY: _currentMaxY, // El valor Y máximo
+                  ),
+                ),
+              ),
+              // graficaCorridas,
+            ],
+          ),
+        ),
+      );
+    } else {
+      if (equipo.idTipoSensor == 2 || equipo.idTipoSensor == 3) {
+        return Container();
+      } else {
+        if (_futureCalibraciones.isEmpty) {
+          return Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Evolución factor de corrección",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: colors.primary,
+                    ),
+                  ),
+                  const Divider(),
+                  const SizedBox(height: 12),
+                  const Text("No hay calibraciones"),
+                ],
+              ),
+            ),
+          );
+        }
+        return Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Evolución factor de corrección",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: colors.primary,
+                  ),
+                ),
+                const Divider(),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 400,
+                  child: LineChart(
+                    LineChartData(
+                      extraLinesData: ExtraLinesData(
+                        horizontalLines: [
+                          HorizontalLine(
+                            y: 0,
+                            color: colors.error,
+                            strokeWidth: 1.5,
+                            dashArray: const [8, 8],
+                          ),
+                        ],
+                      ),
+                      // LLamada a la nueva función de transformación
+                      lineBarsData: generarCurvaDensidad(_futureCalibraciones),
+                      // Configuración de los ejes (TitlesData)
+                      titlesData: FlTitlesData(
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 30,
+                            getTitlesWidget: (value, meta) {
+                              final text = value.toStringAsFixed(0);
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  text,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            },
+                            interval: 1, // Mostrar cada número entero
+                          ),
+                        ),
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            // Aumentamos el espacio reservado para las etiquetas con decimales
+                            reservedSize: 50,
+                            getTitlesWidget: (value, meta) => Text(
+                              value.toStringAsFixed(2),
+                              style: const TextStyle(fontSize: 8),
+                            ),
+                            interval: 0.1,
+                          ),
+                        ),
+                        topTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        rightTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                      ),
+                      // ... otras configuraciones del gráfico (Grid, Border, etc.)
+                      gridData: const FlGridData(show: true),
+                      borderData: FlBorderData(show: true),
+
+                      /*minX: 1,
+                          maxX: 5, // Si asumes que todas tienen 5 corridas*/
+                      minX: 0, // El valor X del primer punto
+                      maxX: 6, // El valor X máximo
+                      minY: 0.8, // El valor Y mínimo (K Factor)
+                      maxY: 1.20, // El valor Y máximo
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
   }
 }

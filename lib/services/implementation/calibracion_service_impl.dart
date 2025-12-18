@@ -73,15 +73,14 @@ class CalibracionServiceImpl implements CalibracionService {
         lectura.setIdCalibracion = idCalibracionEquipo;
         await supabase.from('lectura_presion').insert(lectura.toJson());
       }
-    }
-    else{
+    } else {
       final datosDeDensidad =
           calibracionEquipo.datosEspecificos as DatosCalibracionDensidad;
 
       LecturaDensidad lectura = datosDeDensidad.lectura;
-      
-        lectura.setIdCalibracion = idCalibracionEquipo;
-        await supabase.from('lectura_densidad').insert(lectura.toJson());
+
+      lectura.setIdCalibracion = idCalibracionEquipo;
+      await supabase.from('lectura_densidad').insert(lectura.toJson());
     }
 
     await supabase.storage
@@ -130,7 +129,8 @@ class CalibracionServiceImpl implements CalibracionService {
           .from('calibracion_equipo')
           .select()
           .eq('tag_equipo', tagEquipo)
-          .order('id_calibracion', ascending: false);
+          .order('id_calibracion', ascending: false)
+          .limit(5);
 
       return await Future.wait(
         response.map<Future<CalibracionEquipo>>((calibracionJson) async {

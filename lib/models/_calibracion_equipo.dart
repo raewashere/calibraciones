@@ -227,6 +227,7 @@ class CalibracionEquipo {
           lecturasPresion,
         ); // O un valor por defecto
       } else {
+        print('ENTRAAAAAAAA: $tipoEquipo');
         LecturaDensidad lecturaDensidad = await lecturaDensidadService
             .obtenerLecturaPorCalibracionDensidad(
               calibracionJson['id_calibracion'],

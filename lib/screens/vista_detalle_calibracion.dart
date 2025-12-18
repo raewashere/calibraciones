@@ -903,11 +903,11 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   Widget buildDatosDensidad(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final datosEspecificos =
-        calibracionEquipo!.datosEspecificos as DatosCalibracionDensidad;
+        calibracionEquipo.datosEspecificos as DatosCalibracionDensidad;
     final unidad = equipo!.magnitudIncertidumbre ?? 'kg/m³';
 
     // Función auxiliar para construir una celda de texto
-    DataCell _buildCell(double value, {TextStyle? style}) {
+    DataCell buildCell(double value, {TextStyle? style}) {
       return DataCell(
         Text(
           "${convertidor.formatoMiles(value, 3)} $unidad",
@@ -917,7 +917,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
     }
 
     // Función auxiliar (simulando la que usaría el usuario para las filas de datos)
-    DataRow _buildDataRow(
+    DataRow buildDataRow(
       String label,
       double valueBefore,
       double valueAfter, {
@@ -957,34 +957,34 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
 
     // Lista de DataRow para construir la tabla
     final List<DataRow> rows = [
-      _buildDataRow(
+      buildDataRow(
         "Patrón operación",
         datosEspecificos.lectura.patronOperacion,
         datosEspecificos.lectura.patronCorregidoOperacion,
       ),
-      _buildDataRow(
+      buildDataRow(
         "Patrón referencia",
         datosEspecificos.lectura.patronReferencia,
         datosEspecificos.lectura.patronCorregidoReferencia,
       ),
-      _buildDataRow(
+      buildDataRow(
         "IBC operación",
         datosEspecificos.lectura.ibcOperacion,
         datosEspecificos.lectura.ibcCorregidoOperacion,
       ),
-      _buildDataRow(
+      buildDataRow(
         "IBC referencia",
         datosEspecificos.lectura.ibcReferencia,
         datosEspecificos.lectura.ibcCorregidoReferencia,
       ),
       // Resaltar métricas clave
-      _buildDataRow(
+      buildDataRow(
         "**Error medida**",
         datosEspecificos.lectura.errorReferencia,
         datosEspecificos.lectura.errorCorregidoReferencia,
         isKeyMetric: true,
       ),
-      _buildDataRow(
+      buildDataRow(
         "**Incertidumbre**",
         datosEspecificos.lectura.incertidumbreReferencia,
         datosEspecificos.lectura.incertidumbreCorregidoReferencia,
@@ -1019,8 +1019,8 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                 columnSpacing: 16.0,
                 dataRowMinHeight: 30.0,
                 dataRowMaxHeight: 40.0,
-                headingRowColor: MaterialStateProperty.all(
-                  colors.surfaceVariant.withOpacity(0.5),
+                headingRowColor: WidgetStateProperty.all(
+                  colors.surfaceContainerHighest.withOpacity(0.5),
                 ),
                 columns: const [
                   DataColumn(

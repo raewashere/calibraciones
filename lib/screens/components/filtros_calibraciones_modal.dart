@@ -16,15 +16,7 @@ class _FiltrosCalibracionesModalState extends State<FiltrosCalibracionesModal> {
   @override
   void initState() {
     super.initState();
-    //_cargarSensores();
   }
-
-  /*Future<void> _cargarSensores() async {
-    final listaTipoSensores = await _tipoSensorService.obtenerAllTipoSensores();
-    setState(() {
-      _listaTipoSensores = listaTipoSensores;
-    });
-  }*/
 
   @override
   Widget build(BuildContext context) {

@@ -101,7 +101,7 @@ class Equipo {
       } else if (equipoJson['id_tipo_sensor'] == 3) {
         tipoSensor = 'Presión';
       } else {
-        tipoSensor = 'Densitómetro';
+        tipoSensor = 'Densidad';
       }
     }
     return Equipo(
