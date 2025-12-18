@@ -115,7 +115,7 @@ class VistaLoginState extends State<VistaLogin> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 40),
-              
+
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 40,
@@ -163,7 +163,7 @@ class VistaLoginState extends State<VistaLogin> {
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
+                      color: Colors.black.withValues(alpha: 0.15),
                       offset: const Offset(0, 6),
                       blurRadius: 10,
                     ),

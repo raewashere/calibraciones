@@ -19,139 +19,209 @@ class GraficaOtros extends StatelessWidget {
     required this.tipo,
   });
 
-  // Función para crear la línea de referencia en Y = 0
-  HorizontalLine _getLineaCero(ColorScheme colors) {
-    return HorizontalLine(
-      y: 0,
-      color: colors.error, 
-      strokeWidth: 1.5,
-      dashArray: [8, 8],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
-    return SizedBox(
+    return Container(
       height: 400,
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: colors.shadow.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Text(
             'IBC vs Error',
-            style: TextStyle(
-              fontSize: 16,
+            style: textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
               color: colors.onSurface,
             ),
+            textAlign: TextAlign.center,
           ),
+          const SizedBox(height: 24),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: LineChart(
-                LineChartData(
-                  // 🌟 AÑADIR LA LÍNEA DE REFERENCIA EN Y=0 🌟
-                  extraLinesData: ExtraLinesData(
-                    horizontalLines: [_getLineaCero(colors)],
-                  ),
-                  
-                  titlesData: FlTitlesData(
-                    // ... Títulos del Eje X (Bottom)
-                    bottomTitles: AxisTitles(
-                      axisNameSize: 35,
-                      axisNameWidget: Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          // Aquí se invierte el orden del texto para que sea (IBC vs Unidad)
-                          (tipo) ? 'Lectura IBC (kg/cm²)' : 'Lectura IBC (ºC)', 
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
+            child: LineChart(
+              LineChartData(
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: 0.05, // Ajusta según tus datos
+                  getDrawingHorizontalLine: (value) {
+                    // Línea cero distintiva pero sutil
+                    if (value == 0) {
+                      return FlLine(
+                        color: colors.outline.withValues(alpha: 0.5),
+                        strokeWidth: 1,
+                      );
+                    }
+                    return FlLine(
+                      color: colors.outlineVariant.withValues(alpha: 0.3),
+                      strokeWidth: 1,
+                      dashArray: [5, 5],
+                    );
+                  },
+                ),
+                titlesData: FlTitlesData(
+                  bottomTitles: AxisTitles(
+                    axisNameWidget: Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        (tipo) ? 'Lectura IBC (kg/cm²)' : 'Lectura IBC (ºC)',
+                        style: textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colors.onSurfaceVariant,
                         ),
                       ),
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 50,
-                        getTitlesWidget: (value, meta) {
-                          final text = value.toStringAsFixed(0);
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              text,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w500,
-                              ),
+                    ),
+                    axisNameSize: 30,
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      interval: 10,
+                      getTitlesWidget: (value, meta) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            value.toStringAsFixed(0),
+                            style: textTheme.labelSmall?.copyWith(
+                              color: colors.onSurfaceVariant,
                             ),
-                          );
-                        },
-                        interval: 5,
-                      ),
-                    ),
-
-                    // ... Títulos del Eje Y (Left)
-                    leftTitles: AxisTitles(
-                      axisNameSize: 35,
-                      axisNameWidget: Padding(
-                        padding: EdgeInsets.only(right: 12.0),
-                        child: Text(
-                          // Aquí se invierte el orden del texto para que sea (Error vs Unidad)
-                          (tipo) ? 'Error (kg/cm²)' : 'Error (ºC)', 
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
                           ),
-                        ),
-                      ),
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 50,
-                        getTitlesWidget: (value, meta) => Text(
-                          value.toStringAsFixed(2),
-                          style: const TextStyle(fontSize: 8),
-                        ),
-                        interval: 0.010,
-                      ),
-                    ),
-
-                    topTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    rightTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
+                        );
+                      },
                     ),
                   ),
-
-                  // ... (Configuración de BorderData, etc.)
-                  lineBarsData: [
-                    LineChartBarData(
-                      color: colors.secondary,
-                      dotData: FlDotData(show: true),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        color: colors.secondaryContainer,
-                        // El límite inferior debe ser 0 para colorear solo desde 0 hacia abajo
-                        // Esto crea un área bajo 0 y un área sobre 0.
-                        cutOffY: 0, 
-                        applyCutOffY: false,
+                  leftTitles: AxisTitles(
+                    axisNameWidget: Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Text(
+                        (tipo) ? 'Error (kg/cm²)' : 'Error (ºC)',
+                        style: textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colors.onSurfaceVariant,
+                        ),
                       ),
-                      spots: spots, 
+                    ),
+                    axisNameSize: 30,
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 45,
+                      interval: 0.05,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          value.toStringAsFixed(2),
+                          style: textTheme.labelSmall?.copyWith(
+                            color: colors.onSurfaceVariant,
+                            fontSize: 10,
+                          ),
+                          textAlign: TextAlign.end,
+                        );
+                      },
+                    ),
+                  ),
+                  topTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                ),
+                borderData: FlBorderData(
+                  show: true,
+                  border: Border(
+                    bottom: BorderSide(color: colors.outlineVariant),
+                    left: BorderSide(color: colors.outlineVariant),
+                    right: BorderSide.none,
+                    top: BorderSide.none,
+                  ),
+                ),
+                lineBarsData: [
+                  LineChartBarData(
+                    isCurved: true,
+                    curveSmoothness: 0.35,
+                    color: colors.primary,
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 4,
+                          color: colors.surface,
+                          strokeWidth: 2,
+                          strokeColor: colors.primary,
+                        );
+                      },
+                    ),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        colors: [
+                          colors.primary.withValues(alpha: 0.2),
+                          colors.primary.withValues(alpha: 0.0),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                    spots: spots,
+                  ),
+                ],
+                // Línea de referencia animada o estática extra
+                extraLinesData: ExtraLinesData(
+                  horizontalLines: [
+                    HorizontalLine(
+                      y: 0,
+                      color: colors.error.withValues(alpha: 0.6),
+                      strokeWidth: 1,
+                      dashArray: [6, 6],
+                      label: HorizontalLineLabel(
+                        show: true,
+                        alignment: Alignment.topRight,
+                        padding: const EdgeInsets.only(right: 5, bottom: 5),
+                        style: textTheme.labelSmall?.copyWith(
+                          color: colors.error,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        labelResolver: (line) => '0.0',
+                      ),
                     ),
                   ],
-
-                  // LÍMITES DE LA GRÁFICA
-                  minX: minimoX, 
-                  maxX: maximoX, 
-                  // Asegúrate de que 'minimoY' contenga el valor más negativo de tus datos.
-                  minY: minimoY, 
-                  maxY: maximoY, 
                 ),
-                duration: const Duration(milliseconds: 800),
-                curve: Curves.easeOutQuart,
+                lineTouchData: LineTouchData(
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipColor: (_) => colors.primaryContainer,
+                    getTooltipItems: (touchedSpots) {
+                      return touchedSpots.map((LineBarSpot touchedSpot) {
+                        return LineTooltipItem(
+                          '${touchedSpot.x.toStringAsFixed(1)}  kg/cm²,  ${touchedSpot.y.toStringAsFixed(3)} kg/cm²',
+                          TextStyle(
+                            color: colors.onSurface,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
+                minX: minimoX,
+                maxX: maximoX,
+                minY: minimoY,
+                maxY: maximoY,
               ),
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeInOutCubic,
             ),
           ),
         ],

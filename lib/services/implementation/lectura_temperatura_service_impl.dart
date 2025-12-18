@@ -9,10 +9,6 @@ class LecturaTemperaturaServiceImpl extends LecturaTemperaturaService {
   Future<List<LecturaTemperatura>> obtenerLecturaPorCalibracionTemperatura(
     int idCalibracion,
   ) async {
-    print('ID calibracion {$idCalibracion}');
-    if (idCalibracion == 88) {
-      print(idCalibracion);
-    }
     try {
       final response = await supabase
           .from('lectura_temperatura')

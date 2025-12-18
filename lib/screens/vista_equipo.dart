@@ -210,26 +210,6 @@ class _VistaEquipoState extends State<VistaEquipo> {
     );
   }
 
-  Widget _buildDropdownTipoSensor(
-    BuildContext context, {
-    required String hintText,
-    required List<TipoSensor> items,
-    required TipoSensor? value,
-    required ValueChanged<TipoSensor?> onChanged,
-  }) {
-    return DropdownButton<TipoSensor>(
-      isExpanded: true,
-      value: value,
-      items: items.map((TipoSensor item) {
-        return DropdownMenuItem<TipoSensor>(
-          value: item,
-          child: Text(item.nombreTipoSensor),
-        );
-      }).toList(),
-      onChanged: onChanged,
-    );
-  }
-
   void mostrarPopUpFiltros() async {
     //_cargarEquipos();
 

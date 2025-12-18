@@ -164,7 +164,6 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   final FocusNode _focusNodeCaudal = FocusNode();
   final FocusNode _focusNodeTemperatura = FocusNode();
   final FocusNode _focusNodePresion = FocusNode();
-  final FocusNode _focusNodeDensidad = FocusNode();
 
   DireccionService direccionService = DireccionServiceImpl();
   LaboratorioCalibracionService laboratorioService =
@@ -1336,6 +1335,12 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       );
       //limpiar formulario
       setState(() {
+        _laboratorioController.clear();
+        _productoController.clear();
+        _archivoController.clear();
+        _certificadoController.clear();
+        fileBytes = null;
+        fileCertificado = null;
         _keySeccionEquipo.currentState!.reset();
         _keySeccionDatosCalibracion.currentState!.reset();
         direccionSeleccionada = null;
@@ -3374,7 +3379,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             hintText: "Lectura IBC (kPa)",
                             validatorText: 'Favor de escribir lectura de IBC',
                             controllerText: _ibcKPAController,
-                            onChanged: _onKgCm2IncertidumbreChanged,
+                            onChanged: _onKPaIBCChanged,
                             decimales: 3,
                           ),
                         ),

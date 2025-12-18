@@ -333,10 +333,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                       "Fecha de calibración",
                       formato.format(calibracionEquipo.fechaCalibracion),
                     ),
-                    _buildInfoRow(
-                      "Laboratorio",
-                      laboratorio!.nombre ?? 'No disponible',
-                    ),
+                    _buildInfoRow("Laboratorio", laboratorio!.nombre),
                     _buildInfoRow(
                       "Dirección",
                       rutaEquipo != null
@@ -431,25 +428,22 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                       "Tipo de sensor",
                       equipo!.tipoSensor.toString(),
                     ),
-                    _buildInfoRow("Estado", equipo!.estado ?? 'No disponible'),
-                    _buildInfoRow("Marca", equipo!.marca ?? 'No disponible'),
-                    _buildInfoRow("Modelo", equipo!.modelo ?? 'No disponible'),
-                    _buildInfoRow(
-                      "Tipo de medición",
-                      equipo!.tipoMedicion ?? 'No disponible',
-                    ),
+                    _buildInfoRow("Estado", equipo!.estado),
+                    _buildInfoRow("Marca", equipo!.marca),
+                    _buildInfoRow("Modelo", equipo!.modelo),
+                    _buildInfoRow("Tipo de medición", equipo!.tipoMedicion),
                     _buildInfoRow(
                       "Incertidumbre",
-                      '± ${equipo!.incertidumbre ?? ''} % ${equipo!.magnitudIncertidumbre ?? ''}',
+                      '± ${equipo!.incertidumbre} % ${equipo!.magnitudIncertidumbre}',
                     ),
                     //Redondeo de intervalo de calibracion a meses
                     _buildInfoRow(
                       "Intervalo de calibración",
-                      '${((equipo!.intervaloCalibracion ?? 0) / 30).round()} meses',
+                      '${((equipo!.intervaloCalibracion) / 30).round()} meses',
                     ),
                     _buildInfoRow(
                       "Intervalo de verificación",
-                      '${((equipo!.intervaloVerificacion ?? 0) / 30).round()} meses',
+                      '${((equipo!.intervaloVerificacion) / 30).round()} meses',
                     ),
                   ],
                 ),
@@ -904,17 +898,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
     final colors = Theme.of(context).colorScheme;
     final datosEspecificos =
         calibracionEquipo.datosEspecificos as DatosCalibracionDensidad;
-    final unidad = equipo!.magnitudIncertidumbre ?? 'kg/m³';
-
-    // Función auxiliar para construir una celda de texto
-    DataCell buildCell(double value, {TextStyle? style}) {
-      return DataCell(
-        Text(
-          "${convertidor.formatoMiles(value, 3)} $unidad",
-          style: style ?? const TextStyle(fontSize: 14),
-        ),
-      );
-    }
+    final unidad = equipo!.magnitudIncertidumbre;
 
     // Función auxiliar (simulando la que usaría el usuario para las filas de datos)
     DataRow buildDataRow(
@@ -1020,7 +1004,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                 dataRowMinHeight: 30.0,
                 dataRowMaxHeight: 40.0,
                 headingRowColor: WidgetStateProperty.all(
-                  colors.surfaceContainerHighest.withOpacity(0.5),
+                  colors.surfaceContainerHighest.withValues(alpha: 0.5),
                 ),
                 columns: const [
                   DataColumn(
@@ -1144,11 +1128,11 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
             const SizedBox(height: 8),
             _buildInfoRow(
               "Error de medida máximo",
-              "${convertidor.formatoMiles(maximoYG1, 3)} ${equipo!.magnitudIncertidumbre ?? ''}",
+              "${convertidor.formatoMiles(maximoYG1, 3)} ${equipo!.magnitudIncertidumbre}",
             ),
             _buildInfoRow(
               "Incertidumbre de medida máximo",
-              "${convertidor.formatoMiles(incertidumbreMaxima, 3)} ${equipo!.magnitudIncertidumbre ?? ''}",
+              "${convertidor.formatoMiles(incertidumbreMaxima, 3)} ${equipo!.magnitudIncertidumbre}",
             ),
           ],
         ),

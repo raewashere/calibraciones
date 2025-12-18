@@ -32,258 +32,382 @@ class GraficaCorridas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return SizedBox(
-      height: 600,
+      height: 800, // Aumentado ligeramente para mejor espaciado
       child: Column(
         children: <Widget>[
-          // 1. PRIMERA GRÁFICA (Toma la mitad del espacio disponible)
-          Text(
-            'K Factor vs Flujo',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: colors.onSurface,
-            ),
-          ),
+          // 1. PRIMERA GRÁFICA: K Factor vs Flujo
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: LineChart(
-                LineChartData(
-                  extraLinesData: ExtraLinesData(
-                    horizontalLines: [
-                      _getLineaMediaKFactor(colors),
-                    ],
-                    // Puedes dejar verticalLines vacía si no las necesitas
-                    // verticalLines: [],
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: colors.surface,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: colors.shadow.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                  // ... (Configuración general de la gráfica)
-                  titlesData: FlTitlesData(
-                    // Títulos del Eje X (Flujo)
-                    bottomTitles: AxisTitles(
-                      // Aumentamos el espacio reservado para el título del eje
-                      axisNameSize: 35,
-                      axisNameWidget: const Padding(
-                        padding: EdgeInsets.only(
-                          top: 8.0,
-                        ), // Reducido ligeramente
-                        child: Text(
-                          'Flujo (m³/hr)',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
+                ],
+              ),
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'K Factor vs Flujo',
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colors.onSurface,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: LineChart(
+                      LineChartData(
+                        gridData: FlGridData(
+                          show: true,
+                          drawVerticalLine: false,
+                          horizontalInterval: 20,
+                          getDrawingHorizontalLine: (value) {
+                            return FlLine(
+                              color: colors.outlineVariant.withValues(
+                                alpha: 0.3,
+                              ),
+                              strokeWidth: 1,
+                              dashArray: [5, 5],
+                            );
+                          },
                         ),
-                      ),
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        // Aumentamos el espacio reservado para las etiquetas numéricas
-                        reservedSize: 50,
-                        getTitlesWidget: (value, meta) {
-                          final text = value.toStringAsFixed(0);
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              text,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w500,
+                        extraLinesData: ExtraLinesData(
+                          horizontalLines: [
+                            _getLineaMediaKFactor(colors, textTheme),
+                          ],
+                        ),
+                        titlesData: FlTitlesData(
+                          bottomTitles: AxisTitles(
+                            axisNameWidget: Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Text(
+                                'Flujo (m³/hr)',
+                                style: textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colors.onSurfaceVariant,
+                                ),
                               ),
                             ),
-                          );
-                        },
-                        interval: 15,
-                      ),
-                    ),
-
-                    // Títulos del Eje Y (K Factor)
-                    // EJE Y (K Factor)
-                    leftTitles: AxisTitles(
-                      // Aumentamos el espacio reservado para el título del eje
-                      axisNameSize: 35,
-                      axisNameWidget: const Padding(
-                        padding: EdgeInsets.only(right: 12.0),
-                        child: Text(
-                          'K Factor (Pulsos/m³)',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                            axisNameSize: 30,
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 30,
+                              interval: 20,
+                              getTitlesWidget: (value, meta) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    value.toStringAsFixed(0),
+                                    style: textTheme.labelSmall?.copyWith(
+                                      color: colors.onSurfaceVariant,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          leftTitles: AxisTitles(
+                            axisNameWidget: Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Text(
+                                'K Factor (Pulsos/m³)',
+                                style: textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colors.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                            axisNameSize: 30,
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 50,
+                              interval: 20,
+                              getTitlesWidget: (value, meta) => Text(
+                                value.toStringAsFixed(2),
+                                style: textTheme.labelSmall?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                  fontSize: 10,
+                                ),
+                                textAlign: TextAlign.end,
+                              ),
+                            ),
+                          ),
+                          topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
                           ),
                         ),
-                      ),
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        // Aumentamos el espacio reservado para las etiquetas con decimales
-                        reservedSize: 50,
-                        getTitlesWidget: (value, meta) => Text(
-                          value.toStringAsFixed(2),
-                          style: const TextStyle(fontSize: 8),
+                        borderData: FlBorderData(
+                          show: true,
+                          border: Border(
+                            bottom: BorderSide(color: colors.outlineVariant),
+                            left: BorderSide(color: colors.outlineVariant),
+                            right: BorderSide.none,
+                            top: BorderSide.none,
+                          ),
                         ),
-                        interval: 20,
+                        lineBarsData: [
+                          LineChartBarData(
+                            isCurved: true,
+                            curveSmoothness: 0.35,
+                            color: colors.secondary,
+                            barWidth: 3,
+                            isStrokeCapRound: true,
+                            dotData: FlDotData(
+                              show: true,
+                              getDotPainter: (spot, percent, barData, index) {
+                                return FlDotCirclePainter(
+                                  radius: 4,
+                                  color: colors.surface,
+                                  strokeWidth: 2,
+                                  strokeColor: colors.secondary,
+                                );
+                              },
+                            ),
+                            belowBarData: BarAreaData(
+                              show: true,
+                              gradient: LinearGradient(
+                                colors: [
+                                  colors.secondary.withValues(alpha: 0.2),
+                                  colors.secondary.withValues(alpha: 0.0),
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                            ),
+                            spots: spotsKFactor,
+                          ),
+                        ],
+                        lineTouchData: LineTouchData(
+                          touchTooltipData: LineTouchTooltipData(
+                            getTooltipColor: (_) => colors.secondaryContainer,
+                            getTooltipItems: (touchedSpots) {
+                              return touchedSpots.map((
+                                LineBarSpot touchedSpot,
+                              ) {
+                                return LineTooltipItem(
+                                  'Flujo: ${touchedSpot.x.toStringAsFixed(1)}\nK: ${touchedSpot.y.toStringAsFixed(2)}',
+                                  TextStyle(
+                                    color: colors.onSecondaryContainer,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                );
+                              }).toList();
+                            },
+                          ),
+                        ),
+                        minX: kFactorMinX,
+                        maxX: kFactorMaxX,
+                        minY: kFactorMinY,
+                        maxY: kFactorMaxY,
                       ),
-                    ),
-
-                    topTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    rightTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
+                      duration: const Duration(milliseconds: 600),
+                      curve: Curves.easeInOutCubic,
                     ),
                   ),
-
-                  // ... (Configuración de BorderData, etc.)
-                  lineBarsData: [
-                    LineChartBarData(
-                      // ... (Estilos de la línea)
-                      color: colors.secondary,
-                      dotData: FlDotData(show: true),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        color: colors.secondaryContainer
-                      ),
-                      spots: spotsKFactor, // Usa la lista de puntos dinámica
-                    ),
-                  ],
-                  
-                  // LÍMITES DE LA GRÁFICA
-                  minX: kFactorMinX, // El valor X del primer punto
-                  maxX: kFactorMaxX, // El valor X máximo
-                  minY: kFactorMinY, // El valor Y mínimo (K Factor)
-                  maxY: kFactorMaxY, // El valor Y máximo
-                ),
-                duration: const Duration(milliseconds: 800),
-                curve: Curves.easeOutQuart,
+                ],
               ),
             ),
           ),
 
-          const Divider(), // Separador visual (opcional)
-          // ----------------------------------------------------
-          // 2. SEGUNDA GRÁFICA (Toma la otra mitad del espacio disponible)
-          Text(
-            'Meter Factor vs Flujo',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: colors.onSurface,
-            ),
-          ),
+          // 2. SEGUNDA GRÁFICA: Meter Factor vs Flujo
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: LineChart(
-                LineChartData(
-                  extraLinesData: ExtraLinesData(
-                    horizontalLines: [
-                      // Aquí van tus líneas horizontales
-                      _getLimiteInferior(colors),
-                      _getLimiteSuperior(colors),
-                      _getLineaMedia(colors),
-                    ],
-                    // Puedes dejar verticalLines vacía si no las necesitas
-                    // verticalLines: [],
+            child: Container(
+              margin: const EdgeInsets.only(top: 12),
+              decoration: BoxDecoration(
+                color: colors.surface,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: colors.shadow.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                  // ... (Configuración general de la gráfica)
-                  titlesData: FlTitlesData(
-                    // Títulos del Eje X (Flujo)
-                    bottomTitles: AxisTitles(
-                      // Aumentamos el espacio reservado para el título del eje
-                      axisNameSize: 35,
-                      axisNameWidget: const Padding(
-                        padding: EdgeInsets.only(
-                          top: 8.0,
-                        ), // Reducido ligeramente
-                        child: Text(
-                          'Flujo (m³/hr)',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
+                ],
+              ),
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Meter Factor vs Flujo',
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colors.onSurface,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: LineChart(
+                      LineChartData(
+                        gridData: FlGridData(
+                          show: true,
+                          drawVerticalLine: false,
+                          horizontalInterval: 0.010,
+                          getDrawingHorizontalLine: (value) {
+                            return FlLine(
+                              color: colors.outlineVariant.withValues(
+                                alpha: 0.3,
+                              ),
+                              strokeWidth: 1,
+                              dashArray: [5, 5],
+                            );
+                          },
                         ),
-                      ),
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        // Aumentamos el espacio reservado para las etiquetas numéricas
-                        reservedSize: 50,
-                        getTitlesWidget: (value, meta) {
-                          final text = value.toStringAsFixed(0);
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              text,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w500,
+                        extraLinesData: ExtraLinesData(
+                          horizontalLines: [
+                            _getLimiteInferior(colors, textTheme),
+                            _getLimiteSuperior(colors, textTheme),
+                            _getLineaMedia(colors, textTheme),
+                          ],
+                        ),
+                        titlesData: FlTitlesData(
+                          bottomTitles: AxisTitles(
+                            axisNameWidget: Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Text(
+                                'Flujo (m³/hr)',
+                                style: textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colors.onSurfaceVariant,
+                                ),
                               ),
                             ),
-                          );
-                        },
-                        interval: 15,
-                      ),
-                    ),
-
-                    // Títulos del Eje Y (K Factor)
-                    // EJE Y (K Factor)
-                    leftTitles: AxisTitles(
-                      // Aumentamos el espacio reservado para el título del eje
-                      axisNameSize: 35,
-                      axisNameWidget: const Padding(
-                        padding: EdgeInsets.only(right: 12.0),
-                        child: Text(
-                          'Meter Factor',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                            axisNameSize: 30,
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 30,
+                              interval: 20,
+                              getTitlesWidget: (value, meta) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    value.toStringAsFixed(0),
+                                    style: textTheme.labelSmall?.copyWith(
+                                      color: colors.onSurfaceVariant,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          leftTitles: AxisTitles(
+                            axisNameWidget: Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Text(
+                                'Meter Factor',
+                                style: textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colors.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                            axisNameSize: 30,
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 50,
+                              interval: 0.020,
+                              getTitlesWidget: (value, meta) => Text(
+                                value.toStringAsFixed(3),
+                                style: textTheme.labelSmall?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                  fontSize: 10,
+                                ),
+                                textAlign: TextAlign.end,
+                              ),
+                            ),
+                          ),
+                          topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
                           ),
                         ),
-                      ),
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        // Aumentamos el espacio reservado para las etiquetas con decimales
-                        reservedSize: 50,
-                        getTitlesWidget: (value, meta) => Text(
-                          value.toStringAsFixed(3),
-                          style: const TextStyle(fontSize: 8),
+                        borderData: FlBorderData(
+                          show: true,
+                          border: Border(
+                            bottom: BorderSide(color: colors.outlineVariant),
+                            left: BorderSide(color: colors.outlineVariant),
+                            right: BorderSide.none,
+                            top: BorderSide.none,
+                          ),
                         ),
-                        interval: 0.010,
+                        lineBarsData: [
+                          LineChartBarData(
+                            isCurved: true,
+                            curveSmoothness: 0.35,
+                            color: colors.primary,
+                            barWidth: 3,
+                            isStrokeCapRound: true,
+                            dotData: FlDotData(
+                              show: true,
+                              getDotPainter: (spot, percent, barData, index) {
+                                return FlDotCirclePainter(
+                                  radius: 4,
+                                  color: colors.surface,
+                                  strokeWidth: 2,
+                                  strokeColor: colors.primary,
+                                );
+                              },
+                            ),
+                            belowBarData: BarAreaData(
+                              show: true,
+                              gradient: LinearGradient(
+                                colors: [
+                                  colors.primary.withValues(alpha: 0.2),
+                                  colors.primary.withValues(alpha: 0.0),
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                            ),
+                            spots: spotsMeterFactor,
+                          ),
+                        ],
+                        lineTouchData: LineTouchData(
+                          touchTooltipData: LineTouchTooltipData(
+                            getTooltipColor: (_) => colors.primaryContainer,
+                            getTooltipItems: (touchedSpots) {
+                              return touchedSpots.map((
+                                LineBarSpot touchedSpot,
+                              ) {
+                                return LineTooltipItem(
+                                  'Flujo: ${touchedSpot.x.toStringAsFixed(1)}\nMF: ${touchedSpot.y.toStringAsFixed(4)}',
+                                  TextStyle(
+                                    color: colors.onPrimaryContainer,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                );
+                              }).toList();
+                            },
+                          ),
+                        ),
+                        minX: meterFactorMinX,
+                        maxX: meterFactorMaxX,
+                        minY: meterFactorMinY,
+                        maxY: meterFactorMaxY,
                       ),
-                    ),
-
-                    topTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    rightTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
+                      duration: const Duration(milliseconds: 600),
+                      curve: Curves.easeInOutCubic,
                     ),
                   ),
-
-                  // ... (Configuración de BorderData, etc.)
-                  lineBarsData: [
-                    LineChartBarData(
-                      // ... (Estilos de la línea)
-                      color: colors.primary,
-                      dotData: FlDotData(show: true),
-                      belowBarData: BarAreaData(
-                        show: false,
-                        color: colors.tertiary,
-                      ),
-                      spots:
-                          spotsMeterFactor, // Usa la lista de puntos dinámica
-                    ),
-                  ],
-
-                  // LÍMITES DE LA GRÁFICA
-                  minX: meterFactorMinX, // El valor X del primer punto
-                  maxX: meterFactorMaxX, // El valor X máximo
-                  minY: meterFactorMinY, // El valor Y mínimo (K Factor)
-                  maxY: meterFactorMaxY, // El valor Y máximo
-                ),
-                duration: const Duration(milliseconds: 800),
-                curve: Curves.easeOutQuart,
+                ],
               ),
             ),
           ),
@@ -293,8 +417,9 @@ class GraficaCorridas extends StatelessWidget {
   }
 
   // Línea de Límite Inferior (LI)
-  HorizontalLine _getLimiteInferior(dynamic colors) {
-    double yValue = _calcularPromedio(spotsMeterFactor) -
+  HorizontalLine _getLimiteInferior(ColorScheme colors, TextTheme textTheme) {
+    double yValue =
+        _calcularPromedio(spotsMeterFactor) -
         2 * _calcularDesviacionEstandar(spotsMeterFactor);
     return HorizontalLine(
       y: yValue,
@@ -305,8 +430,8 @@ class GraficaCorridas extends StatelessWidget {
         show: true,
         alignment: Alignment.bottomRight,
         padding: const EdgeInsets.only(right: 5),
-        style: TextStyle(
-          color: Colors.black,
+        style: textTheme.labelSmall?.copyWith(
+          color: colors.onSurface,
           fontWeight: FontWeight.bold,
           fontSize: 10,
         ),
@@ -316,8 +441,9 @@ class GraficaCorridas extends StatelessWidget {
   }
 
   // Línea de Límite Superior (LS)
-  HorizontalLine _getLimiteSuperior(dynamic colors) {
-    double yValue = _calcularPromedio(   spotsMeterFactor) +
+  HorizontalLine _getLimiteSuperior(ColorScheme colors, TextTheme textTheme) {
+    double yValue =
+        _calcularPromedio(spotsMeterFactor) +
         2 * _calcularDesviacionEstandar(spotsMeterFactor);
     return HorizontalLine(
       y: yValue, // 💡 Define el valor Y de tu límite
@@ -328,8 +454,8 @@ class GraficaCorridas extends StatelessWidget {
         show: true,
         alignment: Alignment.topRight,
         padding: const EdgeInsets.only(right: 5),
-        style: TextStyle(
-          color: Colors.black,
+        style: textTheme.labelSmall?.copyWith(
+          color: colors.onSurface,
           fontWeight: FontWeight.bold,
           fontSize: 10,
         ),
@@ -339,7 +465,7 @@ class GraficaCorridas extends StatelessWidget {
   }
 
   // Línea de Valor Promedio (Media)
-  HorizontalLine _getLineaMedia(dynamic colors) {
+  HorizontalLine _getLineaMedia(ColorScheme colors, TextTheme textTheme) {
     double yValue = _calcularPromedio(spotsMeterFactor);
     return HorizontalLine(
       y: yValue, // 💡 Define el valor Y de tu límite
@@ -350,8 +476,8 @@ class GraficaCorridas extends StatelessWidget {
         show: true,
         alignment: Alignment.topRight,
         padding: const EdgeInsets.only(right: 5),
-        style: TextStyle(
-          color: Colors.black,
+        style: textTheme.labelSmall?.copyWith(
+          color: colors.onSurface,
           fontWeight: FontWeight.bold,
           fontSize: 10,
         ),
@@ -360,7 +486,10 @@ class GraficaCorridas extends StatelessWidget {
     );
   }
 
-    HorizontalLine _getLineaMediaKFactor(dynamic colors) {
+  HorizontalLine _getLineaMediaKFactor(
+    ColorScheme colors,
+    TextTheme textTheme,
+  ) {
     double yValue = _calcularPromedio(spotsKFactor);
     return HorizontalLine(
       y: yValue, // 💡 Define el valor Y de tu límite
@@ -371,8 +500,8 @@ class GraficaCorridas extends StatelessWidget {
         show: true,
         alignment: Alignment.topRight,
         padding: const EdgeInsets.only(right: 5),
-        style: TextStyle(
-          color: Colors.black,
+        style: textTheme.labelSmall?.copyWith(
+          color: colors.onSurface,
           fontWeight: FontWeight.bold,
           fontSize: 10,
         ),
@@ -395,7 +524,9 @@ class GraficaCorridas extends StatelessWidget {
 
     double promedio = _calcularPromedio(spots);
     double sumaDiferenciasCuadradas = spots.fold(
-        0.0, (prev, spot) => prev + (spot.y - promedio) * (spot.y - promedio));
+      0.0,
+      (prev, spot) => prev + (spot.y - promedio) * (spot.y - promedio),
+    );
     return sqrt((sumaDiferenciasCuadradas / spots.length));
   }
 }

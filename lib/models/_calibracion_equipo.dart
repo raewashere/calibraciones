@@ -193,8 +193,6 @@ class CalibracionEquipo {
 
     tipoEquipo = tipoEquipo.substring(0, tipoEquipo.indexOf('-')).trim();
 
-    print('Tipo de equipo extraído (limpio): [$tipoEquipo]'); // Para depuración
-
     // Obtener el Producto (dato común)
     final Producto producto = await productoService.obtenerProductoPorId(
       calibracionJson['producto'] as int,
@@ -247,9 +245,7 @@ class CalibracionEquipo {
           break;
       }*/
     } catch (error) {
-      // Manejo de errores en la carga de datos específicos
-      print('Error al cargar datos específicos para $tipoEquipo: $error');
-      datosEspecificos = null; // Asigna un objeto vacío
+      datosEspecificos = null;
     }
 
     return CalibracionEquipo(

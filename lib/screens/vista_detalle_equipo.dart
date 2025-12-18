@@ -133,8 +133,6 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
     // 2. Guardar la lista COMPLETA de calibraciones del equipo.
     _futureCalibraciones = todasLasCalibraciones;
 
-    print('TODAS LAS CALIBRACIONES: ${todasLasCalibraciones.length}');
-
     // Usamos el Set para extraer productos únicos, como ya lo ajustamos.
     if (equipo.idTipoSensor == 1) {
       final Set<Producto> productosUnicos = todasLasCalibraciones
@@ -440,6 +438,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
     Map<int, bool> calibracionesVisibles,
   ) {
     List<LineChartBarData> lineBarsData = [];
+    final colors = Theme.of(context).colorScheme;
 
     for (var calibracion in todasLasCalibraciones) {
       int id = calibracion.idCalibracionEquipo;
@@ -451,37 +450,41 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
         if (calibracion.datosEspecificos is DatosCalibracionFlujo) {
           final datosFlujo =
               calibracion.datosEspecificos as DatosCalibracionFlujo;
-          // Usamos el index (i) para el Eje X
+          // Ordenar corridas por caudal para que la linea se dibuje correctamente
+          datosFlujo.corridas.sort(
+            (a, b) => a.caudalM3Hr.compareTo(b.caudalM3Hr),
+          );
+
           for (int i = 0; i < datosFlujo.corridas.length; i++) {
             final corrida = datosFlujo.corridas[i];
-
-            // Eje X: i + 1 (para que las corridas empiecen en el punto 1, no 0)
-            // Eje Y: el valor de caudalM3Hr
             spots.add(FlSpot(corrida.caudalM3Hr, corrida.meterFactor));
           }
         }
+
+        final color = coloresPuntos[id % coloresPuntos.length];
+        final shadowColor =
+            coloresPuntosSombras[id % coloresPuntosSombras.length];
 
         // 3. Generación de la Curva (LineChartBarData)
         lineBarsData.add(
           LineChartBarData(
             spots: spots,
             isCurved: true,
-            color:
-                coloresPuntos[id %
-                    coloresPuntos.length], // Ejemplo de color dinámico
+            curveSmoothness: 0.2, // Curva suave pero no exagerada
+            color: color,
             barWidth: 3,
+            isStrokeCapRound: true,
             dotData: FlDotData(
               show: true,
               getDotPainter: (spot, percent, barData, index) {
                 return FlDotCirclePainter(
-                  radius: 5,
-                  color: coloresPuntosSombras[id % coloresPuntosSombras.length],
+                  radius: 4,
+                  color: colors.surface,
+                  strokeWidth: 2,
+                  strokeColor: shadowColor,
                 );
               },
             ),
-            // Se puede usar 'id' para identificar la curva en la leyenda
-            // read the data from 'calibracion.idCalibracionEquipo' for the legend
-            // title: 'Calibración $id',
           ),
         );
       }
@@ -523,43 +526,57 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
   LineChartBarData generarCurvaDensidad(
     List<CalibracionEquipo> todasLasCalibraciones,
   ) {
-    LineChartBarData lineBarsData = LineChartBarData();
     List<FlSpot> spots = [];
+    // Sort calibrations by date to ensure proper line drawing
+    todasLasCalibraciones.sort(
+      (a, b) => a.fechaCalibracion.compareTo(b.fechaCalibracion),
+    );
+
     for (var calibracion in todasLasCalibraciones) {
-      int id = calibracion.idCalibracionEquipo;
       final fechaCalibracion = calibracion.fechaCalibracion;
       int anio = fechaCalibracion.year;
 
       if (calibracion.datosEspecificos is DatosCalibracionDensidad) {
         final datosDensidad =
             calibracion.datosEspecificos as DatosCalibracionDensidad;
-        // Usamos el index (i) para el Eje X
         spots.add(
           FlSpot(anio.toDouble(), datosDensidad.lectura.factorCorreccion),
         );
       }
-
-      // 3. Generación de la Curva (LineChartBarData)
-      lineBarsData = LineChartBarData(
-        spots: spots,
-        isCurved: true,
-        color:
-            coloresPuntos[id %
-                coloresPuntos.length], // Ejemplo de color dinámico
-        barWidth: 3,
-        dotData: FlDotData(
-          show: true,
-          getDotPainter: (spot, percent, barData, index) {
-            return FlDotCirclePainter(
-              radius: 5,
-              color: coloresPuntosSombras[id % coloresPuntosSombras.length],
-            );
-          },
-        ),
-      );
     }
 
-    return lineBarsData;
+    final colors = Theme.of(context).colorScheme;
+
+    return LineChartBarData(
+      spots: spots,
+      isCurved: true,
+      curveSmoothness: 0.35,
+      color: colors.primary,
+      barWidth: 3,
+      isStrokeCapRound: true,
+      dotData: FlDotData(
+        show: true,
+        getDotPainter: (spot, percent, barData, index) {
+          return FlDotCirclePainter(
+            radius: 4,
+            color: colors.surface,
+            strokeWidth: 2,
+            strokeColor: colors.primary,
+          );
+        },
+      ),
+      belowBarData: BarAreaData(
+        show: true,
+        gradient: LinearGradient(
+          colors: [
+            colors.primary.withValues(alpha: 0.2),
+            colors.primary.withValues(alpha: 0.0),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+    );
   }
 
   Widget _buildGraficoHistorico(BuildContext context) {
@@ -592,109 +609,177 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
           ),
         );
       }
-      return Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Gráfica de desviación",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: colors.primary,
-                ),
+      return Container(
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: colors.shadow.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              "Gráfica de desviación",
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colors.onSurface,
               ),
-              const Divider(),
-              const SizedBox(height: 12),
-              _buildDropdownButtonProducto(
-                context,
-                hintText: "Producto",
-                items: _listaProductos,
-                value: productoSeleccionado,
-                onChanged: (value) {
-                  // Limpiamos las selecciones anteriores
-                  // Comentar en caso de querer mantener las selecciones
-                  _calibracionesSeleccionadas.clear();
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            _buildDropdownButtonProducto(
+              context,
+              hintText: "Producto",
+              items: _listaProductos,
+              value: productoSeleccionado,
+              onChanged: (value) {
+                // Limpiamos las selecciones anteriores
+                // Comentar en caso de querer mantener las selecciones
+                _calibracionesSeleccionadas.clear();
 
-                  setState(() {
-                    productoSeleccionado = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 12),
-              _buildCalibrationsCheckboxes(),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 400,
-                child: LineChart(
-                  LineChartData(
-                    // LLamada a la nueva función de transformación
-                    lineBarsData: generarCurvasCorridas(
-                      _futureCalibraciones,
-                      _calibracionesSeleccionadas,
-                    ),
-
-                    // Configuración de los ejes (TitlesData)
-                    titlesData: FlTitlesData(
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 30,
-                          getTitlesWidget: (value, meta) {
-                            final text = value.toStringAsFixed(0);
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                text,
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            );
-                          },
-                          interval: 15, // Mostrar cada número entero
-                        ),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          // Aumentamos el espacio reservado para las etiquetas con decimales
-                          reservedSize: 50,
-                          getTitlesWidget: (value, meta) => Text(
-                            value.toStringAsFixed(2),
-                            style: const TextStyle(fontSize: 8),
-                          ),
-                          interval: 0.02,
-                        ),
-                      ),
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                    ),
-                    // ... otras configuraciones del gráfico (Grid, Border, etc.)
-                    gridData: const FlGridData(show: true),
-                    borderData: FlBorderData(show: true),
-
-                    /*minX: 1,
-                          maxX: 5, // Si asumes que todas tienen 5 corridas*/
-                    minX: _currentMinX, // El valor X del primer punto
-                    maxX: _currentMaxX, // El valor X máximo
-                    minY: _currentMinY, // El valor Y mínimo (K Factor)
-                    maxY: _currentMaxY, // El valor Y máximo
+                setState(() {
+                  productoSeleccionado = value;
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+            _buildCalibrationsCheckboxes(),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 400,
+              child: LineChart(
+                LineChartData(
+                  lineBarsData: generarCurvasCorridas(
+                    _futureCalibraciones,
+                    _calibracionesSeleccionadas,
                   ),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: true,
+                    horizontalInterval: 0.1, // or dynamic based on data
+                    verticalInterval: 500, // or dynamic
+                    getDrawingHorizontalLine: (value) {
+                      return FlLine(
+                        color: colors.outlineVariant.withValues(alpha: 0.3),
+                        strokeWidth: 1,
+                        dashArray: [5, 5],
+                      );
+                    },
+                    getDrawingVerticalLine: (value) {
+                      return FlLine(
+                        color: colors.outlineVariant.withValues(alpha: 0.3),
+                        strokeWidth: 1,
+                        dashArray: [5, 5],
+                      );
+                    },
+                  ),
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      axisNameWidget: Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          'Caudal',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colors.onSurfaceVariant,
+                              ),
+                        ),
+                      ),
+                      axisNameSize: 30,
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 30,
+                        // interval: 500, // Let it be auto or set dynamic
+                        getTitlesWidget: (value, meta) {
+                          // Show generic numbers, maybe format K/M if large
+                          final text = value.toStringAsFixed(0);
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text(
+                              text,
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(color: colors.onSurfaceVariant),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      axisNameWidget: Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text(
+                          'K Factor', // Or Meter Factor depending on what is plotted
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colors.onSurfaceVariant,
+                              ),
+                        ),
+                      ),
+                      axisNameSize: 30,
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 45,
+                        // interval: 0.02,
+                        getTitlesWidget: (value, meta) => Text(
+                          value.toStringAsFixed(4), // Precision for factor
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                color: colors.onSurfaceVariant,
+                                fontSize: 10,
+                              ),
+                          textAlign: TextAlign.end,
+                        ),
+                      ),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                  ),
+                  borderData: FlBorderData(
+                    show: true,
+                    border: Border(
+                      bottom: BorderSide(color: colors.outlineVariant),
+                      left: BorderSide(color: colors.outlineVariant),
+                      right: BorderSide.none,
+                      top: BorderSide.none,
+                    ),
+                  ),
+                  lineTouchData: LineTouchData(
+                    touchTooltipData: LineTouchTooltipData(
+                      getTooltipColor: (_) => colors.surfaceContainerHighest,
+                      getTooltipItems: (touchedSpots) {
+                        return touchedSpots.map((LineBarSpot touchedSpot) {
+                          return LineTooltipItem(
+                            'Caudal: ${touchedSpot.x.toInt()}\nVal: ${touchedSpot.y.toStringAsFixed(5)}',
+                            TextStyle(
+                              color: touchedSpot.bar.color ?? colors.onSurface,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        }).toList();
+                      },
+                    ),
+                  ),
+                  minX: _currentMinX,
+                  maxX: _currentMaxX,
+                  minY: _currentMinY,
+                  maxY: _currentMaxY,
                 ),
               ),
-              // graficaCorridas,
-            ],
-          ),
+            ),
+          ],
         ),
       );
     } else {
@@ -728,106 +813,182 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
             ),
           );
         }
-        return Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+        return Container(
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: colors.shadow.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Evolución factor de corrección",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: colors.primary,
-                  ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                "Evolución factor de corrección",
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: colors.onSurface,
                 ),
-                const Divider(),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 400,
-                  child: LineChart(
-                    LineChartData(
-                      extraLinesData: ExtraLinesData(
-                        horizontalLines: [
-                          HorizontalLine(
-                            y: 1,
-                            color: colors.error,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 400,
+                child: LineChart(
+                  LineChartData(
+                    gridData: FlGridData(
+                      show: true,
+                      drawVerticalLine: false,
+                      horizontalInterval: 0.1,
+                      getDrawingHorizontalLine: (value) {
+                        // Linea 1.0 distintiva
+                        if ((value - 1.0).abs() < 0.001) {
+                          return FlLine(
+                            color: colors.error.withValues(alpha: 0.5),
                             strokeWidth: 1.5,
-                            dashArray: const [8, 8],
-                          ),
-                        ],
-                      ),
-                      // LLamada a la nueva función de transformación
-                      lineBarsData: [
-                        generarCurvaDensidad(_futureCalibraciones),
-                      ],
-                      // Configuración de los ejes (TitlesData)
-                      titlesData: FlTitlesData(
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 30,
-                            getTitlesWidget: (value, meta) {
-                              final text = value.toStringAsFixed(0);
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  text,
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              );
-                            },
-                            interval: 1, // Mostrar cada número entero
-                          ),
-                        ),
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            // Aumentamos el espacio reservado para las etiquetas con decimales
-                            reservedSize: 50,
-                            getTitlesWidget: (value, meta) => Text(
-                              value.toStringAsFixed(2),
-                              style: const TextStyle(fontSize: 8),
-                            ),
-                            interval: 0.1,
-                          ),
-                        ),
-                        topTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        rightTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                      ),
-                      // ... otras configuraciones del gráfico (Grid, Border, etc.)
-                      gridData: const FlGridData(show: true),
-                      borderData: FlBorderData(show: true),
-
-                      /*minX: 1,
-                          maxX: 5, // Si asumes que todas tienen 5 corridas*/
-                      minX:
-                          _futureCalibraciones.first.fechaCalibracion.year
-                              .toDouble() -
-                          1, // El valor X del primer punto
-                      maxX:
-                          _futureCalibraciones.last.fechaCalibracion.year
-                              .toDouble() +
-                          1, // El valor X máximo
-                      minY: 0.8, // El valor Y mínimo (K Factor)
-                      maxY: 1.20, // El valor Y máximo
+                            dashArray: [5, 5],
+                          );
+                        }
+                        return FlLine(
+                          color: colors.outlineVariant.withValues(alpha: 0.3),
+                          strokeWidth: 1,
+                          dashArray: [5, 5],
+                        );
+                      },
                     ),
+                    extraLinesData: ExtraLinesData(
+                      horizontalLines: [
+                        HorizontalLine(
+                          y: 1,
+                          color: colors.error,
+                          strokeWidth: 1.5,
+                          dashArray: const [8, 8],
+                          label: HorizontalLineLabel(
+                            show: true,
+                            alignment: Alignment.topRight,
+                            padding: const EdgeInsets.only(right: 5),
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
+                                  color: colors.error,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                            labelResolver: (line) => 'Ref 1.0',
+                          ),
+                        ),
+                      ],
+                    ),
+                    lineBarsData: [generarCurvaDensidad(_futureCalibraciones)],
+                    titlesData: FlTitlesData(
+                      bottomTitles: AxisTitles(
+                        axisNameWidget: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            'Año',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colors.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                        axisNameSize: 30,
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 30,
+                          interval: 1,
+                          getTitlesWidget: (value, meta) {
+                            final text = value.toStringAsFixed(0);
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Text(
+                                text,
+                                style: Theme.of(context).textTheme.labelSmall
+                                    ?.copyWith(color: colors.onSurfaceVariant),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      leftTitles: AxisTitles(
+                        axisNameWidget: Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            'Factor',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colors.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                        axisNameSize: 30,
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 45,
+                          interval: 0.1,
+                          getTitlesWidget: (value, meta) => Text(
+                            value.toStringAsFixed(2),
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                  fontSize: 10,
+                                ),
+                            textAlign: TextAlign.end,
+                          ),
+                        ),
+                      ),
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                    ),
+                    borderData: FlBorderData(
+                      show: true,
+                      border: Border(
+                        bottom: BorderSide(color: colors.outlineVariant),
+                        left: BorderSide(color: colors.outlineVariant),
+                        right: BorderSide.none,
+                        top: BorderSide.none,
+                      ),
+                    ),
+                    lineTouchData: LineTouchData(
+                      touchTooltipData: LineTouchTooltipData(
+                        getTooltipColor: (_) => colors.surfaceContainerHighest,
+                        getTooltipItems: (touchedSpots) {
+                          return touchedSpots.map((LineBarSpot touchedSpot) {
+                            return LineTooltipItem(
+                              'Año: ${touchedSpot.x.toInt()}\nFactor de corrección: ${touchedSpot.y.toStringAsFixed(4)}',
+                              TextStyle(
+                                color: colors.onSurface,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          }).toList();
+                        },
+                      ),
+                    ),
+                    minX:
+                        _futureCalibraciones.first.fechaCalibracion.year
+                            .toDouble() -
+                        1,
+                    maxX:
+                        _futureCalibraciones.last.fechaCalibracion.year
+                            .toDouble() +
+                        1,
+                    minY: 0.8,
+                    maxY: 1.20,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       }
