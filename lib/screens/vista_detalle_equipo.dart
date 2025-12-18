@@ -520,42 +520,41 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
     });
   }
 
-  List<LineChartBarData> generarCurvaDensidad(
+  LineChartBarData generarCurvaDensidad(
     List<CalibracionEquipo> todasLasCalibraciones,
   ) {
-    List<LineChartBarData> lineBarsData = [];
-
+    LineChartBarData lineBarsData = LineChartBarData();
+    List<FlSpot> spots = [];
     for (var calibracion in todasLasCalibraciones) {
       int id = calibracion.idCalibracionEquipo;
+      final fechaCalibracion = calibracion.fechaCalibracion;
+      int anio = fechaCalibracion.year;
 
-      List<FlSpot> spots = [];
       if (calibracion.datosEspecificos is DatosCalibracionDensidad) {
         final datosDensidad =
             calibracion.datosEspecificos as DatosCalibracionDensidad;
         // Usamos el index (i) para el Eje X
         spots.add(
-          FlSpot(spots.length + 1, datosDensidad.lectura.factorCorreccion),
+          FlSpot(anio.toDouble(), datosDensidad.lectura.factorCorreccion),
         );
       }
 
       // 3. Generación de la Curva (LineChartBarData)
-      lineBarsData.add(
-        LineChartBarData(
-          spots: spots,
-          isCurved: true,
-          color:
-              coloresPuntos[id %
-                  coloresPuntos.length], // Ejemplo de color dinámico
-          barWidth: 3,
-          dotData: FlDotData(
-            show: true,
-            getDotPainter: (spot, percent, barData, index) {
-              return FlDotCirclePainter(
-                radius: 5,
-                color: coloresPuntosSombras[id % coloresPuntosSombras.length],
-              );
-            },
-          ),
+      lineBarsData = LineChartBarData(
+        spots: spots,
+        isCurved: true,
+        color:
+            coloresPuntos[id %
+                coloresPuntos.length], // Ejemplo de color dinámico
+        barWidth: 3,
+        dotData: FlDotData(
+          show: true,
+          getDotPainter: (spot, percent, barData, index) {
+            return FlDotCirclePainter(
+              radius: 5,
+              color: coloresPuntosSombras[id % coloresPuntosSombras.length],
+            );
+          },
         ),
       );
     }
@@ -756,7 +755,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                       extraLinesData: ExtraLinesData(
                         horizontalLines: [
                           HorizontalLine(
-                            y: 0,
+                            y: 1,
                             color: colors.error,
                             strokeWidth: 1.5,
                             dashArray: const [8, 8],
@@ -764,7 +763,9 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                         ],
                       ),
                       // LLamada a la nueva función de transformación
-                      lineBarsData: generarCurvaDensidad(_futureCalibraciones),
+                      lineBarsData: [
+                        generarCurvaDensidad(_futureCalibraciones),
+                      ],
                       // Configuración de los ejes (TitlesData)
                       titlesData: FlTitlesData(
                         bottomTitles: AxisTitles(
@@ -812,8 +813,14 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
 
                       /*minX: 1,
                           maxX: 5, // Si asumes que todas tienen 5 corridas*/
-                      minX: 0, // El valor X del primer punto
-                      maxX: 6, // El valor X máximo
+                      minX:
+                          _futureCalibraciones.first.fechaCalibracion.year
+                              .toDouble() -
+                          1, // El valor X del primer punto
+                      maxX:
+                          _futureCalibraciones.last.fechaCalibracion.year
+                              .toDouble() +
+                          1, // El valor X máximo
                       minY: 0.8, // El valor Y mínimo (K Factor)
                       maxY: 1.20, // El valor Y máximo
                     ),

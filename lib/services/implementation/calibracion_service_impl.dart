@@ -129,7 +129,7 @@ class CalibracionServiceImpl implements CalibracionService {
           .from('calibracion_equipo')
           .select()
           .eq('tag_equipo', tagEquipo)
-          .order('id_calibracion', ascending: false)
+          .order('id_calibracion', ascending: true)
           .limit(5);
 
       return await Future.wait(
