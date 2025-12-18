@@ -433,6 +433,54 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
     );
   }
 
+  Widget _buildCalibrationsCheckboxesSimple() {
+    if (_futureCalibraciones.isEmpty) {
+      return const Center(child: Text('No hay calibraciones disponibles.'));
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Wrap(
+        spacing: 12.0,
+        runSpacing: 4.0,
+        children: _futureCalibraciones.map((calibracion) {
+          final int calibracionId = calibracion.idCalibracionEquipo;
+
+          if (!_calibracionesSeleccionadas.containsKey(calibracionId)) {
+            _calibracionesSeleccionadas[calibracionId] = false;
+          }
+
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Checkbox(
+                value: _calibracionesSeleccionadas[calibracionId],
+                onChanged: (bool? newValue) {
+                  setState(() {
+                    _calibracionesSeleccionadas[calibracionId] =
+                        newValue ?? false;
+                    // Actualizar límites si es necesario (o dejar que auto-scale)
+                  });
+                },
+              ),
+              Flexible(
+                child: Text(
+                  formato.format(calibracion.fechaCalibracion),
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color:
+                        coloresPuntosSombras[calibracionId %
+                            coloresPuntosSombras.length],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   List<LineChartBarData> generarCurvasCorridas(
     List<CalibracionEquipo> todasLasCalibraciones,
     Map<int, bool> calibracionesVisibles,
@@ -491,6 +539,114 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
     }
 
     return lineBarsData;
+  }
+
+  List<LineChartBarData> generarCurvasSensores(
+    List<CalibracionEquipo> todasLasCalibraciones,
+    Map<int, bool> calibracionesVisibles,
+  ) {
+    List<LineChartBarData> lineBarsData = [];
+    final colors = Theme.of(context).colorScheme;
+
+    for (var calibracion in todasLasCalibraciones) {
+      int id = calibracion.idCalibracionEquipo;
+
+      if (calibracionesVisibles[id] == true) {
+        List<FlSpot> spots = [];
+
+        if (calibracion.datosEspecificos is DatosCalibracionTemperatura) {
+          final datos =
+              calibracion.datosEspecificos as DatosCalibracionTemperatura;
+          for (var lectura in datos.lecturas) {
+            spots.add(FlSpot(lectura.ibcCelsius, lectura.errorCelsius));
+          }
+        } else if (calibracion.datosEspecificos is DatosCalibracionPresion) {
+          final datos = calibracion.datosEspecificos as DatosCalibracionPresion;
+          for (var lectura in datos.lecturas) {
+            spots.add(FlSpot(lectura.ibcKgCm2, lectura.errorKgCm2));
+          }
+        }
+
+        final color = coloresPuntos[id % coloresPuntos.length];
+        final shadowColor =
+            coloresPuntosSombras[id % coloresPuntosSombras.length];
+
+        lineBarsData.add(
+          LineChartBarData(
+            spots: spots,
+            isCurved: true,
+            curveSmoothness: 0.2,
+            color: color,
+            barWidth: 3,
+            isStrokeCapRound: true,
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, percent, barData, index) {
+                return FlDotCirclePainter(
+                  radius: 4,
+                  color: colors.surface,
+                  strokeWidth: 2,
+                  strokeColor: shadowColor,
+                );
+              },
+            ),
+          ),
+        );
+      }
+    }
+    return lineBarsData;
+  }
+
+
+  // Helper para calcular límites min/max de los sensores visibles
+  ({double minX, double maxX, double minY, double maxY}) _getLimitesSensores() {
+    double minX = double.infinity;
+    double maxX = double.negativeInfinity;
+    double minY = double.infinity;
+    double maxY = double.negativeInfinity;
+
+    bool hasData = false;
+
+    for (var calibracion in _futureCalibraciones) {
+      if (_calibracionesSeleccionadas[calibracion.idCalibracionEquipo] ==
+          true) {
+        if (calibracion.datosEspecificos is DatosCalibracionTemperatura) {
+          final datos =
+              calibracion.datosEspecificos as DatosCalibracionTemperatura;
+          for (var lectura in datos.lecturas) {
+            hasData = true;
+            if (lectura.ibcCelsius < minX) minX = lectura.ibcCelsius;
+            if (lectura.ibcCelsius > maxX) maxX = lectura.ibcCelsius;
+            if (lectura.errorCelsius < minY) minY = lectura.errorCelsius;
+            if (lectura.errorCelsius > maxY) maxY = lectura.errorCelsius;
+          }
+        } else if (calibracion.datosEspecificos is DatosCalibracionPresion) {
+          final datos = calibracion.datosEspecificos as DatosCalibracionPresion;
+          for (var lectura in datos.lecturas) {
+             hasData = true;
+            if (lectura.ibcKgCm2 < minX) minX = lectura.ibcKgCm2;
+            if (lectura.ibcKgCm2 > maxX) maxX = lectura.ibcKgCm2;
+            if (lectura.errorKgCm2 < minY) minY = lectura.errorKgCm2;
+            if (lectura.errorKgCm2 > maxY) maxY = lectura.errorKgCm2;
+          }
+        }
+      }
+    }
+
+    if (!hasData) {
+      return (minX: 0.0, maxX: 100.0, minY: -0.1, maxY: 0.1);
+    }
+    
+    // Add some padding
+    final rangeX = maxX - minX;
+    final rangeY = maxY - minY;
+    
+    return (
+      minX: minX - (rangeX * 0.05),
+      maxX: maxX + (rangeX * 0.05),
+      minY: minY - (rangeY == 0 ? 0.01 : rangeY * 0.1),
+      maxY: maxY + (rangeY == 0 ? 0.01 : rangeY * 0.1),
+    );
   }
 
   // Dentro de VistaDetalleEquipoState
@@ -784,7 +940,177 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
       );
     } else {
       if (equipo.idTipoSensor == 2 || equipo.idTipoSensor == 3) {
-        return Container();
+        return Container(
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: colors.shadow.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                "Gráfica de desviación",
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: colors.onSurface,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              _buildCalibrationsCheckboxesSimple(),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 400,
+                child: LineChart(
+                  LineChartData(
+                    lineBarsData: generarCurvasSensores(
+                      _futureCalibraciones,
+                      _calibracionesSeleccionadas,
+                    ),
+                    gridData: FlGridData(
+                      show: true,
+                      drawVerticalLine: true,
+                      horizontalInterval:
+                          0.1, // This will be dynamic in a real app
+                      getDrawingHorizontalLine: (value) {
+                        if (value == 0) {
+                          return FlLine(
+                            color: colors.outline.withValues(alpha: 0.5),
+                            strokeWidth: 1,
+                          );
+                        }
+                        return FlLine(
+                          color: colors.outlineVariant.withValues(alpha: 0.3),
+                          strokeWidth: 1,
+                          dashArray: [5, 5],
+                        );
+                      },
+                      getDrawingVerticalLine: (value) {
+                        return FlLine(
+                          color: colors.outlineVariant.withValues(alpha: 0.3),
+                          strokeWidth: 1,
+                          dashArray: [5, 5],
+                        );
+                      },
+                    ),
+                    titlesData: FlTitlesData(
+                      bottomTitles: AxisTitles(
+                        axisNameWidget: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            equipo.idTipoSensor == 2
+                                ? 'Temperatura (°C)'
+                                : 'Presión (PSI)',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colors.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                        axisNameSize: 30,
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 30,
+                          getTitlesWidget: (value, meta) {
+                            final text = value.toStringAsFixed(0);
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Text(
+                                text,
+                                style: Theme.of(context).textTheme.labelSmall
+                                    ?.copyWith(color: colors.onSurfaceVariant),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      leftTitles: AxisTitles(
+                        axisNameWidget: Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            'Error',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colors.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                        axisNameSize: 30,
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 45,
+                          getTitlesWidget: (value, meta) => Text(
+                            value.toStringAsFixed(3),
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                  fontSize: 10,
+                                ),
+                            textAlign: TextAlign.end,
+                          ),
+                        ),
+                      ),
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                    ),
+                    borderData: FlBorderData(
+                      show: true,
+                      border: Border(
+                        bottom: BorderSide(color: colors.outlineVariant),
+                        left: BorderSide(color: colors.outlineVariant),
+                        right: BorderSide.none,
+                        top: BorderSide.none,
+                      ),
+                    ),
+                    lineTouchData: LineTouchData(
+                      touchTooltipData: LineTouchTooltipData(
+                        getTooltipColor: (_) => colors.surfaceContainerHighest,
+                        getTooltipItems: (touchedSpots) {
+                          return touchedSpots.map((LineBarSpot touchedSpot) {
+                            return LineTooltipItem(
+                              'IBC: ${touchedSpot.x.toStringAsFixed(2)}\nError: ${touchedSpot.y.toStringAsFixed(4)}',
+                              TextStyle(
+                                color:
+                                    touchedSpot.bar.color ?? colors.onSurface,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          }).toList();
+                        },
+                      ),
+                    ),
+                    minX: if (calibracion.datosEspecificos is DatosCalibracionTemperatura) {
+                      _futureCalibraciones.last.datosEspecificos.lecturas.first.ibcCelsius
+                    } else{
+                      _futureCalibraciones.last.datosEspecificos.lecturas.first.ibcKgCm2
+                    },
+                    maxX: if (calibracion.datosEspecificos is DatosCalibracionTemperatura) {
+                      _futureCalibraciones.last.datosEspecificos.lecturas.last.ibcCelsius
+                    } else {
+                      _futureCalibraciones.last.datosEspecificos.lecturas.last.ibcKgCm2
+                    },
+                    minY: -0.1,
+                    maxY: 0.1,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
       } else {
         if (_futureCalibraciones.isEmpty) {
           return Card(
