@@ -60,7 +60,7 @@ class CalibracionEquipo {
   late Producto producto;
 
   //Para cada tipo
-  late DatosPorEquipo datosEspecificos;
+  late DatosPorEquipo? datosEspecificos;
 
   CalibracionEquipo(
     this.idCalibracionEquipo,
@@ -101,7 +101,7 @@ class CalibracionEquipo {
   double get getReproducibilidad => reproducibilidad;
   String get getObservaciones => observaciones;
   //String get getDocumentoCertificado => documentoCertificado;
-  DatosPorEquipo get getDatosPorEquipo => datosEspecificos;
+  DatosPorEquipo? get getDatosPorEquipo => datosEspecificos;
   String getTagEquipo() => tagEquipo;
   Producto getProducto() => producto;
 
@@ -231,20 +231,8 @@ class CalibracionEquipo {
             );
         datosEspecificos = DatosCalibracionDensidad(lecturaDensidad);
       }
-      /* switch (tipoEquipo) {
-        case 'FT':
-
-          break;
-
-        case 'TIT':
-
-          break;
-
-        case 'PIT':
-
-          break;
-      }*/
     } catch (error) {
+      print(error);
       datosEspecificos = null;
     }
 
@@ -261,7 +249,7 @@ class CalibracionEquipo {
       calibracionJson['id_laboratorio_calibracion'] as int,
       calibracionJson['id_usuario'] as int,
       producto,
-      datosEspecificos!,
+      datosEspecificos,
     );
   }
 
