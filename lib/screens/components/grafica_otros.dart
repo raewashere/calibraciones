@@ -43,7 +43,7 @@ class GraficaOtros extends StatelessWidget {
         children: <Widget>[
           Text(
             'IBC vs Error',
-            style: textTheme.titleLarge?.copyWith(
+            style: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: colors.onSurface,
             ),
@@ -78,17 +78,18 @@ class GraficaOtros extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Text(
                         (tipo) ? 'Lectura IBC (kg/cm²)' : 'Lectura IBC (ºC)',
-                        style: textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        style: textTheme.labelSmall?.copyWith(
                           color: colors.onSurfaceVariant,
+                          fontSize: 10,
                         ),
+                        textAlign: TextAlign.end,
                       ),
                     ),
                     axisNameSize: 30,
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 30,
-                      interval: 10,
+                      reservedSize: 40,
+                      interval: 20,
                       getTitlesWidget: (value, meta) {
                         return Padding(
                           padding: const EdgeInsets.only(top: 8.0),
@@ -96,7 +97,9 @@ class GraficaOtros extends StatelessWidget {
                             value.toStringAsFixed(0),
                             style: textTheme.labelSmall?.copyWith(
                               color: colors.onSurfaceVariant,
+                              fontSize: 10,
                             ),
+                            textAlign: TextAlign.end,
                           ),
                         );
                       },
@@ -107,16 +110,17 @@ class GraficaOtros extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: Text(
                         (tipo) ? 'Error (kg/cm²)' : 'Error (ºC)',
-                        style: textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        style: textTheme.labelSmall?.copyWith(
                           color: colors.onSurfaceVariant,
+                          fontSize: 10,
                         ),
+                        textAlign: TextAlign.end,
                       ),
                     ),
                     axisNameSize: 30,
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 45,
+                      reservedSize: 40,
                       interval: 0.05,
                       getTitlesWidget: (value, meta) {
                         return Text(
@@ -206,10 +210,11 @@ class GraficaOtros extends StatelessWidget {
                       return touchedSpots.map((LineBarSpot touchedSpot) {
                         return LineTooltipItem(
                           '${touchedSpot.x.toStringAsFixed(1)}  kg/cm²,  ${touchedSpot.y.toStringAsFixed(3)} kg/cm²',
-                          TextStyle(
-                            color: colors.onSurface,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          textTheme.labelSmall?.copyWith(
+                                color: colors.onPrimaryContainer,
+                                fontWeight: FontWeight.bold,
+                              ) ??
+                              const TextStyle(),
                         );
                       }).toList();
                     },

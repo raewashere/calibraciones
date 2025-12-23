@@ -94,10 +94,11 @@ class GraficaCorridas extends StatelessWidget {
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
                                 'Flujo (m³/hr)',
-                                style: textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
+                                style: textTheme.labelSmall?.copyWith(
                                   color: colors.onSurfaceVariant,
+                                  fontSize: 10,
                                 ),
+                                textAlign: TextAlign.end,
                               ),
                             ),
                             axisNameSize: 30,
@@ -112,7 +113,9 @@ class GraficaCorridas extends StatelessWidget {
                                     value.toStringAsFixed(0),
                                     style: textTheme.labelSmall?.copyWith(
                                       color: colors.onSurfaceVariant,
+                                      fontSize: 10,
                                     ),
+                                    textAlign: TextAlign.end,
                                   ),
                                 );
                               },
@@ -123,16 +126,17 @@ class GraficaCorridas extends StatelessWidget {
                               padding: const EdgeInsets.only(bottom: 8.0),
                               child: Text(
                                 'K Factor (Pulsos/m³)',
-                                style: textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
+                                style: textTheme.labelSmall?.copyWith(
                                   color: colors.onSurfaceVariant,
+                                  fontSize: 10,
                                 ),
+                                textAlign: TextAlign.end,
                               ),
                             ),
                             axisNameSize: 30,
                             sideTitles: SideTitles(
                               showTitles: true,
-                              reservedSize: 50,
+                              reservedSize: 40,
                               interval: 20,
                               getTitlesWidget: (value, meta) => Text(
                                 value.toStringAsFixed(2),
@@ -201,10 +205,11 @@ class GraficaCorridas extends StatelessWidget {
                               ) {
                                 return LineTooltipItem(
                                   'Flujo: ${touchedSpot.x.toStringAsFixed(1)}\nK: ${touchedSpot.y.toStringAsFixed(2)}',
-                                  TextStyle(
-                                    color: colors.onSecondaryContainer,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  textTheme.labelSmall?.copyWith(
+                                        color: colors.onSecondaryContainer,
+                                        fontWeight: FontWeight.bold,
+                                      ) ??
+                                      const TextStyle(),
                                 );
                               }).toList();
                             },
@@ -320,7 +325,7 @@ class GraficaCorridas extends StatelessWidget {
                             axisNameSize: 30,
                             sideTitles: SideTitles(
                               showTitles: true,
-                              reservedSize: 50,
+                              reservedSize: 40,
                               interval: 0.020,
                               getTitlesWidget: (value, meta) => Text(
                                 value.toStringAsFixed(3),
@@ -389,10 +394,11 @@ class GraficaCorridas extends StatelessWidget {
                               ) {
                                 return LineTooltipItem(
                                   'Flujo: ${touchedSpot.x.toStringAsFixed(1)}\nMF: ${touchedSpot.y.toStringAsFixed(4)}',
-                                  TextStyle(
-                                    color: colors.onPrimaryContainer,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  textTheme.labelSmall?.copyWith(
+                                        color: colors.onPrimaryContainer,
+                                        fontWeight: FontWeight.bold,
+                                      ) ??
+                                      const TextStyle(),
                                 );
                               }).toList();
                             },
@@ -429,7 +435,7 @@ class GraficaCorridas extends StatelessWidget {
       label: HorizontalLineLabel(
         show: true,
         alignment: Alignment.bottomRight,
-        padding: const EdgeInsets.only(right: 5),
+        padding: const EdgeInsets.only(right: 5, top: 20),
         style: textTheme.labelSmall?.copyWith(
           color: colors.onSurface,
           fontWeight: FontWeight.bold,
@@ -453,7 +459,7 @@ class GraficaCorridas extends StatelessWidget {
       label: HorizontalLineLabel(
         show: true,
         alignment: Alignment.topRight,
-        padding: const EdgeInsets.only(right: 5),
+        padding: const EdgeInsets.only(right: 5, bottom: 20),
         style: textTheme.labelSmall?.copyWith(
           color: colors.onSurface,
           fontWeight: FontWeight.bold,

@@ -180,10 +180,11 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
                                       ),
                                       title: Text(
                                         calibracion.certificadoCalibracion,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: theme.colorScheme.primary,
-                                        ),
+                                        style: theme.textTheme.titleMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: theme.colorScheme.primary,
+                                            ),
                                       ),
                                       subtitle: Column(
                                         crossAxisAlignment:

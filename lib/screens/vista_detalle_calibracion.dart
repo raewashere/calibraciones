@@ -290,7 +290,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
             const SizedBox(width: 8),
             Text(
               'Detalle de Calibración',
-              style: TextStyle(
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: colors.onPrimary,
                 fontWeight: FontWeight.bold,
               ),
@@ -299,238 +299,240 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
         ),
       ),
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // ======== INFORMACIÓN GENERAL =========
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Información de la Calibración",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: colors.primary,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ======== INFORMACIÓN GENERAL =========
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Información de la Calibración",
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colors.primary,
+                            ),
                       ),
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 8),
-                    _buildInfoRow(
-                      "Certificado",
-                      calibracionEquipo.certificadoCalibracion,
-                    ),
-                    _buildInfoRow(
-                      "Fecha de calibración",
-                      formato.format(calibracionEquipo.fechaCalibracion),
-                    ),
-                    _buildInfoRow("Laboratorio", laboratorio!.nombre),
-                    _buildInfoRow(
-                      "Dirección",
-                      rutaEquipo != null
-                          ? rutaEquipo!.direccion.nombre
-                          : 'No disponible',
-                    ),
-                    _buildInfoRow(
-                      "Subdirección",
-                      rutaEquipo != null
-                          ? rutaEquipo!.subdireccion.nombre
-                          : 'No disponible',
-                    ),
-                    _buildInfoRow(
-                      "Gerencia",
-                      rutaEquipo != null
-                          ? rutaEquipo!.gerencia.nombre
-                          : 'No disponible',
-                    ),
-                    _buildInfoRow(
-                      "Instalación",
-                      rutaEquipo != null
-                          ? rutaEquipo!.instalacion.nombreInstalacion
-                          : 'No disponible',
-                    ),
-                    _buildInfoRow(
-                      "Patín de medición",
-                      rutaEquipo != null
-                          ? rutaEquipo!.patin.nombrePatin
-                          : 'No disponible',
-                    ),
-                    _buildInfoRow(
-                      "Tren de medición",
-                      rutaEquipo != null
-                          ? rutaEquipo!.tren.tagTren
-                          : 'No disponible',
-                    ),
-                    _buildInfoRow(
-                      "Producto",
-                      calibracionEquipo.producto.producto,
-                    ),
-                    const SizedBox(height: 12),
-                    Center(
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            mensajes.info(context, 'Abriendo certificado...'),
-                          );
-                          abrirPdf(
-                            'https://zkviewvpmswfgpiwpoez.supabase.co/storage/v1/object/public/certificados/${calibracionEquipo.rutaCertificado}',
-                          );
-                        },
-                        icon: const Icon(Icons.picture_as_pdf),
-                        label: const Text('Ver Certificado'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.primary,
-                          foregroundColor: colors.onPrimary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                      const Divider(),
+                      const SizedBox(height: 8),
+                      _buildInfoRow(
+                        "Certificado",
+                        calibracionEquipo.certificadoCalibracion,
+                      ),
+                      _buildInfoRow(
+                        "Fecha de calibración",
+                        formato.format(calibracionEquipo.fechaCalibracion),
+                      ),
+                      _buildInfoRow("Laboratorio", laboratorio!.nombre),
+                      _buildInfoRow(
+                        "Dirección",
+                        rutaEquipo != null
+                            ? rutaEquipo!.direccion.nombre
+                            : 'No disponible',
+                      ),
+                      _buildInfoRow(
+                        "Subdirección",
+                        rutaEquipo != null
+                            ? rutaEquipo!.subdireccion.nombre
+                            : 'No disponible',
+                      ),
+                      _buildInfoRow(
+                        "Gerencia",
+                        rutaEquipo != null
+                            ? rutaEquipo!.gerencia.nombre
+                            : 'No disponible',
+                      ),
+                      _buildInfoRow(
+                        "Instalación",
+                        rutaEquipo != null
+                            ? rutaEquipo!.instalacion.nombreInstalacion
+                            : 'No disponible',
+                      ),
+                      _buildInfoRow(
+                        "Patín de medición",
+                        rutaEquipo != null
+                            ? rutaEquipo!.patin.nombrePatin
+                            : 'No disponible',
+                      ),
+                      _buildInfoRow(
+                        "Tren de medición",
+                        rutaEquipo != null
+                            ? rutaEquipo!.tren.tagTren
+                            : 'No disponible',
+                      ),
+                      _buildInfoRow(
+                        "Producto",
+                        calibracionEquipo.producto.producto,
+                      ),
+                      const SizedBox(height: 12),
+                      Center(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              mensajes.info(context, 'Abriendo certificado...'),
+                            );
+                            abrirPdf(
+                              'https://zkviewvpmswfgpiwpoez.supabase.co/storage/v1/object/public/certificados/${calibracionEquipo.rutaCertificado}',
+                            );
+                          },
+                          icon: const Icon(Icons.picture_as_pdf),
+                          label: const Text('Ver Certificado'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.primary,
+                            foregroundColor: colors.onPrimary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Información de equipo",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: colors.primary,
-                      ),
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 8),
-                    _buildInfoRow("TAG", calibracionEquipo.tagEquipo),
-                    _buildInfoRow(
-                      "Tipo de sensor",
-                      equipo!.tipoSensor.toString(),
-                    ),
-                    _buildInfoRow("Estado", equipo!.estado),
-                    _buildInfoRow("Marca", equipo!.marca),
-                    _buildInfoRow("Modelo", equipo!.modelo),
-                    _buildInfoRow("Tipo de medición", equipo!.tipoMedicion),
-                    _buildInfoRow(
-                      "Incertidumbre",
-                      '± ${equipo!.incertidumbre} % ${equipo!.magnitudIncertidumbre}',
-                    ),
-                    //Redondeo de intervalo de calibracion a meses
-                    _buildInfoRow(
-                      "Intervalo de calibración",
-                      '${((equipo!.intervaloCalibracion) / 30).round()} meses',
-                    ),
-                    _buildInfoRow(
-                      "Intervalo de verificación",
-                      '${((equipo!.intervaloVerificacion) / 30).round()} meses',
-                    ),
-                  ],
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ),
-            ),
-
-            (tipoDetalle < 4 && tipoDetalle > 0)
-                ? Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            (tipoDetalle == 1)
-                                ? "Gráfica de corridas"
-                                : "Gráfica de lecturas",
-                            style: TextStyle(
-                              fontSize: 18,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Información de equipo",
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: colors.primary,
                             ),
-                          ),
-                          const Divider(),
-                          const SizedBox(height: 12),
-                          (tipoDetalle == 1) ? graficaCorridas : graficaOtros,
-                        ],
                       ),
-                    ),
-                  )
-                : const SizedBox.shrink(),
+                      const Divider(),
+                      const SizedBox(height: 8),
+                      _buildInfoRow("TAG", calibracionEquipo.tagEquipo),
+                      _buildInfoRow(
+                        "Tipo de sensor",
+                        equipo!.tipoSensor.toString(),
+                      ),
+                      _buildInfoRow("Estado", equipo!.estado),
+                      _buildInfoRow("Marca", equipo!.marca),
+                      _buildInfoRow("Modelo", equipo!.modelo),
+                      _buildInfoRow("Tipo de medición", equipo!.tipoMedicion),
+                      _buildInfoRow(
+                        "Incertidumbre",
+                        '± ${equipo!.incertidumbre} % ${equipo!.magnitudIncertidumbre}',
+                      ),
+                      //Redondeo de intervalo de calibracion a meses
+                      _buildInfoRow(
+                        "Intervalo de calibración",
+                        '${((equipo!.intervaloCalibracion) / 30).round()} meses',
+                      ),
+                      _buildInfoRow(
+                        "Intervalo de verificación",
+                        '${((equipo!.intervaloVerificacion) / 30).round()} meses',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
-            const SizedBox(height: 16),
+              (tipoDetalle < 4 && tipoDetalle > 0)
+                  ? Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              (tipoDetalle == 1)
+                                  ? "Gráfica de corridas"
+                                  : "Gráfica de lecturas",
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: colors.primary,
+                                  ),
+                            ),
+                            const Divider(),
+                            const SizedBox(height: 12),
+                            (tipoDetalle == 1) ? graficaCorridas : graficaOtros,
+                          ],
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
 
-            // ======== TABLA DE CORRIDAS =========
-            (tipoDetalle < 4 && tipoDetalle > 0)
-                ? Card(
-                    color: colors.onPrimary,
-                    elevation: 1,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
+              const SizedBox(height: 16),
+
+              // ======== TABLA DE CORRIDAS =========
+              (tipoDetalle < 4 && tipoDetalle > 0)
+                  ? Card(
+                      color: colors.onPrimary,
+                      elevation: 1,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              (tipoDetalle == 1)
+                                  ? "Tabla de Corridas"
+                                  : (tipoDetalle == 2)
+                                  ? "Tabla de Lecturas de Temperatura"
+                                  : "Tabla de Lecturas de Presión",
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: colors.primary,
+                                  ),
+                            ),
+                            const Divider(),
+                            const SizedBox(height: 8),
                             (tipoDetalle == 1)
-                                ? "Tabla de Corridas"
+                                ? buildTablaCorridas(context)
                                 : (tipoDetalle == 2)
-                                ? "Tabla de Lecturas de Temperatura"
-                                : "Tabla de Lecturas de Presión",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: colors.primary,
-                            ),
-                          ),
-                          const Divider(),
-                          const SizedBox(height: 8),
-                          (tipoDetalle == 1)
-                              ? buildTablaCorridas(context)
-                              : (tipoDetalle == 2)
-                              ? buildTablaTemperatura(context)
-                              : buildTablaPresion(context),
-                        ],
+                                ? buildTablaTemperatura(context)
+                                : buildTablaPresion(context),
+                          ],
+                        ),
                       ),
-                    ),
-                  )
-                : const SizedBox.shrink(),
+                    )
+                  : const SizedBox.shrink(),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            // ======== OBSERVACIONES =========
-            (tipoDetalle == 1)
-                ? buildObservaciones(context)
-                : (tipoDetalle == 2 || tipoDetalle == 3)
-                ? buildExtras(context)
-                : (tipoDetalle == 4)
-                ? buildDatosDensidad(context)
-                : SizedBox.shrink(),
-          ],
+              // ======== OBSERVACIONES =========
+              (tipoDetalle == 1)
+                  ? buildObservaciones(context)
+                  : (tipoDetalle == 2 || tipoDetalle == 3)
+                  ? buildExtras(context)
+                  : (tipoDetalle == 4)
+                  ? buildDatosDensidad(context)
+                  : SizedBox.shrink(),
+            ],
+          ),
         ),
       ),
     );
@@ -546,7 +548,9 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
             flex: 4,
             child: Text(
               "$label:",
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
           Expanded(flex: 6, child: Text(value)),

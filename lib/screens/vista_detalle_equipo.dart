@@ -156,6 +156,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
@@ -172,7 +173,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
             const SizedBox(width: 8),
             Text(
               'Detalle de Equipo',
-              style: TextStyle(
+              style: textTheme.titleLarge?.copyWith(
                 color: colors.onPrimary,
                 fontWeight: FontWeight.bold,
               ),
@@ -183,131 +184,131 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
 
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // ======== INFORMACIÓN GENERAL =========
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Información del equipo",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: colors.primary,
+          : SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // ======== INFORMACIÓN GENERAL =========
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Información del equipo",
+                              style: textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colors.primary,
+                              ),
                             ),
-                          ),
-                          const Divider(),
-                          const SizedBox(height: 8),
-                          _buildInfoRow("TAG", equipo.tagEquipo),
-                          _buildInfoRow(
-                            "Tipo de sensor",
-                            equipoCompleto.getTipoSensor,
-                          ),
-                          _buildInfoRow("Estado", equipoCompleto.estado),
-                          _buildInfoRow("Marca", equipoCompleto.marca),
-                          _buildInfoRow("Modelo", equipoCompleto.modelo),
-                          _buildInfoRow(
-                            "Tipo de medición",
-                            equipoCompleto.tipoMedicion,
-                          ),
-                          _buildInfoRow(
-                            "Incertidumbre",
-                            '± ${equipoCompleto.incertidumbre} % ${equipoCompleto.magnitudIncertidumbre}',
-                          ),
-                          //Redondeo de intervalo de calibracion a meses
-                          _buildInfoRow(
-                            "Intervalo de calibración",
-                            '${(equipoCompleto.intervaloCalibracion / 30).round()} meses',
-                          ),
-                          _buildInfoRow(
-                            "Intervalo de verificación",
-                            '${(equipoCompleto.intervaloVerificacion / 30).round()} meses',
-                          ),
-                        ],
+                            const Divider(),
+                            const SizedBox(height: 8),
+                            _buildInfoRow("TAG", equipo.tagEquipo),
+                            _buildInfoRow(
+                              "Tipo de sensor",
+                              equipoCompleto.getTipoSensor,
+                            ),
+                            _buildInfoRow("Estado", equipoCompleto.estado),
+                            _buildInfoRow("Marca", equipoCompleto.marca),
+                            _buildInfoRow("Modelo", equipoCompleto.modelo),
+                            _buildInfoRow(
+                              "Tipo de medición",
+                              equipoCompleto.tipoMedicion,
+                            ),
+                            _buildInfoRow(
+                              "Incertidumbre",
+                              '± ${equipoCompleto.incertidumbre} % ${equipoCompleto.magnitudIncertidumbre}',
+                            ),
+                            //Redondeo de intervalo de calibracion a meses
+                            _buildInfoRow(
+                              "Intervalo de calibración",
+                              '${(equipoCompleto.intervaloCalibracion / 30).round()} meses',
+                            ),
+                            _buildInfoRow(
+                              "Intervalo de verificación",
+                              '${(equipoCompleto.intervaloVerificacion / 30).round()} meses',
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Ubicación del equipo",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: colors.primary,
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Ubicación del equipo",
+                              style: textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colors.primary,
+                              ),
                             ),
-                          ),
-                          const Divider(),
-                          const SizedBox(height: 8),
-                          _buildInfoRow(
-                            "Dirección",
-                            rutaEquipo != null
-                                ? rutaEquipo!.direccion.nombre
-                                : 'No disponible',
-                          ),
-                          _buildInfoRow(
-                            "Subdirección",
-                            rutaEquipo != null
-                                ? rutaEquipo!.subdireccion.nombre
-                                : 'No disponible',
-                          ),
-                          _buildInfoRow(
-                            "Gerencia",
-                            rutaEquipo != null
-                                ? rutaEquipo!.gerencia.nombre
-                                : 'No disponible',
-                          ),
-                          _buildInfoRow(
-                            "Instalación",
-                            rutaEquipo != null
-                                ? rutaEquipo!.instalacion.nombreInstalacion
-                                : 'No disponible',
-                          ),
-                          _buildInfoRow(
-                            "Patín de medición",
-                            rutaEquipo != null
-                                ? rutaEquipo!.patin.nombrePatin
-                                : 'No disponible',
-                          ),
-                          _buildInfoRow(
-                            "Tren de medición",
-                            rutaEquipo != null
-                                ? rutaEquipo!.tren.tagTren
-                                : 'No disponible',
-                          ),
-                        ],
+                            const Divider(),
+                            const SizedBox(height: 8),
+                            _buildInfoRow(
+                              "Dirección",
+                              rutaEquipo != null
+                                  ? rutaEquipo!.direccion.nombre
+                                  : 'No disponible',
+                            ),
+                            _buildInfoRow(
+                              "Subdirección",
+                              rutaEquipo != null
+                                  ? rutaEquipo!.subdireccion.nombre
+                                  : 'No disponible',
+                            ),
+                            _buildInfoRow(
+                              "Gerencia",
+                              rutaEquipo != null
+                                  ? rutaEquipo!.gerencia.nombre
+                                  : 'No disponible',
+                            ),
+                            _buildInfoRow(
+                              "Instalación",
+                              rutaEquipo != null
+                                  ? rutaEquipo!.instalacion.nombreInstalacion
+                                  : 'No disponible',
+                            ),
+                            _buildInfoRow(
+                              "Patín de medición",
+                              rutaEquipo != null
+                                  ? rutaEquipo!.patin.nombrePatin
+                                  : 'No disponible',
+                            ),
+                            _buildInfoRow(
+                              "Tren de medición",
+                              rutaEquipo != null
+                                  ? rutaEquipo!.tren.tagTren
+                                  : 'No disponible',
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                  _buildGraficoHistorico(context),
+                    _buildGraficoHistorico(context),
 
-                  const SizedBox(height: 16),
-                ],
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
             ),
     );
@@ -315,6 +316,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
 
   /// --- Helper para filas de información ---
   Widget _buildInfoRow(String label, String value) {
+    final textTheme = Theme.of(context).textTheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -323,7 +325,9 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
             flex: 4,
             child: Text(
               "$label:",
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           Expanded(flex: 6, child: Text(value)),
@@ -364,6 +368,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
   }
 
   Widget _buildCalibrationsCheckboxes() {
+    final textTheme = Theme.of(context).textTheme;
     if (productoSeleccionado == null || _futureCalibraciones.isEmpty) {
       return const Center(
         child: Text('Selecciona un producto y carga las calibraciones.'),
@@ -419,7 +424,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                   formato.format(calibracion.fechaCalibracion),
                   overflow: TextOverflow
                       .ellipsis, // Opcional: para manejar textos muy largos
-                  style: TextStyle(
+                  style: textTheme.bodySmall?.copyWith(
                     color:
                         coloresPuntosSombras[calibracion.idCalibracionEquipo %
                             coloresPuntosSombras.length],
@@ -434,6 +439,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
   }
 
   Widget _buildCalibrationsCheckboxesSimple() {
+    final textTheme = Theme.of(context).textTheme;
     if (_futureCalibraciones.isEmpty) {
       return const Center(child: Text('No hay calibraciones disponibles.'));
     }
@@ -467,7 +473,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                 child: Text(
                   formato.format(calibracion.fechaCalibracion),
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: textTheme.bodySmall?.copyWith(
                     color:
                         coloresPuntosSombras[calibracionId %
                             coloresPuntosSombras.length],
@@ -597,7 +603,6 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
     return lineBarsData;
   }
 
-
   // Helper para calcular límites min/max de los sensores visibles
   ({double minX, double maxX, double minY, double maxY}) _getLimitesSensores() {
     double minX = double.infinity;
@@ -623,7 +628,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
         } else if (calibracion.datosEspecificos is DatosCalibracionPresion) {
           final datos = calibracion.datosEspecificos as DatosCalibracionPresion;
           for (var lectura in datos.lecturas) {
-             hasData = true;
+            hasData = true;
             if (lectura.ibcKgCm2 < minX) minX = lectura.ibcKgCm2;
             if (lectura.ibcKgCm2 > maxX) maxX = lectura.ibcKgCm2;
             if (lectura.errorKgCm2 < minY) minY = lectura.errorKgCm2;
@@ -636,11 +641,11 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
     if (!hasData) {
       return (minX: 0.0, maxX: 100.0, minY: -0.1, maxY: 0.1);
     }
-    
+
     // Add some padding
     final rangeX = maxX - minX;
     final rangeY = maxY - minY;
-    
+
     return (
       minX: minX - (rangeX * 0.05),
       maxX: maxX + (rangeX * 0.05),
@@ -737,6 +742,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
 
   Widget _buildGraficoHistorico(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     if (equipo.idTipoSensor == 1) {
       if (_futureCalibraciones.isEmpty) {
         return Card(
@@ -751,8 +757,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
               children: [
                 Text(
                   "Gráfica de desviación",
-                  style: TextStyle(
-                    fontSize: 18,
+                  style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: colors.primary,
                   ),
@@ -783,7 +788,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
           children: [
             Text(
               "Gráfica de desviación",
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              style: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: colors.onSurface,
               ),
@@ -842,11 +847,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Text(
                           'Caudal',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: colors.onSurfaceVariant,
-                              ),
+                          style: textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colors.onSurfaceVariant,
+                          ),
                         ),
                       ),
                       axisNameSize: 30,
@@ -861,8 +865,11 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Text(
                               text,
-                              style: Theme.of(context).textTheme.labelSmall
-                                  ?.copyWith(color: colors.onSurfaceVariant),
+                              style: textTheme.labelSmall?.copyWith(
+                                color: colors.onSurfaceVariant,
+                                fontSize: 10,
+                              ),
+                              textAlign: TextAlign.end,
                             ),
                           );
                         },
@@ -873,11 +880,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Text(
                           'K Factor', // Or Meter Factor depending on what is plotted
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: colors.onSurfaceVariant,
-                              ),
+                          style: textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colors.onSurfaceVariant,
+                          ),
                         ),
                       ),
                       axisNameSize: 30,
@@ -887,11 +893,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                         // interval: 0.02,
                         getTitlesWidget: (value, meta) => Text(
                           value.toStringAsFixed(4), // Precision for factor
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(
-                                color: colors.onSurfaceVariant,
-                                fontSize: 10,
-                              ),
+                          style: textTheme.labelSmall?.copyWith(
+                            color: colors.onSurfaceVariant,
+                            fontSize: 10,
+                          ),
                           textAlign: TextAlign.end,
                         ),
                       ),
@@ -985,7 +990,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
             children: [
               Text(
                 "Gráfica de desviación",
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                style: textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: colors.onSurface,
                 ),
@@ -1036,11 +1041,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                             equipo.idTipoSensor == 2
                                 ? 'Temperatura (°C)'
                                 : 'Presión (PSI)',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: colors.onSurfaceVariant,
-                                ),
+                            style: textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colors.onSurfaceVariant,
+                            ),
                           ),
                         ),
                         axisNameSize: 30,
@@ -1053,8 +1057,11 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
                                 text,
-                                style: Theme.of(context).textTheme.labelSmall
-                                    ?.copyWith(color: colors.onSurfaceVariant),
+                                style: textTheme.labelSmall?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                  fontSize: 10,
+                                ),
+                                textAlign: TextAlign.end,
                               ),
                             );
                           },
@@ -1065,11 +1072,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                           padding: const EdgeInsets.only(bottom: 8.0),
                           child: Text(
                             'Error',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: colors.onSurfaceVariant,
-                                ),
+                            style: textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colors.onSurfaceVariant,
+                            ),
                           ),
                         ),
                         axisNameSize: 30,
@@ -1078,11 +1084,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                           reservedSize: 45,
                           getTitlesWidget: (value, meta) => Text(
                             value.toStringAsFixed(3),
-                            style: Theme.of(context).textTheme.labelSmall
-                                ?.copyWith(
-                                  color: colors.onSurfaceVariant,
-                                  fontSize: 10,
-                                ),
+                            style: textTheme.labelSmall?.copyWith(
+                              color: colors.onSurfaceVariant,
+                              fontSize: 10,
+                            ),
                             textAlign: TextAlign.end,
                           ),
                         ),
@@ -1120,7 +1125,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                         },
                       ),
                     ),
-                    minX: valorMinX() ,
+                    minX: valorMinX(),
                     maxX: valorMaxX(),
                     minY: -0.1,
                     maxY: 0.1,
@@ -1176,7 +1181,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
             children: [
               Text(
                 "Evolución factor de corrección",
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                style: textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: colors.onSurface,
                 ),
@@ -1218,11 +1223,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                             show: true,
                             alignment: Alignment.topRight,
                             padding: const EdgeInsets.only(right: 5),
-                            style: Theme.of(context).textTheme.labelSmall
-                                ?.copyWith(
-                                  color: colors.error,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            style: textTheme.labelSmall?.copyWith(
+                              color: colors.onSurfaceVariant,
+                              fontSize: 10,
+                            ),
                             labelResolver: (line) => 'Ref 1.0',
                           ),
                         ),
@@ -1235,11 +1239,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
                             'Año',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: colors.onSurfaceVariant,
-                                ),
+                            style: textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colors.onSurfaceVariant,
+                            ),
                           ),
                         ),
                         axisNameSize: 30,
@@ -1253,8 +1256,11 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
                                 text,
-                                style: Theme.of(context).textTheme.labelSmall
-                                    ?.copyWith(color: colors.onSurfaceVariant),
+                                style: textTheme.labelSmall?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                  fontSize: 10,
+                                ),
+                                textAlign: TextAlign.end,
                               ),
                             );
                           },
@@ -1265,11 +1271,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                           padding: const EdgeInsets.only(bottom: 8.0),
                           child: Text(
                             'Factor',
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: colors.onSurfaceVariant,
-                                ),
+                            style: textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colors.onSurfaceVariant,
+                            ),
                           ),
                         ),
                         axisNameSize: 30,
@@ -1279,11 +1284,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                           interval: 0.1,
                           getTitlesWidget: (value, meta) => Text(
                             value.toStringAsFixed(2),
-                            style: Theme.of(context).textTheme.labelSmall
-                                ?.copyWith(
-                                  color: colors.onSurfaceVariant,
-                                  fontSize: 10,
-                                ),
+                            style: textTheme.labelSmall?.copyWith(
+                              color: colors.onSurfaceVariant,
+                              fontSize: 10,
+                            ),
                             textAlign: TextAlign.end,
                           ),
                         ),
@@ -1349,8 +1353,9 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
       if (lecturas.isEmpty) return 0.0;
 
       return lecturas
-          .map((l) => l.ibcCelsius.toDouble())
-          .reduce((a, b) => a < b ? a : b) - 5;
+              .map((l) => l.ibcCelsius.toDouble())
+              .reduce((a, b) => a < b ? a : b) -
+          5;
     }
 
     if (datos is DatosCalibracionPresion) {
@@ -1359,13 +1364,13 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
       if (lecturas.isEmpty) return 0.0;
 
       return lecturas
-          .map((l) => l.ibcKgCm2.toDouble())
-          .reduce((a, b) => a < b ? a : b) - 5;
+              .map((l) => l.ibcKgCm2.toDouble())
+              .reduce((a, b) => a < b ? a : b) -
+          5;
     }
 
     return 0.0;
   }
-
 
   double valorMaxX() {
     final datos = _futureCalibraciones.last.datosEspecificos;
@@ -1376,8 +1381,9 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
       if (lecturas.isEmpty) return 0.0;
 
       return lecturas
-          .map((l) => l.ibcCelsius.toDouble())
-          .reduce((a, b) => a > b ? a : b) + 5;
+              .map((l) => l.ibcCelsius.toDouble())
+              .reduce((a, b) => a > b ? a : b) +
+          5;
     }
 
     if (datos is DatosCalibracionPresion) {
@@ -1386,12 +1392,11 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
       if (lecturas.isEmpty) return 0.0;
 
       return lecturas
-          .map((l) => l.ibcKgCm2.toDouble())
-          .reduce((a, b) => a > b ? a : b) + 5;
+              .map((l) => l.ibcKgCm2.toDouble())
+              .reduce((a, b) => a > b ? a : b) +
+          5;
     }
 
     return 0.0;
   }
-
-
 }

@@ -1,6 +1,6 @@
 import 'dart:io' show File; // Esto solo se usa en móviles/escritorio
 //import 'dart:typed_data';
-import 'dart:html' as html;
+//import 'dart:html' as html;
 import 'package:calibraciones/common/barrel/models.dart';
 import 'package:calibraciones/common/components/components.dart';
 import 'package:calibraciones/common/barrel/services.dart';
@@ -1952,7 +1952,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     );
   }
 
-  void _pickFileWeb() {
+  /*void _pickFileWeb() {
     final uploadInput = html.FileUploadInputElement();
     uploadInput.accept = '.pdf';
     uploadInput.click();
@@ -1967,9 +1967,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         fileBytes = reader.result as Uint8List;
       });
     });
-  }
+  }*/
 
-  /*Future<void> _pickFileWeb() async {
+  Future<void> _pickFileWeb() async {
   FilePickerResult? result = await FilePicker.platform.pickFiles(
     type: FileType.custom,
     allowedExtensions: ['pdf'],
@@ -1990,7 +1990,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       }
     });
   }
-}*/
+}
 
   Widget _buildFileFormField(
     BuildContext context, {
