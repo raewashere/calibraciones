@@ -104,20 +104,20 @@ class Corrida {
 
   factory Corrida.fromJson(Map<String, dynamic> corridaJson) {
     return Corrida(
-      corridaJson['id_corrida'],
-      corridaJson['caudal_m3_hr'],
-      corridaJson['caudal_bbl_hr'],
-      corridaJson['temperatura_c'],
-      corridaJson['temperatura_f'],
-      corridaJson['presion_kg_cm2'],
-      corridaJson['presion_psi'],
-      corridaJson['presion_kpa'],
-      corridaJson['meter_factor'],
-      corridaJson['k_factor_pulsos_m3'],
-      corridaJson['k_factor_pulsos_bbl'],
-      corridaJson['repetibilidad'],
-      corridaJson['frecuencia'],
-      corridaJson['id_calibracion'],
+      ((corridaJson['id_corrida'] as num).toInt()),
+      ((corridaJson['caudal_m3_hr'] as num).toDouble()),
+      ((corridaJson['caudal_bbl_hr'] as num).toDouble()),
+      ((corridaJson['temperatura_c'] as num).toDouble()),
+      ((corridaJson['temperatura_f'] as num).toDouble()),
+      ((corridaJson['presion_kg_cm2'] as num).toDouble()),
+      ((corridaJson['presion_psi'] as num).toDouble()),
+      ((corridaJson['presion_kpa'] as num).toDouble()),
+      ((corridaJson['meter_factor'] as num).toDouble()),
+      ((corridaJson['k_factor_pulsos_m3'] as num).toDouble()),
+      ((corridaJson['k_factor_pulsos_bbl'] as num).toDouble()),
+      ((corridaJson['repetibilidad'] as num).toDouble()),
+      ((corridaJson['frecuencia'] as num).toDouble()),
+      ((corridaJson['id_calibracion'] as num).toInt()),
     );
   }
 

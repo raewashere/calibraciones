@@ -167,7 +167,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
         tipo: true,
       );
       tipoDetalle = 3;
-    } else {
+    } else if (calibracionEquipo.datosEspecificos is DatosCalibracionDensidad) {
       tipoDetalle = 4;
     }
   }
@@ -667,6 +667,9 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   }
 
   Widget buildTablaTemperatura(BuildContext context) {
+    if (calibracionEquipo.datosEspecificos == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
     final datosTemperatura =
         calibracionEquipo.datosEspecificos as DatosCalibracionTemperatura;
     final colors = Theme.of(context).colorScheme;
@@ -769,6 +772,9 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   }
 
   Widget buildTablaPresion(BuildContext context) {
+    if (calibracionEquipo.datosEspecificos == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
     final datosPresion =
         calibracionEquipo.datosEspecificos as DatosCalibracionPresion;
     final colors = Theme.of(context).colorScheme;
@@ -895,6 +901,9 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   }
 
   Widget buildDatosDensidad(BuildContext context) {
+    if (calibracionEquipo.datosEspecificos == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
     final colors = Theme.of(context).colorScheme;
     final datosEspecificos =
         calibracionEquipo.datosEspecificos as DatosCalibracionDensidad;
@@ -915,8 +924,8 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
           : const TextStyle();
 
       final valueStyle = isKeyMetric
-          ? const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)
-          : const TextStyle(fontSize: 14);
+          ? const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)
+          : const TextStyle(fontSize: 12);
 
       return DataRow(
         cells: [
@@ -1015,13 +1024,13 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                   ),
                   DataColumn(
                     label: Text(
-                      "Antes Corrección",
+                      "Antes",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                   DataColumn(
                     label: Text(
-                      "Después Corrección",
+                      "Después",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),

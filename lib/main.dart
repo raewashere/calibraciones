@@ -91,7 +91,7 @@ class _MainState extends State<PemexCalibraciones> {
       onPrimary: const Color(0xFFE6E6E6),
       primaryContainer: const Color(0xFFEE85B5),
       onPrimaryContainer: const Color(0xFF121212),
-      secondary: const Color(0xFF1E5B4F),
+      secondary: const Color(0x000000ff),
       onSecondary: const Color(0xFFE6E6E6),
       secondaryContainer: const Color(0xFFA4D4B4),
       onSecondaryContainer: const Color(0xFF121212),

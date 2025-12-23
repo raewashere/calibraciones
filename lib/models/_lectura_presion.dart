@@ -104,20 +104,20 @@ class LecturaPresion {
 
   factory LecturaPresion.fromJson(Map<String, dynamic> corridaJson) {
     return LecturaPresion(
-      corridaJson['id_lectura'],
-      corridaJson['patron_kgcm2'],
-      corridaJson['patron_psi'],
-      corridaJson['patron_kpa'],
-      corridaJson['ibc_kgcm2'],
-      corridaJson['ibc_psi'],
-      corridaJson['ibc_kpa'],
-      corridaJson['error_kgcm2'],
-      corridaJson['error_psi'],
-      corridaJson['error_kpa'],
-      corridaJson['incertidumbre_kgcm2'],
-      corridaJson['incertidumbre_psi'],
-      corridaJson['incertidumbre_kpa'],
-      corridaJson['id_calibracion'],
+      ((corridaJson['id_lectura'] as num).toInt()),
+      ((corridaJson['patron_kgcm2'] as num).toDouble()),
+      ((corridaJson['patron_psi'] as num).toDouble()),
+      ((corridaJson['patron_kpa'] as num).toDouble()),
+      ((corridaJson['ibc_kgcm2'] as num).toDouble()),
+      ((corridaJson['ibc_psi'] as num).toDouble()),
+      ((corridaJson['ibc_kpa'] as num).toDouble()),
+      ((corridaJson['error_kgcm2'] as num).toDouble()),
+      ((corridaJson['error_psi'] as num).toDouble()),
+      ((corridaJson['error_kpa'] as num).toDouble()),
+      ((corridaJson['incertidumbre_kgcm2'] as num).toDouble()),
+      ((corridaJson['incertidumbre_psi'] as num).toDouble()),
+      ((corridaJson['incertidumbre_kpa'] as num).toDouble()),
+      ((corridaJson['id_calibracion'] as num).toInt()),
     );
   }
 

@@ -1,6 +1,5 @@
 import 'dart:io' show File; // Esto solo se usa en móviles/escritorio
-import 'dart:html' as html;
-import 'dart:typed_data';
+//import 'dart:typed_data';
 import 'package:calibraciones/common/barrel/models.dart';
 import 'package:calibraciones/common/components/components.dart';
 import 'package:calibraciones/common/barrel/services.dart';
@@ -11,6 +10,8 @@ import 'package:calibraciones/models/_producto.dart';
 import 'package:calibraciones/services/data_service.dart';
 import 'package:calibraciones/services/implementation/producto_service_impl.dart';
 import 'package:calibraciones/services/producto_service.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:calibraciones/common/utils/conversiones.dart';
@@ -1950,7 +1951,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     );
   }
 
-  void _pickFileWeb() {
+  /*void _pickFileWeb() {
     final uploadInput = html.FileUploadInputElement();
     uploadInput.accept = '.pdf';
     uploadInput.click();
@@ -1965,9 +1966,9 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
         fileBytes = reader.result as Uint8List;
       });
     });
-  }
+  }*/
 
-  /*Future<void> _pickFile() async {
+  Future<void> _pickFileWeb() async {
   FilePickerResult? result = await FilePicker.platform.pickFiles(
     type: FileType.custom,
     allowedExtensions: ['pdf'],
@@ -1988,7 +1989,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       }
     });
   }
-} */
+}
 
   Widget _buildFileFormField(
     BuildContext context, {

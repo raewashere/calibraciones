@@ -23,7 +23,7 @@ class LecturaTemperatura {
     this.idCalibracion,
   );
 
-  int get getIdLectura=> idLectura;
+  int get getIdLectura => idLectura;
   double get getPatronCelsius => patronCelsius;
   double get getPatronFahrenheit => patronFahrenheit;
   double get getIbcCelsius => ibcCelsius;
@@ -76,16 +76,16 @@ class LecturaTemperatura {
 
   factory LecturaTemperatura.fromJson(Map<String, dynamic> corridaJson) {
     return LecturaTemperatura(
-      corridaJson['id_lectura'],
-      corridaJson['patron_c'],
-      corridaJson['patron_f'],
-      corridaJson['ibc_c'],
-      corridaJson['ibc_f'],
-      corridaJson['error_c'],
-      corridaJson['error_f'],
-      corridaJson['incertidumbre_c'],
-      corridaJson['incertidumbre_f'],
-      corridaJson['id_calibracion'],
+      ((corridaJson['id_lectura'] as num).toInt()),
+      ((corridaJson['patron_c'] as num).toDouble()),
+      ((corridaJson['patron_f'] as num).toDouble()),
+      ((corridaJson['ibc_c'] as num).toDouble()),
+      ((corridaJson['ibc_f'] as num).toDouble()),
+      ((corridaJson['error_c'] as num).toDouble()),
+      ((corridaJson['error_f'] as num).toDouble()),
+      ((corridaJson['incertidumbre_c'] as num).toDouble()),
+      ((corridaJson['incertidumbre_f'] as num).toDouble()),
+      ((corridaJson['id_calibracion'] as num).toInt()),
     );
   }
 
