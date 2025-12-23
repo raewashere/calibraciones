@@ -232,7 +232,6 @@ class CalibracionEquipo {
         datosEspecificos = DatosCalibracionDensidad(lecturaDensidad);
       }
     } catch (error) {
-      print(error);
       datosEspecificos = null;
     }
 

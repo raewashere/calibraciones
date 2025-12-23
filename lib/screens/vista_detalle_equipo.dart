@@ -346,6 +346,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
     required Producto? value,
     required ValueChanged<Producto?> onChanged,
   }) {
+    final textTheme = Theme.of(context).textTheme;
     return DropdownButtonFormField<Producto>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
@@ -354,7 +355,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
       items: items.map((Producto item) {
         return DropdownMenuItem<Producto>(
           value: item,
-          child: Text(item.getProducto),
+          child: Text(item.getProducto, style: textTheme.bodyLarge?.copyWith()),
         );
       }).toList(),
       onChanged: onChanged,
@@ -765,6 +766,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                 const Divider(),
                 const SizedBox(height: 12),
                 const Text("No hay calibraciones"),
+                const SizedBox(height: 12),
               ],
             ),
           ),
@@ -790,10 +792,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
               "Gráfica de desviación",
               style: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: colors.onSurface,
+                color: colors.primary,
               ),
-              textAlign: TextAlign.center,
             ),
+            const Divider(),
             const SizedBox(height: 16),
             _buildDropdownButtonProducto(
               context,
@@ -846,7 +848,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                       axisNameWidget: Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Text(
-                          'Caudal',
+                          'Caudal (m³/h)',
                           style: textTheme.bodySmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: colors.onSurfaceVariant,
@@ -958,11 +960,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                 children: [
                   Text(
                     "Gráfica de desviación",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: colors.primary,
-                    ),
+                      style: textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colors.primary,
+                      ),
                   ),
                   const Divider(),
                   const SizedBox(height: 12),
@@ -992,10 +993,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                 "Gráfica de desviación",
                 style: textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: colors.onSurface,
+                  color: colors.primary,
                 ),
-                textAlign: TextAlign.center,
               ),
+              const Divider(),
               const SizedBox(height: 16),
               _buildCalibrationsCheckboxesSimple(),
               const SizedBox(height: 16),
@@ -1039,8 +1040,8 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
                             equipo.idTipoSensor == 2
-                                ? 'Temperatura (°C)'
-                                : 'Presión (PSI)',
+                                ? 'IBC Temperatura (°C)'
+                                : 'IBC Presión (kg/cm²)',
                             style: textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: colors.onSurfaceVariant,
@@ -1071,7 +1072,9 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                         axisNameWidget: Padding(
                           padding: const EdgeInsets.only(bottom: 8.0),
                           child: Text(
-                            'Error',
+                              equipo.idTipoSensor == 2
+                                  ? 'Error de medición (°C)'
+                                  : 'Error de medición (kg/cm²)',
                             style: textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: colors.onSurfaceVariant,
@@ -1149,8 +1152,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                 children: [
                   Text(
                     "Evolución factor de corrección",
-                    style: TextStyle(
-                      fontSize: 18,
+                    style: textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: colors.primary,
                     ),
@@ -1183,10 +1185,10 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                 "Evolución factor de corrección",
                 style: textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: colors.onSurface,
+                  color: colors.primary,
                 ),
-                textAlign: TextAlign.center,
               ),
+              const Divider(),
               const SizedBox(height: 16),
               SizedBox(
                 height: 400,
@@ -1270,7 +1272,7 @@ class VistaDetalleEquipoState extends State<VistaDetalleEquipo> {
                         axisNameWidget: Padding(
                           padding: const EdgeInsets.only(bottom: 8.0),
                           child: Text(
-                            'Factor',
+                            'Factor de correción',
                             style: textTheme.bodySmall?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: colors.onSurfaceVariant,

@@ -1661,6 +1661,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }) {
     //future to list
     final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final color = theme.colorScheme;
     return FutureBuilder<List<Direccion>>(
       future: items,
       builder: (context, snapshot) {
@@ -1678,7 +1680,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
             items: direcciones.map((Direccion item) {
               return DropdownMenuItem<Direccion>(
                 value: item,
-                child: Text(item.getNombre),
+                child: Text(item.getNombre,style: textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.normal,
+                  color: color.onSurfaceVariant,
+                )),
               );
             }).toList(),
             onChanged: onChanged,
@@ -1702,6 +1707,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required ValueChanged<Subdireccion?> onChanged,
   }) {
     final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final color = theme.colorScheme;
     return DropdownButtonFormField<Subdireccion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
@@ -1710,7 +1717,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       items: items.map((Subdireccion item) {
         return DropdownMenuItem<Subdireccion>(
           value: item,
-          child: Text(item.nombre),
+          child: Text(item.nombre,style: textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.normal,
+            color: color.onSurfaceVariant,
+          )),
         );
       }).toList(),
       onChanged: onChanged,
@@ -1731,6 +1741,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required ValueChanged<Gerencia?> onChanged,
   }) {
     final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final color = theme.colorScheme;
     return DropdownButtonFormField<Gerencia>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
@@ -1739,7 +1751,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       items: items.map((Gerencia item) {
         return DropdownMenuItem<Gerencia>(
           value: item,
-          child: Text(item.nombre),
+          child: Text(item.nombre,style: textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.normal,
+            color: color.onSurfaceVariant,
+          )),
         );
       }).toList(),
       onChanged: onChanged,
@@ -1760,6 +1775,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required ValueChanged<Instalacion?> onChanged,
   }) {
     final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final color = theme.colorScheme;
     return DropdownButtonFormField<Instalacion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
@@ -1768,7 +1785,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       items: items.map((Instalacion item) {
         return DropdownMenuItem<Instalacion>(
           value: item,
-          child: Text(item.getNombreInstalacion),
+          child: Text(item.getNombreInstalacion, style: textTheme.bodyMedium?.copyWith(
+          fontWeight: FontWeight.normal,
+          color: color.onSurfaceVariant,
+          )),
         );
       }).toList(),
       onChanged: onChanged,
@@ -1789,6 +1809,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required ValueChanged<PatinMedicion?> onChanged,
   }) {
     final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final color = theme.colorScheme;
     return DropdownButtonFormField<PatinMedicion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
@@ -1797,7 +1819,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       items: items.map((PatinMedicion item) {
         return DropdownMenuItem<PatinMedicion>(
           value: item,
-          child: Text(item.getNombrePatin),
+          child: Text(item.getNombrePatin,style: textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.normal,
+            color: color.onSurfaceVariant,
+          )),
         );
       }).toList(),
       onChanged: onChanged,
@@ -1818,6 +1843,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required ValueChanged<TrenMedicion?> onChanged,
   }) {
     final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final color = theme.colorScheme;
     return DropdownButtonFormField<TrenMedicion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
@@ -1826,7 +1853,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       items: items.map((TrenMedicion item) {
         return DropdownMenuItem<TrenMedicion>(
           value: item,
-          child: Text(item.getTagTren),
+          child: Text(item.getTagTren,style: textTheme.bodyMedium?.copyWith(
+          fontWeight: FontWeight.normal,
+          color: color.onSurfaceVariant,
+          )),
         );
       }).toList(),
       onChanged: onChanged,
@@ -1847,6 +1877,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
     required ValueChanged<Equipo?> onChanged,
   }) {
     final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final color = theme.colorScheme;
     return DropdownButtonFormField<Equipo>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
@@ -1855,7 +1887,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
       items: items.map((Equipo item) {
         return DropdownMenuItem<Equipo>(
           value: item,
-          child: Text(item.getTagEquipo),
+          child: Text(item.getTagEquipo,style: textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.normal,
+            color: color.onSurfaceVariant,
+          )),
         );
       }).toList(),
       onChanged: onChanged,
@@ -1877,6 +1912,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }) {
     //future to list
     final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final color = theme.colorScheme;
     return FutureBuilder<List<LaboratorioCalibracion>>(
       future: items,
       builder: (context, snapshot) {
@@ -1894,7 +1931,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
             items: direcciones.map((LaboratorioCalibracion item) {
               return DropdownMenuItem<LaboratorioCalibracion>(
                 value: item,
-                child: Text(item.getNombre),
+                child: Text(item.getNombre, style: textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.normal,
+                  color: color.onSurfaceVariant,
+                )),
               );
             }).toList(),
             onChanged: onChanged,
@@ -1919,6 +1959,8 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
   }) {
     //future to list
     final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final color = theme.colorScheme;
     return FutureBuilder<List<Producto>>(
       future: items,
       builder: (context, snapshot) {
@@ -1936,7 +1978,10 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
             items: direcciones.map((Producto item) {
               return DropdownMenuItem<Producto>(
                 value: item,
-                child: Text(item.getProducto),
+                child: Text(item.getProducto,style: textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.normal,
+                color: color.onSurfaceVariant,
+                )),
               );
             }).toList(),
             onChanged: onChanged,
@@ -2790,7 +2835,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText: "Lectura Patrón (°C)",
+                            hintText: "Patrón (°C)",
                             validatorText: 'Favor de escribir el caudal',
                             controllerText: _patronCelsiusController,
                             focusNode: _focusNodeTemperatura,
@@ -2802,7 +2847,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText: "Lectura Patrón (°F)",
+                            hintText: "Patrón (°F)",
                             validatorText: 'Favor de escribir el caudal',
                             controllerText: _patronFahrenheitController,
                             onChanged: _onFahrenheitPatronChanged,
@@ -2816,7 +2861,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText: "Lectura IBC (°C)",
+                            hintText: "IBC (°C)",
                             validatorText: 'Favor de escribir la temperatura',
                             controllerText: _ibcCelsiusController,
                             onChanged: _onCelsiusIBCChanged,
@@ -2827,7 +2872,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText: "Lectura IBC (°F)",
+                            hintText: "IBC (°F)",
                             validatorText: 'Favor de escribir la temperatura',
                             controllerText: _ibcFahrenheitController,
                             onChanged: _onFahrenheitIBCChanged,
@@ -3316,7 +3361,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText: "Lectura Patrón (kg/cm²)",
+                            hintText: "Patrón (kg/cm²)",
                             validatorText:
                                 'Favor de escribir lectura de patrón',
                             controllerText: _patronKgCm2Controller,
@@ -3329,7 +3374,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText: "Lectura Patrón (psi)",
+                            hintText: "Patrón (psi)",
                             validatorText:
                                 'Favor de escribir lectura de patrón',
                             controllerText: _patronPSIController,
@@ -3341,7 +3386,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText: "Lectura Patrón (kPa)",
+                            hintText: "Patrón (kPa)",
                             validatorText:
                                 'Favor de escribir lectura de patrón',
                             controllerText: _patronKPAController,
@@ -3356,7 +3401,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText: "Lectura IBC (kg/cm²)",
+                            hintText: "IBC (kg/cm²)",
                             validatorText: 'Favor de escribir lectura de IBC',
                             controllerText: _ibcKgCm2Controller,
                             onChanged: _onKgCm2IBCChanged,
@@ -3367,7 +3412,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText: "Lectura IBC (psi)",
+                            hintText: "IBC (psi)",
                             validatorText: 'Favor de escribir lectura de IBC',
                             controllerText: _ibcPSIController,
                             onChanged: _onPSIIBCChanged,
@@ -3378,7 +3423,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                         Expanded(
                           child: _buildTextFormField(
                             context,
-                            hintText: "Lectura IBC (kPa)",
+                            hintText: "IBC (kPa)",
                             validatorText: 'Favor de escribir lectura de IBC',
                             controllerText: _ibcKPAController,
                             onChanged: _onKPaIBCChanged,
@@ -3992,7 +4037,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             context,
                             hintText: "IBC Operación (kg/m³)",
                             validatorText:
-                                'Favor de escribir la lectura IBC en operación',
+                                'Favor de escribir la IBC en operación',
                             controllerText: _ibcOperacionController,
                             decimales: 3,
                           ),
@@ -4003,7 +4048,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             context,
                             hintText: "IBC Referencia (kg/m³)",
                             validatorText:
-                                'Favor de escribir la lectura IBC en referencia',
+                                'Favor de escribir la IBC en referencia',
                             controllerText: _ibcReferenciaController,
                             decimales: 3,
                             onChanged: calcularErrorDensidad,
@@ -4018,7 +4063,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             context,
                             hintText: "Error medida referencia (kg/m³)",
                             validatorText:
-                                'Favor de escribir la lectura IBC en operación',
+                                'Favor de escribir la IBC en operación',
                             controllerText: _errorReferenciaController,
                             decimales: 3,
                             readOnly: true,
@@ -4081,7 +4126,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             context,
                             hintText: "IBC Operación (kg/m³)",
                             validatorText:
-                                'Favor de escribir la lectura IBC en operación',
+                                'Favor de escribir la IBC en operación',
                             controllerText: _ibcCorregidoOperacionController,
                             decimales: 3,
                           ),
@@ -4092,7 +4137,7 @@ class VistaRegistroCalibracionState extends State<VistaRegistroCalibracion> {
                             context,
                             hintText: "IBC Referencia (kg/m³)",
                             validatorText:
-                                'Favor de escribir la lectura IBC en referencia',
+                                'Favor de escribir la IBC en referencia',
                             controllerText: _ibcCorregidoReferenciaController,
                             decimales: 3,
                             onChanged: calcularErrorDensidadCorregido,

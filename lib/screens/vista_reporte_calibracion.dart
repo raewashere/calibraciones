@@ -109,7 +109,7 @@ class _VistaReporteCalibracionState extends State<VistaReporteCalibracion> {
                               context,
                             ).colorScheme.onSecondary,
                           ),
-                          label: const Text('Filtrar equipos'),
+                          label: const Text('Filtrar calibraciones'),
                         ),
                       ),
                     ], // 5. Convertir el Iterable resultante a List<Widget>

@@ -382,7 +382,7 @@ class VistaRegistroState extends State<VistaRegistro> {
                               ),
                               textStyle: const TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.normal,
                               ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -459,6 +459,8 @@ class VistaRegistroState extends State<VistaRegistro> {
     required DtoDireccion? value,
     required ValueChanged<DtoDireccion?> onChanged,
   }) {
+    final color = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     return DropdownButtonFormField<DtoDireccion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
@@ -467,7 +469,10 @@ class VistaRegistroState extends State<VistaRegistro> {
       items: items.map((DtoDireccion item) {
         return DropdownMenuItem<DtoDireccion>(
           value: item,
-          child: Text(item.getNombreDireccion()),
+          child: Text(item.getNombreDireccion(),style: textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.normal,
+            color: color.onSurfaceVariant,
+          )),
         );
       }).toList(),
       onChanged: onChanged,
@@ -487,6 +492,8 @@ class VistaRegistroState extends State<VistaRegistro> {
     required DtoSubdireccionLogistica? value,
     required ValueChanged<DtoSubdireccionLogistica?> onChanged,
   }) {
+    final color = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     return DropdownButtonFormField<DtoSubdireccionLogistica>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
@@ -495,7 +502,10 @@ class VistaRegistroState extends State<VistaRegistro> {
       items: items.map((DtoSubdireccionLogistica item) {
         return DropdownMenuItem<DtoSubdireccionLogistica>(
           value: item,
-          child: Text(item.getNombreSubdireccion()),
+          child: Text(item.getNombreSubdireccion(),style: textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.normal,
+            color: color.onSurfaceVariant,
+          )),
         );
       }).toList(),
       onChanged: onChanged,
@@ -515,6 +525,8 @@ class VistaRegistroState extends State<VistaRegistro> {
     required DtoGerencia? value,
     required ValueChanged<DtoGerencia?> onChanged,
   }) {
+    final color = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     return DropdownButtonFormField<DtoGerencia>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
@@ -523,7 +535,10 @@ class VistaRegistroState extends State<VistaRegistro> {
       items: items.map((DtoGerencia item) {
         return DropdownMenuItem<DtoGerencia>(
           value: item,
-          child: Text(item.getNombreGerencia()),
+          child: Text(item.getNombreGerencia(), style: textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.normal,
+            color: color.onSurfaceVariant,
+          )),
         );
       }).toList(),
       onChanged: onChanged,
@@ -543,6 +558,8 @@ class VistaRegistroState extends State<VistaRegistro> {
     required DtoInstalacion? value,
     required ValueChanged<DtoInstalacion?> onChanged,
   }) {
+    final color = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     return DropdownButtonFormField<DtoInstalacion>(
       isExpanded: true,
       decoration: _inputDecoration(hintText),
@@ -551,7 +568,10 @@ class VistaRegistroState extends State<VistaRegistro> {
       items: items.map((DtoInstalacion item) {
         return DropdownMenuItem<DtoInstalacion>(
           value: item,
-          child: Text(item.getNombreInstalacion()),
+          child: Text(item.getNombreInstalacion(), style: textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.normal,
+            color: color.onSurfaceVariant,
+          )),
         );
       }).toList(),
       onChanged: onChanged,

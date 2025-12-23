@@ -23,7 +23,7 @@ class TablaCalibracion extends StatelessWidget {
           texto,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: textTheme.titleSmall?.copyWith(color: colors.onTertiary),
+          style: textTheme.bodySmall?.copyWith(color: colors.onTertiary, fontWeight: FontWeight.bold),
         ),
       ),
     );

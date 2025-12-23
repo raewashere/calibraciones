@@ -268,6 +268,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
   @override
   Widget build(BuildContext context) {
     //Ver como corregir este
+    final textTheme = Theme.of(context).textTheme;
     final colors = Theme.of(context).colorScheme;
     if (_isLoading) {
       // 💡 Muestra un indicador de carga si los datos no están listos
@@ -387,7 +388,7 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
                             );
                           },
                           icon: const Icon(Icons.picture_as_pdf),
-                          label: const Text('Ver Certificado'),
+                          label: Text('Ver Certificado' , style: textTheme.bodyMedium!.copyWith(color: colors.onPrimary)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: colors.primary,
                             foregroundColor: colors.onPrimary,
@@ -686,14 +687,14 @@ class VistaDetalleCalibracionState extends State<VistaDetalleCalibracion> {
         TableRow(
           decoration: BoxDecoration(color: colors.tertiary),
           children: [
-            tablaCalibracion.cabeceraTabla(context, 'L. Patrón'),
-            tablaCalibracion.cabeceraTabla(context, 'L. Patrón'),
-            tablaCalibracion.cabeceraTabla(context, 'L. IBC'),
-            tablaCalibracion.cabeceraTabla(context, 'L. IBC'),
+            tablaCalibracion.cabeceraTabla(context, 'Patrón'),
+            tablaCalibracion.cabeceraTabla(context, 'Patrón'),
+            tablaCalibracion.cabeceraTabla(context, 'IBC'),
+            tablaCalibracion.cabeceraTabla(context, 'IBC'),
             tablaCalibracion.cabeceraTabla(context, 'Error'),
             tablaCalibracion.cabeceraTabla(context, 'Error'),
-            tablaCalibracion.cabeceraTabla(context, 'Incertidumbre'),
-            tablaCalibracion.cabeceraTabla(context, 'Incertidumbre'),
+            tablaCalibracion.cabeceraTabla(context, 'Incer.'),
+            tablaCalibracion.cabeceraTabla(context, 'Incer.'),
           ],
         ),
         TableRow(
